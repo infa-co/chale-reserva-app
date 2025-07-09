@@ -1,11 +1,11 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Filter, MessageCircle, Calendar, ArrowUpDown } from 'lucide-react';
+import { Search, Filter, MessageCircle, Calendar, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useBookings } from '@/contexts/BookingContext';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const BookingList = () => {
@@ -13,12 +13,18 @@ const BookingList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
 
   const filteredBookings = bookings
     .filter(booking => {
+      const checkInDate = parseISO(booking.checkIn);
+      const isInCurrentMonth = isWithinInterval(checkInDate, { start: monthStart, end: monthEnd });
       const matchesSearch = booking.guestName.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
-      return matchesSearch && matchesStatus;
+      return isInCurrentMonth && matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
       const dateA = parseISO(a.checkIn);
@@ -57,10 +63,57 @@ const BookingList = () => {
     setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
   };
 
+  const goToPreviousMonth = () => {
+    setCurrentMonth(prev => subMonths(prev, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth(prev => addMonths(prev, 1));
+  };
+
+  const resetToCurrentMonth = () => {
+    setCurrentMonth(new Date());
+  };
+
   return (
     <div className="p-4">
       <header className="mb-6">
         <h1 className="text-xl font-bold text-sage-800 mb-4">Reservas</h1>
+        
+        {/* Month Navigation */}
+        <div className="bg-white rounded-xl p-4 shadow-sm border mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <button
+              onClick={goToPreviousMonth}
+              className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            <div className="text-center">
+              <h2 className="text-lg font-semibold text-sage-800">
+                {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
+              </h2>
+              <button
+                onClick={resetToCurrentMonth}
+                className="text-sm text-sage-600 hover:text-sage-800 transition-colors"
+              >
+                Voltar para hoje
+              </button>
+            </div>
+            
+            <button
+              onClick={goToNextMonth}
+              className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+          
+          <div className="text-center text-sm text-muted-foreground">
+            {filteredBookings.length} reserva{filteredBookings.length !== 1 ? 's' : ''} neste mês
+          </div>
+        </div>
         
         <div className="space-y-3">
           <div className="relative">
@@ -152,7 +205,7 @@ const BookingList = () => {
             <p className="text-muted-foreground">
               {searchTerm || statusFilter !== 'all' 
                 ? 'Tente ajustar os filtros de busca' 
-                : 'Que tal criar sua primeira reserva?'
+                : `Nenhuma reserva em ${format(currentMonth, 'MMMM yyyy', { locale: ptBR })}`
               }
             </p>
           </div>
