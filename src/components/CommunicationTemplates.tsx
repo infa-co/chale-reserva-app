@@ -47,7 +47,9 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
     const result = generateMessage(templateId, booking, customVariables);
-    setCustomMessage(result.message);
+    if (typeof result === 'object' && result.message) {
+      setCustomMessage(result.message);
+    }
   };
 
   const handleSendWhatsApp = () => {
@@ -67,8 +69,9 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
     }
 
     const template = templates.find(t => t.id === selectedTemplate);
-    const subject = template?.subject ? 
-      generateMessage(selectedTemplate, booking, customVariables).subject || 'Reserva' : 
+    const result = generateMessage(selectedTemplate, booking, customVariables);
+    const subject = template?.subject && typeof result === 'object' && result.subject ? 
+      result.subject : 
       'Reserva';
     
     const emailLink = generateEmailLink(booking.email, subject, customMessage);

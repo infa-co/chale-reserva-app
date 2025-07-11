@@ -28,7 +28,7 @@ export const useBookings = () => {
       // Cast the data to match our Booking interface
       const typedBookings: Booking[] = (data || []).map(booking => ({
         ...booking,
-        status: booking.status as 'confirmed' | 'pending' | 'cancelled'
+        status: booking.status as Booking['status']
       }));
 
       setBookings(typedBookings);
@@ -65,7 +65,7 @@ export const useBookings = () => {
 
       const typedBooking: Booking = {
         ...data,
-        status: data.status as 'confirmed' | 'pending' | 'cancelled'
+        status: data.status as Booking['status']
       };
 
       setBookings(prev => [typedBooking, ...prev]);
@@ -96,7 +96,7 @@ export const useBookings = () => {
 
       const typedBooking: Booking = {
         ...data,
-        status: data.status as 'confirmed' | 'pending' | 'cancelled'
+        status: data.status as Booking['status']
       };
 
       setBookings(prev => 

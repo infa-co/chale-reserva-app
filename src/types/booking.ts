@@ -13,7 +13,7 @@ export interface Booking {
   nights: number;
   total_value: number;
   payment_method: string;
-  status: 'confirmed' | 'pending' | 'cancelled';
+  status: 'requested' | 'pending' | 'confirmed' | 'checked_in' | 'active' | 'checked_out' | 'completed' | 'cancelled';
   notes?: string;
   created_at: string;
   updated_at?: string;
