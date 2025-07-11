@@ -3,12 +3,13 @@ import { DollarSign } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Booking } from '@/types/booking';
 
 interface PaymentFormProps {
   formData: {
     totalValue: string;
     paymentMethod: string;
-    status: 'confirmed' | 'pending' | 'cancelled';
+    status: Booking['status'];
   };
   onInputChange: (field: string, value: string) => void;
 }
@@ -58,8 +59,13 @@ export const PaymentForm = ({ formData, onInputChange }: PaymentFormProps) => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="confirmed">Confirmada</SelectItem>
+            <SelectItem value="requested">Solicitada</SelectItem>
             <SelectItem value="pending">Aguardando Pagamento</SelectItem>
+            <SelectItem value="confirmed">Confirmada</SelectItem>
+            <SelectItem value="checked_in">Check-in Realizado</SelectItem>
+            <SelectItem value="active">Estadia Ativa</SelectItem>
+            <SelectItem value="checked_out">Check-out Realizado</SelectItem>
+            <SelectItem value="completed">Finalizada</SelectItem>
             <SelectItem value="cancelled">Cancelada</SelectItem>
           </SelectContent>
         </Select>
