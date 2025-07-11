@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { differenceInDays, parseISO, format } from 'date-fns';
 import { Booking } from '@/types/booking';
@@ -14,7 +15,7 @@ export const useEditBookingForm = (booking?: Booking) => {
     checkOut: '',
     totalValue: '',
     paymentMethod: '',
-    status: 'confirmed' as 'confirmed' | 'pending' | 'cancelled',
+    status: 'confirmed' as Booking['status'],
     notes: ''
   });
 
