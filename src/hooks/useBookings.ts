@@ -3,26 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-
-export interface Booking {
-  id: string;
-  user_id: string;
-  guest_name: string;
-  phone: string;
-  email?: string;
-  city?: string;
-  state?: string;
-  booking_date: string;
-  check_in: string;
-  check_out: string;
-  nights: number;
-  total_value: number;
-  payment_method: string;
-  status: 'confirmed' | 'pending' | 'cancelled';
-  notes?: string;
-  created_at: string;
-  updated_at?: string;
-}
+import { Booking } from '@/types/booking';
 
 export const useBookings = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);

@@ -1,31 +1,35 @@
 
 export interface Booking {
   id: string;
-  guestName: string;
+  user_id: string;
+  guest_name: string;
   phone: string;
   email?: string;
   city?: string;
   state?: string;
-  bookingDate: string;
-  checkIn: string;
-  checkOut: string;
+  booking_date: string;
+  check_in: string;
+  check_out: string;
   nights: number;
-  totalValue: number;
-  paymentMethod: string;
+  total_value: number;
+  payment_method: string;
   status: 'confirmed' | 'pending' | 'cancelled';
   notes?: string;
-  createdAt: string;
+  created_at: string;
+  updated_at?: string;
 }
 
 export interface Client {
   id: string;
+  user_id: string;
   name: string;
   phone: string;
   email?: string;
   city?: string;
   state?: string;
   tags: string[];
-  bookings: Booking[];
-  totalBookings: number;
-  totalRevenue: number;
+  total_bookings: number;
+  total_revenue: number;
+  created_at: string;
+  updated_at?: string;
 }

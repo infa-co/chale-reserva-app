@@ -30,7 +30,7 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
   
   // Filter bookings that have check-in in the current month and match status filter
   const currentMonthBookings = bookings.filter(booking => {
-    const checkIn = parseISO(booking.checkIn);
+    const checkIn = parseISO(booking.check_in);
     const isInCurrentMonth = isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
     
     if (!isInCurrentMonth) return false;
@@ -41,8 +41,8 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
   
   const getBookingsForDate = (date: Date) => {
     return currentMonthBookings.filter(booking => {
-      const checkIn = parseISO(booking.checkIn);
-      const checkOut = parseISO(booking.checkOut);
+      const checkIn = parseISO(booking.check_in);
+      const checkOut = parseISO(booking.check_out);
       return isSameDay(checkIn, date) || isSameDay(checkOut, date);
     });
   };
@@ -104,10 +104,10 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
         {days.map(day => {
           const dayBookings = getBookingsForDate(day);
           const checkInBookings = dayBookings.filter(booking => 
-            isSameDay(parseISO(booking.checkIn), day)
+            isSameDay(parseISO(booking.check_in), day)
           );
           const checkOutBookings = dayBookings.filter(booking => 
-            isSameDay(parseISO(booking.checkOut), day)
+            isSameDay(parseISO(booking.check_out), day)
           );
           
           return (

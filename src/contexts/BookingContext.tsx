@@ -1,6 +1,7 @@
 
 import { createContext, useContext, ReactNode } from 'react';
-import { useBookings, Booking } from '@/hooks/useBookings';
+import { useBookings as useBookingsHook } from '@/hooks/useBookings';
+import { Booking } from '@/types/booking';
 
 interface BookingContextType {
   bookings: Booking[];
@@ -23,7 +24,7 @@ export const useBookings = () => {
 };
 
 export const BookingProvider = ({ children }: { children: ReactNode }) => {
-  const bookingHook = useBookings();
+  const bookingHook = useBookingsHook();
 
   return (
     <BookingContext.Provider value={bookingHook}>
