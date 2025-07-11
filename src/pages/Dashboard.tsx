@@ -1,4 +1,3 @@
-
 import { Calendar as CalendarIcon, TrendingUp, Bed, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Calendar from '@/components/Calendar';
 import { useBookings } from '@/contexts/BookingContext';
@@ -86,7 +85,14 @@ const Dashboard = () => {
         <div className="absolute top-4 right-4">
           <UserMenu />
         </div>
-        <h1 className="text-2xl font-bold text-sage-800 mb-1">Chalé Manager</h1>
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <img 
+            src="/lovable-uploads/4c9d4f63-da8e-45c8-bd01-dec21d57801f.png" 
+            alt="OR DOMO Logo" 
+            className="w-12 h-12 object-contain"
+          />
+          <h1 className="text-2xl font-bold text-sage-800">OR DOMO</h1>
+        </div>
         <p className="text-sm text-muted-foreground">
           {format(currentDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
         </p>
