@@ -1,3 +1,4 @@
+
 import { Calendar as CalendarIcon, TrendingUp, Bed, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Calendar from '@/components/Calendar';
 import { useBookings } from '@/contexts/BookingContext';
@@ -32,11 +33,18 @@ const Dashboard = () => {
     .filter(booking => booking.status === 'confirmed')
     .reduce((sum, booking) => sum + Number(booking.total_value), 0);
   
+  // Filter upcoming bookings by both selected month AND status filter
   const upcomingBookings = bookings
     .filter(booking => {
       const checkIn = parseISO(booking.check_in);
       const isInSelectedMonth = isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
-      return isInSelectedMonth && booking.status === 'confirmed';
+      
+      // Filter by month and status
+      if (!isInSelectedMonth) return false;
+      
+      // Apply status filter
+      if (statusFilter === 'all') return true;
+      return booking.status === statusFilter;
     })
     .sort((a, b) => parseISO(a.check_in).getTime() - parseISO(b.check_in).getTime())
     .slice(0, 3);
@@ -171,6 +179,11 @@ const Dashboard = () => {
       <div className="bg-white rounded-xl p-4 shadow-sm border">
         <h3 className="text-lg font-semibold text-sage-800 mb-3">
           Chegadas em {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
+          {statusFilter !== 'all' && (
+            <span className="text-sm font-normal text-muted-foreground ml-2">
+              ({statusOptions.find(opt => opt.key === statusFilter)?.label})
+            </span>
+          )}
         </h3>
         {upcomingBookings.length > 0 ? (
           <div className="space-y-3">
@@ -188,14 +201,25 @@ const Dashboard = () => {
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-sage-800">R$ {Number(booking.total_value).toLocaleString('pt-BR')}</p>
-                  <span className="status-badge status-confirmed">Confirmada</span>
+                  <span className={`status-badge ${
+                    booking.status === 'confirmed' ? 'status-confirmed' :
+                    booking.status === 'pending' ? 'status-pending' :
+                    'status-cancelled'
+                  }`}>
+                    {booking.status === 'confirmed' ? 'Confirmada' :
+                     booking.status === 'pending' ? 'Aguardando' :
+                     'Cancelada'}
+                  </span>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
           <p className="text-muted-foreground text-center py-4">
-            Nenhuma chegada confirmada em {format(selectedMonth, 'MMMM', { locale: ptBR })}
+            {statusFilter === 'all' 
+              ? `Nenhuma chegada em ${format(selectedMonth, 'MMMM', { locale: ptBR })}` 
+              : `Nenhuma chegada ${statusOptions.find(opt => opt.key === statusFilter)?.label.toLowerCase()} em ${format(selectedMonth, 'MMMM', { locale: ptBR })}`
+            }
           </p>
         )}
       </div>

@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBookings } from '@/contexts/BookingContext';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, isWithinInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface CalendarProps {
   currentMonth?: Date;
@@ -101,115 +100,84 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
         ))}
       </div>
       
-      <TooltipProvider>
-        <div className="grid grid-cols-7 gap-1">
-          {days.map(day => {
-            const dayBookings = getBookingsForDate(day);
-            const checkInBookings = dayBookings.filter(booking => 
-              isSameDay(parseISO(booking.check_in), day)
-            );
-            const checkOutBookings = dayBookings.filter(booking => 
-              isSameDay(parseISO(booking.check_out), day)
-            );
-            
-            const hasBookings = dayBookings.length > 0;
-            
-            let borderClasses = '';
-            if (checkInBookings.length > 0) {
-              borderClasses += ` ${getStatusBorderClass(checkInBookings[0].status, 'checkin')}`;
-            }
-            if (checkOutBookings.length > 0) {
-              borderClasses += ` ${getStatusBorderClass(checkOutBookings[0].status, 'checkout')}`;
-            }
-            
-            const dayElement = (
-              <div
-                className={`
-                  h-9 w-9 flex items-center justify-center text-sm relative
-                  transition-colors duration-200 rounded-sm
-                  ${hasBookings ? 'bg-sage-200/80 hover:bg-sage-300' : 'hover:bg-sage-100'}
-                  ${borderClasses}
-                  cursor-default
-                `}
-              >
-                <span className="relative z-10 font-medium text-sage-800">
-                  {format(day, 'd')}
-                </span>
-              </div>
-            );
-            
-            if (hasBookings) {
-              const tooltipContent = [
-                ...checkInBookings.map(booking => 
-                  `✓ ${booking.guest_name} - Check-in (${booking.status === 'confirmed' ? 'Confirmada' : booking.status === 'pending' ? 'Aguardando' : 'Cancelada'})`
-                ),
-                ...checkOutBookings.map(booking => 
-                  `✗ ${booking.guest_name} - Check-out (${booking.status === 'confirmed' ? 'Confirmada' : booking.status === 'pending' ? 'Aguardando' : 'Cancelada'})`
-                )
-              ].join('\n');
-              
-              return (
-                <Tooltip key={day.toISOString()}>
-                  <TooltipTrigger asChild>
-                    {dayElement}
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="whitespace-pre-line max-w-xs">
-                    {tooltipContent}
-                  </TooltipContent>
-                </Tooltip>
-              );
-            }
-            
-            return (
-              <div key={day.toISOString()}>
-                {dayElement}
-              </div>
-            );
-          })}
-        </div>
-      </TooltipProvider>
+      <div className="grid grid-cols-7 gap-1">
+        {days.map(day => {
+          const dayBookings = getBookingsForDate(day);
+          const checkInBookings = dayBookings.filter(booking => 
+            isSameDay(parseISO(booking.check_in), day)
+          );
+          const checkOutBookings = dayBookings.filter(booking => 
+            isSameDay(parseISO(booking.check_out), day)
+          );
+          
+          const hasBookings = dayBookings.length > 0;
+          
+          let borderClasses = '';
+          if (checkInBookings.length > 0) {
+            borderClasses += ` ${getStatusBorderClass(checkInBookings[0].status, 'checkin')}`;
+          }
+          if (checkOutBookings.length > 0) {
+            borderClasses += ` ${getStatusBorderClass(checkOutBookings[0].status, 'checkout')}`;
+          }
+          
+          return (
+            <div
+              key={day.toISOString()}
+              className={`
+                h-9 w-9 flex items-center justify-center text-sm relative
+                transition-colors duration-200 rounded-sm
+                ${hasBookings ? 'bg-sage-200/80 hover:bg-sage-300' : 'hover:bg-sage-100'}
+                ${borderClasses}
+                cursor-default
+              `}
+            >
+              <span className="relative z-10 font-medium text-sage-800">
+                {format(day, 'd')}
+              </span>
+            </div>
+          );
+        })}
+      </div>
       
       <div className="mt-6 space-y-4">
         <div className="text-sm font-medium text-sage-800 text-center border-b border-sage-200 pb-2">
           Legenda do Calendário
         </div>
         
-        {/* Status das Reservas */}
-        <div className="space-y-2">
-          <h4 className="text-xs font-medium text-sage-700 uppercase tracking-wide">Status das Reservas</h4>
-          <div className="grid grid-cols-3 gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-success rounded-full"></div>
-              <span className="text-muted-foreground">Confirmadas</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-warning rounded-full"></div>
-              <span className="text-muted-foreground">Aguardando</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-danger rounded-full"></div>
-              <span className="text-muted-foreground">Canceladas</span>
-            </div>
-          </div>
-        </div>
-        
-        {/* Tipos de Eventos */}
-        <div className="space-y-2">
-          <h4 className="text-xs font-medium text-sage-700 uppercase tracking-wide">Tipos de Eventos</h4>
-          <div className="grid grid-cols-2 gap-4 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-4 border-l-4 border-success bg-sage-200/60 rounded-sm"></div>
-              <span className="text-muted-foreground">Check-in</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-4 border-r-4 border-success bg-sage-200/60 rounded-sm"></div>
-              <span className="text-muted-foreground">Check-out</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Status das Reservas */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-medium text-sage-700 uppercase tracking-wide text-center">Status das Reservas</h4>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 justify-center">
+                <div className="w-4 h-4 bg-success rounded-full flex-shrink-0"></div>
+                <span className="text-sm text-muted-foreground">Confirmadas</span>
+              </div>
+              <div className="flex items-center gap-3 justify-center">
+                <div className="w-4 h-4 bg-warning rounded-full flex-shrink-0"></div>
+                <span className="text-sm text-muted-foreground">Aguardando</span>
+              </div>
+              <div className="flex items-center gap-3 justify-center">
+                <div className="w-4 h-4 bg-danger rounded-full flex-shrink-0"></div>
+                <span className="text-sm text-muted-foreground">Canceladas</span>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="text-xs text-muted-foreground text-center pt-2 border-t border-sage-100">
-          Passe o mouse sobre os dias para ver detalhes das reservas
+          
+          {/* Tipos de Eventos */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-medium text-sage-700 uppercase tracking-wide text-center">Tipos de Eventos</h4>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 justify-center">
+                <div className="w-8 h-5 border-l-4 border-success bg-sage-200/60 rounded-sm flex-shrink-0"></div>
+                <span className="text-sm text-muted-foreground">Check-in</span>
+              </div>
+              <div className="flex items-center gap-3 justify-center">
+                <div className="w-8 h-5 border-r-4 border-success bg-sage-200/60 rounded-sm flex-shrink-0"></div>
+                <span className="text-sm text-muted-foreground">Check-out</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
