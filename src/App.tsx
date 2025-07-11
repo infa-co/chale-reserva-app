@@ -13,6 +13,7 @@ import Clients from "./pages/Clients";
 import Auth from "./pages/Auth";
 import MobileNav from "./components/MobileNav";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BookingProvider } from "./contexts/BookingContext";
 
@@ -40,6 +41,7 @@ const App = () => (
                       <Route path="/clientes" element={<Clients />} />
                     </Routes>
                     <MobileNav />
+                    <PWAInstallPrompt />
                   </div>
                 </ProtectedRoute>
               } />

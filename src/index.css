@@ -50,6 +50,26 @@
   .mobile-container {
     @apply max-w-md mx-auto min-h-screen bg-background;
   }
+
+  /* PWA específicos */
+  @media (display-mode: standalone) {
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    .mobile-container {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+
+  /* iOS Safari específicos */
+  @supports (-webkit-touch-callout: none) {
+    .mobile-container {
+      padding-top: max(env(safe-area-inset-top), 20px);
+    }
+  }
 }
 
 @layer components {
@@ -83,5 +103,14 @@
   
   .mobile-nav {
     @apply fixed bottom-0 left-0 right-0 bg-white border-t border-border max-w-md mx-auto;
+  }
+
+  /* PWA Install prompt animations */
+  .pwa-prompt-enter {
+    @apply animate-in slide-in-from-bottom-4 fade-in-0 duration-300;
+  }
+
+  .pwa-prompt-exit {
+    @apply animate-out slide-out-to-bottom-4 fade-out-0 duration-200;
   }
 }
