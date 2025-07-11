@@ -14,6 +14,9 @@ interface BookingDatesFormProps {
 }
 
 export const BookingDatesForm = ({ formData, onInputChange, nights }: BookingDatesFormProps) => {
+  const currentYear = new Date().getFullYear();
+  const currentDate = new Date().toISOString().split('T')[0];
+  
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border space-y-4">
       <h3 className="font-semibold text-sage-800 flex items-center gap-2">
@@ -28,6 +31,8 @@ export const BookingDatesForm = ({ formData, onInputChange, nights }: BookingDat
           type="date"
           value={formData.bookingDate}
           onChange={(e) => onInputChange('bookingDate', e.target.value)}
+          min={`${currentYear}-01-01`}
+          max={`${currentYear + 2}-12-31`}
           className="mt-1"
         />
       </div>
@@ -40,6 +45,8 @@ export const BookingDatesForm = ({ formData, onInputChange, nights }: BookingDat
             type="date"
             value={formData.checkIn}
             onChange={(e) => onInputChange('checkIn', e.target.value)}
+            min={currentDate}
+            max={`${currentYear + 2}-12-31`}
             className="mt-1"
           />
         </div>
@@ -50,6 +57,8 @@ export const BookingDatesForm = ({ formData, onInputChange, nights }: BookingDat
             type="date"
             value={formData.checkOut}
             onChange={(e) => onInputChange('checkOut', e.target.value)}
+            min={formData.checkIn || currentDate}
+            max={`${currentYear + 2}-12-31`}
             className="mt-1"
           />
         </div>

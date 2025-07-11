@@ -7,9 +7,10 @@ import { ptBR } from 'date-fns/locale';
 
 interface CalendarProps {
   currentMonth?: Date;
+  statusFilter?: 'all' | 'confirmed' | 'pending' | 'cancelled';
 }
 
-const Calendar = ({ currentMonth }: CalendarProps) => {
+const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
   const [internalCurrentDate, setInternalCurrentDate] = useState(new Date());
   const { bookings } = useBookings();
   
@@ -27,10 +28,15 @@ const Calendar = ({ currentMonth }: CalendarProps) => {
   const monthEnd = endOfMonth(activeDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
   
-  // Filter bookings that have check-in in the current month
+  // Filter bookings that have check-in in the current month and match status filter
   const currentMonthBookings = bookings.filter(booking => {
     const checkIn = parseISO(booking.checkIn);
-    return isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
+    const isInCurrentMonth = isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
+    
+    if (!isInCurrentMonth) return false;
+    
+    if (statusFilter === 'all') return true;
+    return booking.status === statusFilter;
   });
   
   const getBookingsForDate = (date: Date) => {
@@ -39,6 +45,15 @@ const Calendar = ({ currentMonth }: CalendarProps) => {
       const checkOut = parseISO(booking.checkOut);
       return isSameDay(checkIn, date) || isSameDay(checkOut, date);
     });
+  };
+
+  const getStatusColor = (status: string, isCheckOut = false) => {
+    const colors = {
+      confirmed: isCheckOut ? 'bg-success' : 'bg-success',
+      pending: isCheckOut ? 'bg-warning' : 'bg-warning',
+      cancelled: isCheckOut ? 'bg-danger' : 'bg-danger'
+    };
+    return colors[status as keyof typeof colors] || 'bg-sage-500';
   };
 
   const previousMonth = () => {
@@ -88,10 +103,10 @@ const Calendar = ({ currentMonth }: CalendarProps) => {
       <div className="grid grid-cols-7 gap-1">
         {days.map(day => {
           const dayBookings = getBookingsForDate(day);
-          const hasCheckIn = dayBookings.some(booking => 
+          const checkInBookings = dayBookings.filter(booking => 
             isSameDay(parseISO(booking.checkIn), day)
           );
-          const hasCheckOut = dayBookings.some(booking => 
+          const checkOutBookings = dayBookings.filter(booking => 
             isSameDay(parseISO(booking.checkOut), day)
           );
           
@@ -101,12 +116,20 @@ const Calendar = ({ currentMonth }: CalendarProps) => {
               className={`calendar-day ${dayBookings.length > 0 ? 'calendar-day-with-booking' : ''}`}
             >
               {format(day, 'd')}
-              {hasCheckIn && (
-                <div className="calendar-indicator bg-success"></div>
-              )}
-              {hasCheckOut && (
-                <div className="calendar-indicator bg-danger" style={{ right: '4px' }}></div>
-              )}
+              {checkInBookings.map((booking, index) => (
+                <div 
+                  key={`checkin-${booking.id}`}
+                  className={`calendar-indicator ${getStatusColor(booking.status)}`}
+                  style={{ left: `${4 + index * 6}px` }}
+                ></div>
+              ))}
+              {checkOutBookings.map((booking, index) => (
+                <div 
+                  key={`checkout-${booking.id}`}
+                  className={`calendar-indicator ${getStatusColor(booking.status, true)}`}
+                  style={{ right: `${4 + index * 6}px` }}
+                ></div>
+              ))}
             </div>
           );
         })}
@@ -115,11 +138,15 @@ const Calendar = ({ currentMonth }: CalendarProps) => {
       <div className="flex items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-success rounded-full"></div>
-          <span>Check-in</span>
+          <span>Confirmadas</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 bg-warning rounded-full"></div>
+          <span>Aguardando</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-danger rounded-full"></div>
-          <span>Check-out</span>
+          <span>Canceladas</span>
         </div>
       </div>
     </div>

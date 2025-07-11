@@ -7,9 +7,12 @@ import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths
 import { ptBR } from 'date-fns/locale';
 import { useState } from 'react';
 
+type StatusFilter = 'all' | 'confirmed' | 'pending' | 'cancelled';
+
 const Dashboard = () => {
   const { bookings } = useBookings();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const currentDate = new Date();
   
   const monthStart = startOfMonth(selectedMonth);
@@ -17,7 +20,12 @@ const Dashboard = () => {
   
   const currentMonthBookings = bookings.filter(booking => {
     const checkIn = parseISO(booking.checkIn);
-    return isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
+    const isInCurrentMonth = isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
+    
+    if (!isInCurrentMonth) return false;
+    
+    if (statusFilter === 'all') return true;
+    return booking.status === statusFilter;
   });
   
   const totalRevenue = currentMonthBookings
@@ -43,6 +51,13 @@ const Dashboard = () => {
   const resetToCurrentMonth = () => {
     setSelectedMonth(new Date());
   };
+
+  const statusOptions = [
+    { key: 'all', label: 'Todas', color: 'bg-sage-100 text-sage-700' },
+    { key: 'confirmed', label: 'Confirmadas', color: 'bg-success-light text-success' },
+    { key: 'pending', label: 'Aguardando', color: 'bg-warning-light text-warning' },
+    { key: 'cancelled', label: 'Canceladas', color: 'bg-danger-light text-danger' }
+  ];
 
   return (
     <div className="p-4 space-y-6">
@@ -88,6 +103,26 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Status Filter */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border">
+        <h3 className="text-sm font-medium text-sage-800 mb-3">Filtrar por Status</h3>
+        <div className="flex flex-wrap gap-2">
+          {statusOptions.map(option => (
+            <button
+              key={option.key}
+              onClick={() => setStatusFilter(option.key as StatusFilter)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                statusFilter === option.key 
+                  ? option.color 
+                  : 'bg-muted text-muted-foreground hover:bg-sage-100'
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border">
           <div className="flex items-center gap-3">
@@ -116,7 +151,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <Calendar currentMonth={selectedMonth} />
+      <Calendar currentMonth={selectedMonth} statusFilter={statusFilter} />
 
       <div className="bg-white rounded-xl p-4 shadow-sm border">
         <h3 className="text-lg font-semibold text-sage-800 mb-3">Próximas Chegadas</h3>
