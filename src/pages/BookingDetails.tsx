@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Copy, MessageCircle, Calendar, DollarSign, User, Phone, Mail, MapPin, FileText, Trash2 } from 'lucide-react';
+import { useDuplicateBooking } from '@/hooks/useDuplicateBooking';
 import { Button } from '@/components/ui/button';
 import { useBookings } from '@/contexts/BookingContext';
 import { format, parseISO } from 'date-fns';
@@ -23,6 +24,7 @@ const BookingDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getBookingById, deleteBooking, updateBooking } = useBookings();
+  const { duplicateWithSuggestedDates } = useDuplicateBooking();
   
   const booking = id ? getBookingById(id) : undefined;
 
@@ -72,6 +74,14 @@ const BookingDetails = () => {
   const handleStatusChange = (newStatus: 'confirmed' | 'pending' | 'cancelled') => {
     updateBooking(booking.id, { status: newStatus });
     toast.success('Status atualizado com sucesso!');
+  };
+
+  const handleEdit = () => {
+    navigate(`/editar-reserva/${booking.id}`);
+  };
+
+  const handleDuplicate = () => {
+    duplicateWithSuggestedDates(booking);
   };
 
   return (
@@ -216,12 +226,20 @@ const BookingDetails = () => {
           <h3 className="font-semibold text-sage-800 mb-3">Ações</h3>
           
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={handleEdit}
+            >
               <Edit size={16} />
               Editar
             </Button>
             
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={handleDuplicate}
+            >
               <Copy size={16} />
               Duplicar
             </Button>

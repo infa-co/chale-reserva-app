@@ -1,21 +1,40 @@
-
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBookings } from '@/contexts/BookingContext';
 import { toast } from 'sonner';
-import { useBookingForm } from '@/hooks/useBookingForm';
+import { useEditBookingForm } from '@/hooks/useEditBookingForm';
 import { useBookingValidation } from '@/hooks/useBookingValidation';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
 import { BookingDatesFormWithValidation } from '@/components/forms/BookingDatesFormWithValidation';
 import { PaymentForm } from '@/components/forms/PaymentForm';
 import { NotesForm } from '@/components/forms/NotesForm';
 
-const NewBooking = () => {
+const EditBooking = () => {
   const navigate = useNavigate();
-  const { addBooking } = useBookings();
-  const { formData, handleInputChange, calculateNights, openWhatsApp } = useBookingForm();
+  const { id } = useParams<{ id: string }>();
+  const { updateBooking, getBookingById } = useBookings();
+  const booking = id ? getBookingById(id) : undefined;
+  
+  const { 
+    formData, 
+    handleInputChange, 
+    calculateNights, 
+    openWhatsApp,
+    hasChanges 
+  } = useEditBookingForm(booking);
   const { checkDateConflict, validateBookingData } = useBookingValidation();
+
+  if (!booking) {
+    return (
+      <div className="p-4 text-center">
+        <h1 className="text-xl font-bold text-sage-800 mb-4">Reserva não encontrada</h1>
+        <Button onClick={() => navigate('/reservas')} variant="outline">
+          Voltar para lista
+        </Button>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +53,8 @@ const NewBooking = () => {
       return;
     }
 
-    // Verificar conflitos de data
-    const dateConflict = checkDateConflict(formData.checkIn, formData.checkOut);
+    // Verificar conflitos de data (excluindo a própria reserva)
+    const dateConflict = checkDateConflict(formData.checkIn, formData.checkOut, booking.id);
     if (dateConflict?.hasConflict) {
       toast.error(dateConflict.message);
       return;
@@ -43,7 +62,7 @@ const NewBooking = () => {
 
     const nights = calculateNights();
 
-    await addBooking({
+    await updateBooking(booking.id, {
       guest_name: formData.guestName,
       phone: formData.phone,
       email: formData.email || undefined,
@@ -59,7 +78,7 @@ const NewBooking = () => {
       notes: formData.notes || undefined
     });
 
-    navigate('/');
+    navigate(`/reserva/${booking.id}`);
   };
 
   return (
@@ -73,7 +92,7 @@ const NewBooking = () => {
         >
           <ArrowLeft size={20} />
         </Button>
-        <h1 className="text-xl font-bold text-sage-800">Nova Reserva</h1>
+        <h1 className="text-xl font-bold text-sage-800">Editar Reserva</h1>
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -97,6 +116,7 @@ const NewBooking = () => {
           }}
           onInputChange={handleInputChange}
           nights={calculateNights()}
+          excludeBookingId={booking.id}
         />
 
         <PaymentForm
@@ -125,8 +145,9 @@ const NewBooking = () => {
           <Button
             type="submit"
             className="flex-1 bg-sage-600 hover:bg-sage-700"
+            disabled={!hasChanges}
           >
-            Salvar Reserva
+            Salvar Alterações
           </Button>
         </div>
       </form>
@@ -134,4 +155,4 @@ const NewBooking = () => {
   );
 };
 
-export default NewBooking;
+export default EditBooking;
