@@ -1,7 +1,7 @@
 
 import { Calendar as CalendarIcon, TrendingUp, Bed, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Calendar from '@/components/Calendar';
-import { useBookings } from '@/hooks/useBookings';
+import { useBookings } from '@/contexts/BookingContext';
 import { Link } from 'react-router-dom';
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

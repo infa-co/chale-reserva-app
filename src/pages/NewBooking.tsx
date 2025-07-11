@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useBookings } from '@/hooks/useBookings';
+import { useBookings } from '@/contexts/BookingContext';
 import { toast } from 'sonner';
 import { useBookingForm } from '@/hooks/useBookingForm';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';

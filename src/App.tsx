@@ -13,6 +13,7 @@ import Auth from "./pages/Auth";
 import MobileNav from "./components/MobileNav";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
+import { BookingProvider } from "./contexts/BookingContext";
 
 const queryClient = new QueryClient();
 
@@ -20,27 +21,29 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/*" element={
-              <ProtectedRoute>
-                <div className="mobile-container pb-16">
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/nova-reserva" element={<NewBooking />} />
-                    <Route path="/reservas" element={<BookingList />} />
-                    <Route path="/reserva/:id" element={<BookingDetails />} />
-                    <Route path="/clientes" element={<Clients />} />
-                  </Routes>
-                  <MobileNav />
-                </div>
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </BrowserRouter>
+        <BookingProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/*" element={
+                <ProtectedRoute>
+                  <div className="mobile-container pb-16">
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/nova-reserva" element={<NewBooking />} />
+                      <Route path="/reservas" element={<BookingList />} />
+                      <Route path="/reserva/:id" element={<BookingDetails />} />
+                      <Route path="/clientes" element={<Clients />} />
+                    </Routes>
+                    <MobileNav />
+                  </div>
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </BrowserRouter>
+        </BookingProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
