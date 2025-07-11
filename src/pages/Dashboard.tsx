@@ -1,4 +1,3 @@
-
 import { Calendar as CalendarIcon, TrendingUp, Bed, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Calendar from '@/components/Calendar';
 import { useBookings } from '@/contexts/BookingContext';
@@ -36,7 +35,8 @@ const Dashboard = () => {
   const upcomingBookings = bookings
     .filter(booking => {
       const checkIn = parseISO(booking.check_in);
-      return checkIn >= new Date() && booking.status === 'confirmed';
+      const isInSelectedMonth = isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
+      return isInSelectedMonth && booking.status === 'confirmed';
     })
     .sort((a, b) => parseISO(a.check_in).getTime() - parseISO(b.check_in).getTime())
     .slice(0, 3);
@@ -169,7 +169,9 @@ const Dashboard = () => {
       <Calendar currentMonth={selectedMonth} statusFilter={statusFilter} />
 
       <div className="bg-white rounded-xl p-4 shadow-sm border">
-        <h3 className="text-lg font-semibold text-sage-800 mb-3">Próximas Chegadas</h3>
+        <h3 className="text-lg font-semibold text-sage-800 mb-3">
+          Chegadas em {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
+        </h3>
         {upcomingBookings.length > 0 ? (
           <div className="space-y-3">
             {upcomingBookings.map(booking => (
@@ -192,7 +194,9 @@ const Dashboard = () => {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground text-center py-4">Nenhuma reserva próxima</p>
+          <p className="text-muted-foreground text-center py-4">
+            Nenhuma chegada confirmada em {format(selectedMonth, 'MMMM', { locale: ptBR })}
+          </p>
         )}
       </div>
 

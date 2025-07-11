@@ -15,10 +15,8 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
   const [internalCurrentDate, setInternalCurrentDate] = useState(new Date());
   const { bookings } = useBookings();
   
-  // Use external currentMonth if provided, otherwise use internal state
   const activeDate = currentMonth || internalCurrentDate;
   
-  // Sync internal state when external currentMonth changes
   useEffect(() => {
     if (currentMonth) {
       setInternalCurrentDate(currentMonth);
@@ -29,12 +27,10 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
   const monthEnd = endOfMonth(activeDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
   
-  // Filter bookings that overlap with the current month and match status filter
   const currentMonthBookings = bookings.filter(booking => {
     const checkIn = parseISO(booking.check_in);
     const checkOut = parseISO(booking.check_out);
     
-    // Include bookings that overlap with the current month
     const hasOverlap = checkIn <= monthEnd && checkOut >= monthStart;
     
     if (!hasOverlap) return false;
@@ -59,12 +55,6 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
       cancelled: 'border-danger'
     };
     return `${baseClass} ${colors[status as keyof typeof colors] || 'border-sage-500'}`;
-  };
-
-  const formatTooltipContent = (bookings: any[], type: 'checkin' | 'checkout') => {
-    return bookings.map(booking => 
-      `${booking.guest_name} - ${type === 'checkin' ? 'Check-in' : 'Check-out'} (${booking.status})`
-    ).join('\n');
   };
 
   const previousMonth = () => {
@@ -122,10 +112,8 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
               isSameDay(parseISO(booking.check_out), day)
             );
             
-            const hasBothTypes = checkInBookings.length > 0 && checkOutBookings.length > 0;
             const hasBookings = dayBookings.length > 0;
             
-            // Determine border classes
             let borderClasses = '';
             if (checkInBookings.length > 0) {
               borderClasses += ` ${getStatusBorderClass(checkInBookings[0].status, 'checkin')}`;
@@ -138,13 +126,13 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
               <div
                 className={`
                   h-9 w-9 flex items-center justify-center text-sm relative
-                  transition-colors duration-200
-                  ${hasBookings ? 'bg-accent/30 hover:bg-accent/50' : 'hover:bg-accent/20'}
+                  transition-colors duration-200 rounded-sm
+                  ${hasBookings ? 'bg-sage-200/80 hover:bg-sage-300' : 'hover:bg-sage-100'}
                   ${borderClasses}
                   cursor-default
                 `}
               >
-                <span className="relative z-10 font-medium">
+                <span className="relative z-10 font-medium text-sage-800">
                   {format(day, 'd')}
                 </span>
               </div>
@@ -181,35 +169,47 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
         </div>
       </TooltipProvider>
       
-      <div className="mt-4 space-y-3">
-        <div className="text-xs text-muted-foreground text-center font-medium">
-          Legenda
+      <div className="mt-6 space-y-4">
+        <div className="text-sm font-medium text-sage-800 text-center border-b border-sage-200 pb-2">
+          Legenda do Calendário
         </div>
         
-        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-success rounded-full"></div>
-            <span>Confirmadas</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-warning rounded-full"></div>
-            <span>Aguardando</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-danger rounded-full"></div>
-            <span>Canceladas</span>
+        {/* Status das Reservas */}
+        <div className="space-y-2">
+          <h4 className="text-xs font-medium text-sage-700 uppercase tracking-wide">Status das Reservas</h4>
+          <div className="grid grid-cols-3 gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-success rounded-full"></div>
+              <span className="text-muted-foreground">Confirmadas</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-warning rounded-full"></div>
+              <span className="text-muted-foreground">Aguardando</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-danger rounded-full"></div>
+              <span className="text-muted-foreground">Canceladas</span>
+            </div>
           </div>
         </div>
         
-        <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-4 border-l-4 border-success bg-accent/20 rounded-sm"></div>
-            <span>Check-in</span>
+        {/* Tipos de Eventos */}
+        <div className="space-y-2">
+          <h4 className="text-xs font-medium text-sage-700 uppercase tracking-wide">Tipos de Eventos</h4>
+          <div className="grid grid-cols-2 gap-4 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-4 border-l-4 border-success bg-sage-200/60 rounded-sm"></div>
+              <span className="text-muted-foreground">Check-in</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-4 border-r-4 border-success bg-sage-200/60 rounded-sm"></div>
+              <span className="text-muted-foreground">Check-out</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-4 border-r-4 border-success bg-accent/20 rounded-sm"></div>
-            <span>Check-out</span>
-          </div>
+        </div>
+        
+        <div className="text-xs text-muted-foreground text-center pt-2 border-t border-sage-100">
+          Passe o mouse sobre os dias para ver detalhes das reservas
         </div>
       </div>
     </div>
