@@ -1,4 +1,3 @@
-
 import { Calendar as CalendarIcon, TrendingUp, Bed, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Calendar from '@/components/Calendar';
 import { useBookings } from '@/contexts/BookingContext';
@@ -81,16 +80,16 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-4 space-y-6">
-      <header className="text-center py-4 relative">
+    <div className="p-4 space-y-6 pb-24">
+      <header className="text-center py-6 relative">
         <div className="absolute top-4 right-4">
           <UserMenu />
         </div>
-        <div className="flex items-center justify-center mb-2">
+        <div className="flex items-center justify-center mb-3">
           <img 
             src="/lovable-uploads/d08d425b-8432-4ab7-a851-163f5a72bd81.png" 
             alt="ORDOMO Logo" 
-            className="h-16 object-contain"
+            className="h-24 object-contain"
           />
         </div>
         <p className="text-sm text-muted-foreground">
@@ -236,7 +235,7 @@ const Dashboard = () => {
 
       <Link
         to="/nova-reserva"
-        className="fixed bottom-20 right-4 bg-sage-600 text-white p-4 rounded-full shadow-lg hover:bg-sage-700 transition-colors"
+        className="fixed bottom-24 right-4 bg-sage-600 text-white p-4 rounded-full shadow-lg hover:bg-sage-700 transition-colors"
       >
         <Plus size={24} />
       </Link>
