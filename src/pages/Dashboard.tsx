@@ -1,16 +1,17 @@
 
 import { Calendar as CalendarIcon, TrendingUp, Bed, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Calendar from '@/components/Calendar';
-import { useBookings } from '@/contexts/BookingContext';
+import { useBookings } from '@/hooks/useBookings';
 import { Link } from 'react-router-dom';
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useState } from 'react';
+import UserMenu from '@/components/UserMenu';
 
 type StatusFilter = 'all' | 'confirmed' | 'pending' | 'cancelled';
 
 const Dashboard = () => {
-  const { bookings } = useBookings();
+  const { bookings, loading } = useBookings();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const currentDate = new Date();
@@ -19,7 +20,7 @@ const Dashboard = () => {
   const monthEnd = endOfMonth(selectedMonth);
   
   const currentMonthBookings = bookings.filter(booking => {
-    const checkIn = parseISO(booking.checkIn);
+    const checkIn = parseISO(booking.check_in);
     const isInCurrentMonth = isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
     
     if (!isInCurrentMonth) return false;
@@ -30,14 +31,14 @@ const Dashboard = () => {
   
   const totalRevenue = currentMonthBookings
     .filter(booking => booking.status === 'confirmed')
-    .reduce((sum, booking) => sum + booking.totalValue, 0);
+    .reduce((sum, booking) => sum + Number(booking.total_value), 0);
   
   const upcomingBookings = bookings
     .filter(booking => {
-      const checkIn = parseISO(booking.checkIn);
+      const checkIn = parseISO(booking.check_in);
       return checkIn >= new Date() && booking.status === 'confirmed';
     })
-    .sort((a, b) => parseISO(a.checkIn).getTime() - parseISO(b.checkIn).getTime())
+    .sort((a, b) => parseISO(a.check_in).getTime() - parseISO(b.check_in).getTime())
     .slice(0, 3);
 
   const goToPreviousMonth = () => {
@@ -59,9 +60,23 @@ const Dashboard = () => {
     { key: 'cancelled', label: 'Canceladas', color: 'bg-danger-light text-danger' }
   ];
 
+  if (loading) {
+    return (
+      <div className="p-4 space-y-6">
+        <div className="text-center py-8">
+          <div className="w-8 h-8 border-4 border-sage-200 border-t-sage-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sage-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 space-y-6">
-      <header className="text-center py-4">
+      <header className="text-center py-4 relative">
+        <div className="absolute top-4 right-4">
+          <UserMenu />
+        </div>
         <h1 className="text-2xl font-bold text-sage-800 mb-1">Chalé Manager</h1>
         <p className="text-sm text-muted-foreground">
           {format(currentDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
@@ -164,13 +179,13 @@ const Dashboard = () => {
                 className="flex items-center justify-between p-3 bg-sage-50 rounded-lg hover:bg-sage-100 transition-colors"
               >
                 <div>
-                  <p className="font-medium text-sage-800">{booking.guestName}</p>
+                  <p className="font-medium text-sage-800">{booking.guest_name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {format(parseISO(booking.checkIn), "dd/MM", { locale: ptBR })} - {format(parseISO(booking.checkOut), "dd/MM", { locale: ptBR })}
+                    {format(parseISO(booking.check_in), "dd/MM", { locale: ptBR })} - {format(parseISO(booking.check_out), "dd/MM", { locale: ptBR })}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-sage-800">R$ {booking.totalValue.toLocaleString('pt-BR')}</p>
+                  <p className="font-semibold text-sage-800">R$ {Number(booking.total_value).toLocaleString('pt-BR')}</p>
                   <span className="status-badge status-confirmed">Confirmada</span>
                 </div>
               </Link>

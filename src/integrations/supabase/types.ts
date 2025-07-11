@@ -14,7 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          booking_date: string
+          check_in: string
+          check_out: string
+          city: string | null
+          created_at: string | null
+          email: string | null
+          guest_name: string
+          id: string
+          nights: number
+          notes: string | null
+          payment_method: string
+          phone: string
+          state: string | null
+          status: string
+          total_value: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          booking_date: string
+          check_in: string
+          check_out: string
+          city?: string | null
+          created_at?: string | null
+          email?: string | null
+          guest_name: string
+          id?: string
+          nights: number
+          notes?: string | null
+          payment_method: string
+          phone: string
+          state?: string | null
+          status: string
+          total_value: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          booking_date?: string
+          check_in?: string
+          check_out?: string
+          city?: string | null
+          created_at?: string | null
+          email?: string | null
+          guest_name?: string
+          id?: string
+          nights?: number
+          notes?: string | null
+          payment_method?: string
+          phone?: string
+          state?: string | null
+          status?: string
+          total_value?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          city: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string
+          state: string | null
+          tags: string[] | null
+          total_bookings: number | null
+          total_revenue: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone: string
+          state?: string | null
+          tags?: string[] | null
+          total_bookings?: number | null
+          total_revenue?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string
+          state?: string | null
+          tags?: string[] | null
+          total_bookings?: number | null
+          total_revenue?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: string
+          name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

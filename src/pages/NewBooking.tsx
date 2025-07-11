@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useBookings } from '@/contexts/BookingContext';
+import { useBookings } from '@/hooks/useBookings';
 import { toast } from 'sonner';
 import { useBookingForm } from '@/hooks/useBookingForm';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
@@ -15,7 +15,7 @@ const NewBooking = () => {
   const { addBooking } = useBookings();
   const { formData, handleInputChange, calculateNights, openWhatsApp } = useBookingForm();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.guestName || !formData.phone || !formData.checkIn || !formData.checkOut || !formData.totalValue) {
@@ -29,23 +29,22 @@ const NewBooking = () => {
       return;
     }
 
-    addBooking({
-      guestName: formData.guestName,
+    await addBooking({
+      guest_name: formData.guestName,
       phone: formData.phone,
       email: formData.email || undefined,
       city: formData.city || undefined,
       state: formData.state || undefined,
-      bookingDate: formData.bookingDate,
-      checkIn: formData.checkIn,
-      checkOut: formData.checkOut,
+      booking_date: formData.bookingDate,
+      check_in: formData.checkIn,
+      check_out: formData.checkOut,
       nights,
-      totalValue: parseFloat(formData.totalValue),
-      paymentMethod: formData.paymentMethod,
+      total_value: parseFloat(formData.totalValue),
+      payment_method: formData.paymentMethod,
       status: formData.status,
       notes: formData.notes || undefined
     });
 
-    toast.success('Reserva criada com sucesso!');
     navigate('/');
   };
 
