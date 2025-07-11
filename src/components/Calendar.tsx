@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBookings } from '@/contexts/BookingContext';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, isWithinInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface CalendarProps {
@@ -27,8 +27,14 @@ const Calendar = ({ currentMonth }: CalendarProps) => {
   const monthEnd = endOfMonth(activeDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
   
+  // Filter bookings that have check-in in the current month
+  const currentMonthBookings = bookings.filter(booking => {
+    const checkIn = parseISO(booking.checkIn);
+    return isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
+  });
+  
   const getBookingsForDate = (date: Date) => {
-    return bookings.filter(booking => {
+    return currentMonthBookings.filter(booking => {
       const checkIn = parseISO(booking.checkIn);
       const checkOut = parseISO(booking.checkOut);
       return isSameDay(checkIn, date) || isSameDay(checkOut, date);
