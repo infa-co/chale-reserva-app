@@ -1,4 +1,3 @@
-
 import { Calendar as CalendarIcon, TrendingUp, Bed, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Calendar from '@/components/Calendar';
 import { useBookings } from '@/contexts/BookingContext';
@@ -57,11 +56,11 @@ const Dashboard = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-success text-success-foreground';
+        return 'status-confirmed';
       case 'pending':
-        return 'bg-warning text-warning-foreground';
+        return 'status-pending';
       case 'cancelled':
-        return 'bg-danger text-danger-foreground';
+        return 'status-cancelled';
       default:
         return 'bg-secondary text-secondary-foreground';
     }
@@ -193,9 +192,9 @@ const Dashboard = () => {
                       {format(new Date(booking.check_in), 'dd/MM')} - {format(new Date(booking.check_out), 'dd/MM')}
                     </p>
                   </div>
-                  <Badge className={`text-xs ${getStatusColor(booking.status)}`}>
+                  <div className={`status-badge ${getStatusColor(booking.status)}`}>
                     {getStatusLabel(booking.status)}
-                  </Badge>
+                  </div>
                 </div>
               ))
             )}
@@ -230,9 +229,9 @@ const Dashboard = () => {
                       {format(new Date(booking.check_in), 'dd/MM')} - {format(new Date(booking.check_out), 'dd/MM')}
                     </p>
                   </div>
-                  <Badge className={`text-xs ${getStatusColor(booking.status)}`}>
+                  <div className={`status-badge ${getStatusColor(booking.status)}`}>
                     {getStatusLabel(booking.status)}
-                  </Badge>
+                  </div>
                 </div>
               ))
             )}
