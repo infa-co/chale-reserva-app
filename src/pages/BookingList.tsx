@@ -20,15 +20,15 @@ const BookingList = () => {
 
   const filteredBookings = bookings
     .filter(booking => {
-      const checkInDate = parseISO(booking.checkIn);
+      const checkInDate = parseISO(booking.check_in);
       const isInCurrentMonth = isWithinInterval(checkInDate, { start: monthStart, end: monthEnd });
-      const matchesSearch = booking.guestName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = booking.guest_name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
       return isInCurrentMonth && matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
-      const dateA = parseISO(a.checkIn);
-      const dateB = parseISO(b.checkIn);
+      const dateA = parseISO(a.check_in);
+      const dateB = parseISO(b.check_in);
       return sortOrder === 'asc' 
         ? dateA.getTime() - dateB.getTime()
         : dateB.getTime() - dateA.getTime();
@@ -163,11 +163,11 @@ const BookingList = () => {
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-sage-800 mb-1">{booking.guestName}</h3>
+                  <h3 className="font-semibold text-sage-800 mb-1">{booking.guest_name}</h3>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                     <Calendar size={14} />
                     <span>
-                      {format(parseISO(booking.checkIn), "dd/MM", { locale: ptBR })} → {format(parseISO(booking.checkOut), "dd/MM", { locale: ptBR })}
+                      {format(parseISO(booking.check_in), "dd/MM", { locale: ptBR })} → {format(parseISO(booking.check_out), "dd/MM", { locale: ptBR })}
                     </span>
                     <span className="text-xs">({booking.nights} noites)</span>
                   </div>
@@ -193,7 +193,7 @@ const BookingList = () => {
                   {getStatusText(booking.status)}
                 </span>
                 <span className="font-semibold text-sage-800">
-                  R$ {booking.totalValue.toLocaleString('pt-BR')}
+                  R$ {booking.total_value.toLocaleString('pt-BR')}
                 </span>
               </div>
             </Link>

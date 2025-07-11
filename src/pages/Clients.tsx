@@ -4,37 +4,49 @@ import { Link } from 'react-router-dom';
 import { Search, Users, MessageCircle, TrendingUp, Calendar } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useBookings } from '@/contexts/BookingContext';
-import { Client } from '@/types/booking';
+
+interface ProcessedClient {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  city?: string;
+  state?: string;
+  tags: string[];
+  bookings: any[];
+  total_bookings: number;
+  total_revenue: number;
+}
 
 const Clients = () => {
   const { bookings } = useBookings();
   const [searchTerm, setSearchTerm] = useState('');
 
   // Processar clientes a partir das reservas
-  const clientsMap = new Map<string, Client>();
+  const clientsMap = new Map<string, ProcessedClient>();
   
   bookings.forEach(booking => {
-    const clientKey = booking.phone || booking.email || booking.guestName;
+    const clientKey = booking.phone || booking.email || booking.guest_name;
     
     if (clientsMap.has(clientKey)) {
       const client = clientsMap.get(clientKey)!;
       client.bookings.push(booking);
-      client.totalBookings += 1;
+      client.total_bookings += 1;
       if (booking.status === 'confirmed') {
-        client.totalRevenue += booking.totalValue;
+        client.total_revenue += booking.total_value;
       }
     } else {
       clientsMap.set(clientKey, {
         id: clientKey,
-        name: booking.guestName,
+        name: booking.guest_name,
         phone: booking.phone,
         email: booking.email,
         city: booking.city,
         state: booking.state,
         tags: [],
         bookings: [booking],
-        totalBookings: 1,
-        totalRevenue: booking.status === 'confirmed' ? booking.totalValue : 0
+        total_bookings: 1,
+        total_revenue: booking.status === 'confirmed' ? booking.total_value : 0
       });
     }
   });
@@ -43,14 +55,14 @@ const Clients = () => {
     .filter(client => 
       client.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    .sort((a, b) => b.totalBookings - a.totalBookings);
+    .sort((a, b) => b.total_bookings - a.total_bookings);
 
   // Adicionar tags automáticas
   clients.forEach(client => {
-    if (client.totalBookings >= 3) {
+    if (client.total_bookings >= 3) {
       client.tags.push('Cliente Recorrente');
     }
-    if (client.totalRevenue >= 2000) {
+    if (client.total_revenue >= 2000) {
       client.tags.push('Cliente VIP');
     }
   });
@@ -124,7 +136,7 @@ const Clients = () => {
                   <div className="flex items-center justify-center gap-1 text-sage-600 mb-1">
                     <Calendar size={14} />
                   </div>
-                  <p className="font-semibold text-sage-800">{client.totalBookings}</p>
+                  <p className="font-semibold text-sage-800">{client.total_bookings}</p>
                   <p className="text-xs text-muted-foreground">Reservas</p>
                 </div>
                 
@@ -133,7 +145,7 @@ const Clients = () => {
                     <TrendingUp size={14} />
                   </div>
                   <p className="font-semibold text-sage-800">
-                    R$ {client.totalRevenue.toLocaleString('pt-BR')}
+                    R$ {client.total_revenue.toLocaleString('pt-BR')}
                   </p>
                   <p className="text-xs text-muted-foreground">Faturamento</p>
                 </div>
@@ -143,7 +155,7 @@ const Clients = () => {
                     <TrendingUp size={14} />
                   </div>
                   <p className="font-semibold text-sage-800">
-                    R$ {Math.round(client.totalRevenue / client.totalBookings).toLocaleString('pt-BR')}
+                    R$ {Math.round(client.total_revenue / client.total_bookings).toLocaleString('pt-BR')}
                   </p>
                   <p className="text-xs text-muted-foreground">Ticket médio</p>
                 </div>
@@ -153,7 +165,7 @@ const Clients = () => {
                 <h4 className="text-sm font-medium text-sage-800 mb-2">Últimas Reservas</h4>
                 <div className="space-y-1">
                   {client.bookings
-                    .sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime())
+                    .sort((a, b) => new Date(b.check_in).getTime() - new Date(a.check_in).getTime())
                     .slice(0, 2)
                     .map(booking => (
                       <Link
@@ -162,10 +174,10 @@ const Clients = () => {
                         className="flex items-center justify-between p-2 bg-sage-50 rounded-lg hover:bg-sage-100 transition-colors"
                       >
                         <span className="text-sm">
-                          {new Date(booking.checkIn).toLocaleDateString('pt-BR')}
+                          {new Date(booking.check_in).toLocaleDateString('pt-BR')}
                         </span>
                         <span className="text-sm font-medium">
-                          R$ {booking.totalValue.toLocaleString('pt-BR')}
+                          R$ {booking.total_value.toLocaleString('pt-BR')}
                         </span>
                       </Link>
                     ))}

@@ -58,7 +58,7 @@ const BookingDetails = () => {
   const openWhatsApp = () => {
     if (booking.phone) {
       const cleanPhone = booking.phone.replace(/\D/g, '');
-      const message = `Olá ${booking.guestName}! Confirmando sua reserva:\n\nCheck-in: ${format(parseISO(booking.checkIn), "dd/MM/yyyy", { locale: ptBR })}\nCheck-out: ${format(parseISO(booking.checkOut), "dd/MM/yyyy", { locale: ptBR })}\nValor: R$ ${booking.totalValue.toLocaleString('pt-BR')}\n\nQualquer dúvida, estarei aqui!`;
+      const message = `Olá ${booking.guest_name}! Confirmando sua reserva:\n\nCheck-in: ${format(parseISO(booking.check_in), "dd/MM/yyyy", { locale: ptBR })}\nCheck-out: ${format(parseISO(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}\nValor: R$ ${booking.total_value.toLocaleString('pt-BR')}\n\nQualquer dúvida, estarei aqui!`;
       window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
     }
   };
@@ -86,7 +86,7 @@ const BookingDetails = () => {
           <ArrowLeft size={20} />
         </Button>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-sage-800">{booking.guestName}</h1>
+          <h1 className="text-xl font-bold text-sage-800">{booking.guest_name}</h1>
           <span className={`status-badge ${getStatusColor(booking.status)} mt-1`}>
             {getStatusText(booking.status)}
           </span>
@@ -103,7 +103,7 @@ const BookingDetails = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <User size={16} className="text-muted-foreground" />
-              <span className="font-medium">{booking.guestName}</span>
+              <span className="font-medium">{booking.guest_name}</span>
             </div>
             
             {booking.phone && (
@@ -148,20 +148,20 @@ const BookingDetails = () => {
             <div className="text-center p-3 bg-success/10 rounded-lg">
               <p className="text-sm text-muted-foreground mb-1">Check-in</p>
               <p className="font-semibold text-sage-800">
-                {format(parseISO(booking.checkIn), "dd/MM/yyyy", { locale: ptBR })}
+                {format(parseISO(booking.check_in), "dd/MM/yyyy", { locale: ptBR })}
               </p>
               <p className="text-xs text-muted-foreground">
-                {format(parseISO(booking.checkIn), "EEEE", { locale: ptBR })}
+                {format(parseISO(booking.check_in), "EEEE", { locale: ptBR })}
               </p>
             </div>
             
             <div className="text-center p-3 bg-danger/10 rounded-lg">
               <p className="text-sm text-muted-foreground mb-1">Check-out</p>
               <p className="font-semibold text-sage-800">
-                {format(parseISO(booking.checkOut), "dd/MM/yyyy", { locale: ptBR })}
+                {format(parseISO(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}
               </p>
               <p className="text-xs text-muted-foreground">
-                {format(parseISO(booking.checkOut), "EEEE", { locale: ptBR })}
+                {format(parseISO(booking.check_out), "EEEE", { locale: ptBR })}
               </p>
             </div>
           </div>
@@ -182,21 +182,21 @@ const BookingDetails = () => {
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Valor Total</span>
               <span className="text-2xl font-bold text-sage-800">
-                R$ {booking.totalValue.toLocaleString('pt-BR')}
+                R$ {booking.total_value.toLocaleString('pt-BR')}
               </span>
             </div>
             
-            {booking.paymentMethod && (
+            {booking.payment_method && (
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Forma de Pagamento</span>
-                <span className="font-medium">{booking.paymentMethod}</span>
+                <span className="font-medium">{booking.payment_method}</span>
               </div>
             )}
             
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Valor por noite</span>
               <span className="font-medium">
-                R$ {(booking.totalValue / booking.nights).toLocaleString('pt-BR')}
+                R$ {(booking.total_value / booking.nights).toLocaleString('pt-BR')}
               </span>
             </div>
           </div>

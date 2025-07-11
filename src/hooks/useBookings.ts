@@ -25,7 +25,13 @@ export const useBookings = () => {
         return;
       }
 
-      setBookings(data || []);
+      // Cast the data to match our Booking interface
+      const typedBookings: Booking[] = (data || []).map(booking => ({
+        ...booking,
+        status: booking.status as 'confirmed' | 'pending' | 'cancelled'
+      }));
+
+      setBookings(typedBookings);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       toast.error('Erro ao carregar reservas');
@@ -57,7 +63,12 @@ export const useBookings = () => {
         return;
       }
 
-      setBookings(prev => [data, ...prev]);
+      const typedBooking: Booking = {
+        ...data,
+        status: data.status as 'confirmed' | 'pending' | 'cancelled'
+      };
+
+      setBookings(prev => [typedBooking, ...prev]);
       toast.success('Reserva criada com sucesso!');
     } catch (error) {
       console.error('Error adding booking:', error);
@@ -83,9 +94,14 @@ export const useBookings = () => {
         return;
       }
 
+      const typedBooking: Booking = {
+        ...data,
+        status: data.status as 'confirmed' | 'pending' | 'cancelled'
+      };
+
       setBookings(prev => 
         prev.map(booking => 
-          booking.id === id ? data : booking
+          booking.id === id ? typedBooking : booking
         )
       );
       toast.success('Reserva atualizada com sucesso!');
