@@ -7,6 +7,7 @@ import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths
 import { ptBR } from 'date-fns/locale';
 import { useState } from 'react';
 import UserMenu from '@/components/UserMenu';
+import { NotificationCenter } from '@/components/NotificationCenter';
 
 type StatusFilter = 'all' | 'confirmed' | 'pending' | 'cancelled';
 
@@ -90,6 +91,9 @@ const Dashboard = () => {
           {format(currentDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
         </p>
       </header>
+
+      {/* Notificações */}
+      <NotificationCenter />
 
       {/* Month Navigation */}
       <div className="bg-white rounded-xl p-4 shadow-sm border">

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Copy, MessageCircle, Calendar, DollarSign, User, Phone, Mail, MapPin, FileText, Trash2 } from 'lucide-react';
@@ -19,6 +18,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { BookingWorkflow } from '@/components/BookingWorkflow';
+import { CommunicationTemplates } from '@/components/CommunicationTemplates';
 
 const BookingDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,6 +45,11 @@ const BookingDetails = () => {
       case 'confirmed': return 'status-confirmed';
       case 'pending': return 'status-pending';
       case 'cancelled': return 'status-cancelled';
+      case 'requested': return 'bg-gray-100 text-gray-700';
+      case 'checked_in': return 'bg-blue-100 text-blue-700';
+      case 'active': return 'bg-green-100 text-green-700';
+      case 'checked_out': return 'bg-purple-100 text-purple-700';
+      case 'completed': return 'bg-slate-100 text-slate-700';
       default: return 'status-pending';
     }
   };
@@ -53,6 +59,11 @@ const BookingDetails = () => {
       case 'confirmed': return 'Confirmada';
       case 'pending': return 'Aguardando Pagamento';
       case 'cancelled': return 'Cancelada';
+      case 'requested': return 'Solicitada';
+      case 'checked_in': return 'Check-in Realizado';
+      case 'active': return 'Estadia Ativa';
+      case 'checked_out': return 'Check-out Realizado';
+      case 'completed': return 'Finalizada';
       default: return status;
     }
   };
@@ -69,11 +80,6 @@ const BookingDetails = () => {
     deleteBooking(booking.id);
     toast.success('Reserva excluída com sucesso!');
     navigate('/reservas');
-  };
-
-  const handleStatusChange = (newStatus: 'confirmed' | 'pending' | 'cancelled') => {
-    updateBooking(booking.id, { status: newStatus });
-    toast.success('Status atualizado com sucesso!');
   };
 
   const handleEdit = () => {
@@ -104,6 +110,12 @@ const BookingDetails = () => {
       </header>
 
       <div className="space-y-4">
+        {/* Workflow de Estados */}
+        <BookingWorkflow booking={booking} />
+
+        {/* Templates de Comunicação */}
+        <CommunicationTemplates booking={booking} />
+
         <div className="bg-white rounded-xl p-4 shadow-sm border">
           <h3 className="font-semibold text-sage-800 flex items-center gap-2 mb-4">
             <User size={18} />
@@ -243,37 +255,6 @@ const BookingDetails = () => {
               <Copy size={16} />
               Duplicar
             </Button>
-          </div>
-          
-          <div className="mt-3 space-y-2">
-            {booking.status !== 'confirmed' && (
-              <Button
-                onClick={() => handleStatusChange('confirmed')}
-                className="w-full bg-success hover:bg-success/90"
-              >
-                Marcar como Confirmada
-              </Button>
-            )}
-            
-            {booking.status !== 'pending' && (
-              <Button
-                onClick={() => handleStatusChange('pending')}
-                variant="outline"
-                className="w-full"
-              >
-                Marcar como Aguardando
-              </Button>
-            )}
-            
-            {booking.status !== 'cancelled' && (
-              <Button
-                onClick={() => handleStatusChange('cancelled')}
-                variant="outline"
-                className="w-full border-danger text-danger hover:bg-danger hover:text-white"
-              >
-                Cancelar Reserva
-              </Button>
-            )}
           </div>
         </div>
 
