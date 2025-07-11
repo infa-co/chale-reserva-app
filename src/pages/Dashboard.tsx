@@ -1,16 +1,19 @@
 
-import { Calendar as CalendarIcon, TrendingUp, Bed, Plus } from 'lucide-react';
+import { Calendar as CalendarIcon, TrendingUp, Bed, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Calendar from '@/components/Calendar';
 import { useBookings } from '@/contexts/BookingContext';
 import { Link } from 'react-router-dom';
-import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useState } from 'react';
 
 const Dashboard = () => {
   const { bookings } = useBookings();
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
   const currentDate = new Date();
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
+  
+  const monthStart = startOfMonth(selectedMonth);
+  const monthEnd = endOfMonth(selectedMonth);
   
   const currentMonthBookings = bookings.filter(booking => {
     const checkIn = parseISO(booking.checkIn);
@@ -29,6 +32,18 @@ const Dashboard = () => {
     .sort((a, b) => parseISO(a.checkIn).getTime() - parseISO(b.checkIn).getTime())
     .slice(0, 3);
 
+  const goToPreviousMonth = () => {
+    setSelectedMonth(prev => subMonths(prev, 1));
+  };
+
+  const goToNextMonth = () => {
+    setSelectedMonth(prev => addMonths(prev, 1));
+  };
+
+  const resetToCurrentMonth = () => {
+    setSelectedMonth(new Date());
+  };
+
   return (
     <div className="p-4 space-y-6">
       <header className="text-center py-4">
@@ -37,6 +52,41 @@ const Dashboard = () => {
           {format(currentDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
         </p>
       </header>
+
+      {/* Month Navigation */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border">
+        <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={goToPreviousMonth}
+            className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          
+          <div className="text-center">
+            <h2 className="text-lg font-semibold text-sage-800">
+              {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
+            </h2>
+            <button
+              onClick={resetToCurrentMonth}
+              className="text-sm text-sage-600 hover:text-sage-800 transition-colors"
+            >
+              Voltar para hoje
+            </button>
+          </div>
+          
+          <button
+            onClick={goToNextMonth}
+            className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+        
+        <div className="text-center text-sm text-muted-foreground">
+          {currentMonthBookings.length} reserva{currentMonthBookings.length !== 1 ? 's' : ''} neste mês
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border">
@@ -66,7 +116,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <Calendar />
+      <Calendar currentMonth={selectedMonth} />
 
       <div className="bg-white rounded-xl p-4 shadow-sm border">
         <h3 className="text-lg font-semibold text-sage-800 mb-3">Próximas Chegadas</h3>

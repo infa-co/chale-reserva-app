@@ -1,16 +1,30 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBookings } from '@/contexts/BookingContext';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const Calendar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+interface CalendarProps {
+  currentMonth?: Date;
+}
+
+const Calendar = ({ currentMonth }: CalendarProps) => {
+  const [internalCurrentDate, setInternalCurrentDate] = useState(new Date());
   const { bookings } = useBookings();
   
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
+  // Use external currentMonth if provided, otherwise use internal state
+  const activeDate = currentMonth || internalCurrentDate;
+  
+  // Sync internal state when external currentMonth changes
+  useEffect(() => {
+    if (currentMonth) {
+      setInternalCurrentDate(currentMonth);
+    }
+  }, [currentMonth]);
+  
+  const monthStart = startOfMonth(activeDate);
+  const monthEnd = endOfMonth(activeDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
   
   const getBookingsForDate = (date: Date) => {
@@ -22,33 +36,39 @@ const Calendar = () => {
   };
 
   const previousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
+    if (!currentMonth) {
+      setInternalCurrentDate(new Date(activeDate.getFullYear(), activeDate.getMonth() - 1));
+    }
   };
 
   const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
+    if (!currentMonth) {
+      setInternalCurrentDate(new Date(activeDate.getFullYear(), activeDate.getMonth() + 1));
+    }
   };
 
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-sage-800">
-          {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
+          {format(activeDate, 'MMMM yyyy', { locale: ptBR })}
         </h2>
-        <div className="flex gap-2">
-          <button
-            onClick={previousMonth}
-            className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <button
-            onClick={nextMonth}
-            className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
+        {!currentMonth && (
+          <div className="flex gap-2">
+            <button
+              onClick={previousMonth}
+              className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              onClick={nextMonth}
+              className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
       </div>
       
       <div className="grid grid-cols-7 gap-1 mb-2">
