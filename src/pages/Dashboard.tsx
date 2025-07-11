@@ -1,86 +1,103 @@
+
 import { Calendar as CalendarIcon, TrendingUp, Bed, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Calendar from '@/components/Calendar';
 import { useBookings } from '@/contexts/BookingContext';
-import { Link } from 'react-router-dom';
-import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import UserMenu from '@/components/UserMenu';
-import { NotificationCenter } from '@/components/NotificationCenter';
-
-type StatusFilter = 'all' | 'confirmed' | 'pending' | 'cancelled';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { format, startOfMonth, endOfMonth, eachMonthOfInterval, subMonths, addMonths } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const { bookings, loading } = useBookings();
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const currentDate = new Date();
-  
-  const monthStart = startOfMonth(selectedMonth);
-  const monthEnd = endOfMonth(selectedMonth);
-  
-  const currentMonthBookings = bookings.filter(booking => {
-    const checkIn = parseISO(booking.check_in);
-    const isInCurrentMonth = isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
-    
-    if (!isInCurrentMonth) return false;
-    
-    if (statusFilter === 'all') return true;
-    return booking.status === statusFilter;
+  const { user } = useAuth();
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const currentMonth = startOfMonth(currentDate);
+  const nextMonth = startOfMonth(addMonths(currentDate, 1));
+  const lastSixMonths = eachMonthOfInterval({
+    start: subMonths(currentDate, 5),
+    end: currentDate
   });
-  
-  const totalRevenue = currentMonthBookings
-    .filter(booking => booking.status === 'confirmed')
-    .reduce((sum, booking) => sum + Number(booking.total_value), 0);
-  
-  // Filter upcoming bookings by both selected month AND status filter
-  const upcomingBookings = bookings
-    .filter(booking => {
-      const checkIn = parseISO(booking.check_in);
-      const isInSelectedMonth = isWithinInterval(checkIn, { start: monthStart, end: monthEnd });
-      
-      // Filter by month and status
-      if (!isInSelectedMonth) return false;
-      
-      // Apply status filter
-      if (statusFilter === 'all') return true;
-      return booking.status === statusFilter;
-    })
-    .sort((a, b) => parseISO(a.check_in).getTime() - parseISO(b.check_in).getTime())
-    .slice(0, 3);
 
-  const goToPreviousMonth = () => {
-    setSelectedMonth(prev => subMonths(prev, 1));
+  const currentMonthBookings = bookings.filter(booking => {
+    const bookingDate = new Date(booking.booking_date);
+    return bookingDate >= startOfMonth(currentDate) && bookingDate <= endOfMonth(currentDate);
+  });
+
+  const nextMonthBookings = bookings.filter(booking => {
+    const bookingDate = new Date(booking.booking_date);
+    return bookingDate >= startOfMonth(nextMonth) && bookingDate <= endOfMonth(nextMonth);
+  });
+
+  const confirmedBookings = bookings.filter(booking => booking.status === 'confirmed');
+  const pendingBookings = bookings.filter(booking => booking.status === 'pending');
+  const totalRevenue = confirmedBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
+
+  const monthlyStats = lastSixMonths.map(month => {
+    const monthBookings = bookings.filter(booking => {
+      const bookingDate = new Date(booking.booking_date);
+      return bookingDate >= startOfMonth(month) && bookingDate <= endOfMonth(month);
+    });
+    
+    const monthRevenue = monthBookings
+      .filter(booking => booking.status === 'confirmed')
+      .reduce((sum, booking) => sum + Number(booking.total_value), 0);
+
+    return {
+      month: format(month, 'MMM', { locale: ptBR }),
+      bookings: monthBookings.length,
+      revenue: monthRevenue
+    };
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed':
+        return 'bg-success text-success-foreground';
+      case 'pending':
+        return 'bg-warning text-warning-foreground';
+      case 'cancelled':
+        return 'bg-danger text-danger-foreground';
+      default:
+        return 'bg-secondary text-secondary-foreground';
+    }
   };
 
-  const goToNextMonth = () => {
-    setSelectedMonth(prev => addMonths(prev, 1));
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'confirmed':
+        return 'Confirmada';
+      case 'pending':
+        return 'Aguardando';
+      case 'cancelled':
+        return 'Cancelada';
+      default:
+        return status;
+    }
   };
 
-  const resetToCurrentMonth = () => {
-    setSelectedMonth(new Date());
+  const previousMonth = () => {
+    setCurrentDate(subMonths(currentDate, 1));
   };
 
-  const statusOptions = [
-    { key: 'all', label: 'Todas', color: 'bg-sage-100 text-sage-700' },
-    { key: 'confirmed', label: 'Confirmadas', color: 'bg-success-light text-success' },
-    { key: 'pending', label: 'Aguardando', color: 'bg-warning-light text-warning' },
-    { key: 'cancelled', label: 'Canceladas', color: 'bg-danger-light text-danger' }
-  ];
+  const nextMonthNav = () => {
+    setCurrentDate(addMonths(currentDate, 1));
+  };
 
   if (loading) {
     return (
       <div className="p-4 space-y-6">
-        <div className="text-center py-8">
-          <div className="w-8 h-8 border-4 border-sage-200 border-t-sage-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sage-600">Carregando...</p>
-        </div>
+        <div className="text-center">Carregando...</div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 space-y-6 pb-24">
+    <div className="p-4 space-y-6 pb-32">
       <header className="text-center py-6 relative">
         <div className="absolute top-4 right-4">
           <UserMenu />
@@ -93,149 +110,147 @@ const Dashboard = () => {
           />
         </div>
         <p className="text-sm text-muted-foreground">
-          {format(currentDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
+          Sistema de Gestão de Reservas
         </p>
       </header>
 
-      {/* Notificações */}
-      <NotificationCenter />
-
-      {/* Month Navigation */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border">
-        <div className="flex items-center justify-between mb-3">
-          <button
-            onClick={goToPreviousMonth}
-            className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-sage-800">
-              {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
-            </h2>
-            <button
-              onClick={resetToCurrentMonth}
-              className="text-sm text-sage-600 hover:text-sage-800 transition-colors"
-            >
-              Voltar para hoje
-            </button>
-          </div>
-          
-          <button
-            onClick={goToNextMonth}
-            className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-        
-        <div className="text-center text-sm text-muted-foreground">
-          {currentMonthBookings.length} reserva{currentMonthBookings.length !== 1 ? 's' : ''} neste mês
-        </div>
-      </div>
-
-      {/* Status Filter */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border">
-        <h3 className="text-sm font-medium text-sage-800 mb-3">Filtrar por Status</h3>
-        <div className="flex flex-wrap gap-2">
-          {statusOptions.map(option => (
-            <button
-              key={option.key}
-              onClick={() => setStatusFilter(option.key as StatusFilter)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                statusFilter === option.key 
-                  ? option.color 
-                  : 'bg-muted text-muted-foreground hover:bg-sage-100'
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
+      {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm border">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-sage-100 rounded-lg">
-              <Bed className="text-sage-600" size={20} />
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Bed className="h-4 w-4 text-sage-600" />
+              Total de Reservas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-sage-800">{bookings.length}</div>
+            <p className="text-xs text-muted-foreground">
+              {confirmedBookings.length} confirmadas
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-sage-600" />
+              Receita Total
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-sage-800">
+              R$ {totalRevenue.toLocaleString('pt-BR')}
             </div>
-            <div>
-              <p className="text-2xl font-bold text-sage-800">{currentMonthBookings.length}</p>
-              <p className="text-xs text-muted-foreground">Reservas este mês</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl p-4 shadow-sm border">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-success/10 rounded-lg">
-              <TrendingUp className="text-success" size={20} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-sage-800">
-                R$ {totalRevenue.toLocaleString('pt-BR')}
-              </p>
-              <p className="text-xs text-muted-foreground">Faturamento</p>
-            </div>
-          </div>
-        </div>
+            <p className="text-xs text-muted-foreground">
+              {pendingBookings.length} pendentes
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      <Calendar currentMonth={selectedMonth} statusFilter={statusFilter} />
+      {/* Calendar Navigation */}
+      <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border">
+        <button
+          onClick={previousMonth}
+          className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <h2 className="text-lg font-semibold text-sage-800">
+          {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
+        </h2>
+        <button
+          onClick={nextMonthNav}
+          className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
 
-      <div className="bg-white rounded-xl p-4 shadow-sm border">
-        <h3 className="text-lg font-semibold text-sage-800 mb-3">
-          Chegadas em {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
-          {statusFilter !== 'all' && (
-            <span className="text-sm font-normal text-muted-foreground ml-2">
-              ({statusOptions.find(opt => opt.key === statusFilter)?.label})
-            </span>
-          )}
-        </h3>
-        {upcomingBookings.length > 0 ? (
-          <div className="space-y-3">
-            {upcomingBookings.map(booking => (
-              <Link
-                key={booking.id}
-                to={`/reserva/${booking.id}`}
-                className="flex items-center justify-between p-3 bg-sage-50 rounded-lg hover:bg-sage-100 transition-colors"
+      {/* Calendar */}
+      <Calendar currentMonth={currentDate} />
+
+      {/* Monthly Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {currentMonthBookings.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhuma reserva este mês</p>
+            ) : (
+              currentMonthBookings.slice(0, 3).map((booking) => (
+                <div key={booking.id} className="flex items-center justify-between p-2 bg-sage-50 rounded-lg">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-sage-800 truncate">
+                      {booking.guest_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(booking.check_in), 'dd/MM')} - {format(new Date(booking.check_out), 'dd/MM')}
+                    </p>
+                  </div>
+                  <Badge className={`text-xs ${getStatusColor(booking.status)}`}>
+                    {getStatusLabel(booking.status)}
+                  </Badge>
+                </div>
+              ))
+            )}
+            {currentMonthBookings.length > 3 && (
+              <Link 
+                to="/reservas" 
+                className="text-xs text-sage-600 hover:underline block text-center pt-2"
               >
-                <div>
-                  <p className="font-medium text-sage-800">{booking.guest_name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {format(parseISO(booking.check_in), "dd/MM", { locale: ptBR })} - {format(parseISO(booking.check_out), "dd/MM", { locale: ptBR })}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-sage-800">R$ {Number(booking.total_value).toLocaleString('pt-BR')}</p>
-                  <span className={`status-badge ${
-                    booking.status === 'confirmed' ? 'status-confirmed' :
-                    booking.status === 'pending' ? 'status-pending' :
-                    'status-cancelled'
-                  }`}>
-                    {booking.status === 'confirmed' ? 'Confirmada' :
-                     booking.status === 'pending' ? 'Aguardando' :
-                     'Cancelada'}
-                  </span>
-                </div>
+                Ver todas ({currentMonthBookings.length})
               </Link>
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground text-center py-4">
-            {statusFilter === 'all' 
-              ? `Nenhuma chegada em ${format(selectedMonth, 'MMMM', { locale: ptBR })}` 
-              : `Nenhuma chegada ${statusOptions.find(opt => opt.key === statusFilter)?.label.toLowerCase()} em ${format(selectedMonth, 'MMMM', { locale: ptBR })}`
-            }
-          </p>
-        )}
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {format(nextMonth, 'MMMM yyyy', { locale: ptBR })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {nextMonthBookings.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhuma reserva próximo mês</p>
+            ) : (
+              nextMonthBookings.slice(0, 3).map((booking) => (
+                <div key={booking.id} className="flex items-center justify-between p-2 bg-sage-50 rounded-lg">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-sage-800 truncate">
+                      {booking.guest_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(booking.check_in), 'dd/MM')} - {format(new Date(booking.check_out), 'dd/MM')}
+                    </p>
+                  </div>
+                  <Badge className={`text-xs ${getStatusColor(booking.status)}`}>
+                    {getStatusLabel(booking.status)}
+                  </Badge>
+                </div>
+              ))
+            )}
+            {nextMonthBookings.length > 3 && (
+              <Link 
+                to="/reservas" 
+                className="text-xs text-sage-600 hover:underline block text-center pt-2"
+              >
+                Ver todas ({nextMonthBookings.length})
+              </Link>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <Link
         to="/nova-reserva"
-        className="fixed bottom-24 right-4 bg-sage-600 text-white p-4 rounded-full shadow-lg hover:bg-sage-700 transition-colors"
+        className="fixed bottom-28 right-4 bg-sage-600 text-white p-4 rounded-full shadow-lg hover:bg-sage-700 transition-colors"
       >
         <Plus size={24} />
       </Link>
