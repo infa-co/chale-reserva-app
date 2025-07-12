@@ -9,9 +9,9 @@ const DashboardHeader = () => {
       </div>
       <div className="flex items-center justify-center mb-3">
         <img 
-          src="/lovable-uploads/d08d425b-8432-4ab7-a851-163f5a72bd81.png" 
+          src="/lovable-uploads/4c0333c9-dada-46c7-8544-352d42f7c0d2.png" 
           alt="ORDOMO Logo" 
-          className="h-24 object-contain"
+          className="h-32 object-contain"
         />
       </div>
       <p className="text-sm text-muted-foreground">
