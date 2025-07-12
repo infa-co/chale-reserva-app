@@ -72,7 +72,11 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-sage-800 mb-2">Chalé Manager</h1>
+            <img 
+              src="/lovable-uploads/4c0333c9-dada-46c7-8544-352d42f7c0d2.png" 
+              alt="OR DOMO" 
+              className="h-16 mx-auto mb-4"
+            />
             <p className="text-muted-foreground">
               {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
             </p>
