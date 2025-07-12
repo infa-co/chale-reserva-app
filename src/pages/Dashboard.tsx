@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { useBookings } from '@/contexts/BookingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -54,7 +55,7 @@ const Dashboard = () => {
       <MonthlyBookings 
         bookings={currentMonthBookings}
         month={currentDate}
-        title={format(currentDate, 'MMMM yyyy', { locale: { pt: { localize: { month: (n: number) => ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][n] } } } })}
+        title={format(currentDate, 'MMMM yyyy', { locale: ptBR })}
       />
 
       <Link
