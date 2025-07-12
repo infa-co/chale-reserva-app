@@ -5,7 +5,7 @@
   "description": "App para gestão de reservas de chalés - Organize suas hospedagens de forma simples e prática",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#5a6b5a",
+  "background_color": "#ffffff",
   "theme_color": "#5a6b5a",
   "orientation": "portrait-primary",
   "scope": "/",
@@ -13,49 +13,49 @@
   "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "/lovable-uploads/4c9d4f63-da8e-45c8-bd01-dec21d57801f.png",
+      "src": "/lovable-uploads/2f93ccee-c9bc-4632-97a4-d8469d75c440.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/lovable-uploads/4c9d4f63-da8e-45c8-bd01-dec21d57801f.png",
+      "src": "/lovable-uploads/2f93ccee-c9bc-4632-97a4-d8469d75c440.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/lovable-uploads/4c9d4f63-da8e-45c8-bd01-dec21d57801f.png",
+      "src": "/lovable-uploads/2f93ccee-c9bc-4632-97a4-d8469d75c440.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/lovable-uploads/4c9d4f63-da8e-45c8-bd01-dec21d57801f.png",
+      "src": "/lovable-uploads/2f93ccee-c9bc-4632-97a4-d8469d75c440.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/lovable-uploads/4c9d4f63-da8e-45c8-bd01-dec21d57801f.png",
+      "src": "/lovable-uploads/2f93ccee-c9bc-4632-97a4-d8469d75c440.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/lovable-uploads/4c9d4f63-da8e-45c8-bd01-dec21d57801f.png",
+      "src": "/lovable-uploads/2f93ccee-c9bc-4632-97a4-d8469d75c440.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/lovable-uploads/4c9d4f63-da8e-45c8-bd01-dec21d57801f.png",
+      "src": "/lovable-uploads/2f93ccee-c9bc-4632-97a4-d8469d75c440.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/lovable-uploads/4c9d4f63-da8e-45c8-bd01-dec21d57801f.png",
+      "src": "/lovable-uploads/2f93ccee-c9bc-4632-97a4-d8469d75c440.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
