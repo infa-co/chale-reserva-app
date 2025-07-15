@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Download, FileText, Database } from 'lucide-react';
+import { Download, FileText, Database, File } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -51,6 +50,12 @@ const ClientExportDialog = ({ clients, filteredCount }: ClientExportDialogProps)
       title: 'Arquivo JSON',
       description: 'Para backup ou uso técnico',
       icon: Database,
+    },
+    {
+      format: 'pdf' as ExportFormat,
+      title: 'Relatório PDF',
+      description: 'Documento formatado para impressão',
+      icon: File,
     }
   ];
 
