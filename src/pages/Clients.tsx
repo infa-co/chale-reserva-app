@@ -4,6 +4,7 @@ import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useBookings } from '@/contexts/BookingContext';
 import ClientsByMonth from '@/components/ClientsByMonth';
+import ClientExportDialog from '@/components/ClientExportDialog';
 
 interface ProcessedClient {
   id: string;
@@ -64,10 +65,21 @@ const Clients = () => {
     }
   });
 
+  // Filtrar clientes para exportação
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="p-4">
       <header className="mb-6">
-        <h1 className="text-xl font-bold text-sage-800 mb-4">Clientes</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-bold text-sage-800">Clientes</h1>
+          <ClientExportDialog 
+            clients={filteredClients} 
+            filteredCount={filteredClients.length}
+          />
+        </div>
         
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
@@ -80,7 +92,7 @@ const Clients = () => {
         </div>
       </header>
 
-      <ClientsByMonth clients={clients} searchTerm={searchTerm} />
+      <ClientsByMonth clients={filteredClients} searchTerm={searchTerm} />
     </div>
   );
 };
