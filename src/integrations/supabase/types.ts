@@ -28,6 +28,7 @@ export type Database = {
           notes: string | null
           payment_method: string
           phone: string
+          property_id: string | null
           state: string | null
           status: string
           total_value: number
@@ -47,6 +48,7 @@ export type Database = {
           notes?: string | null
           payment_method: string
           phone: string
+          property_id?: string | null
           state?: string | null
           status: string
           total_value: number
@@ -66,13 +68,22 @@ export type Database = {
           notes?: string | null
           payment_method?: string
           phone?: string
+          property_id?: string | null
           state?: string | null
           status?: string
           total_value?: number
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bookings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clients: {
         Row: {
@@ -140,6 +151,45 @@ export type Database = {
           id?: string
           name?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          capacity: number
+          created_at: string | null
+          default_daily_rate: number | null
+          fixed_notes: string | null
+          id: string
+          is_active: boolean
+          location: string
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          capacity: number
+          created_at?: string | null
+          default_daily_rate?: number | null
+          fixed_notes?: string | null
+          id?: string
+          is_active?: boolean
+          location: string
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string | null
+          default_daily_rate?: number | null
+          fixed_notes?: string | null
+          id?: string
+          is_active?: boolean
+          location?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }

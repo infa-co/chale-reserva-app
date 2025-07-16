@@ -10,6 +10,8 @@ import EditBooking from "./pages/EditBooking";
 import BookingList from "./pages/BookingList";
 import BookingDetails from "./pages/BookingDetails";
 import Clients from "./pages/Clients";
+import Properties from "./pages/Properties";
+import PropertyDashboard from "./pages/PropertyDashboard";
 import Auth from "./pages/Auth";
 import MobileNav from "./components/MobileNav";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -39,6 +41,8 @@ const App = () => (
                       <Route path="/reservas" element={<BookingList />} />
                       <Route path="/reserva/:id" element={<BookingDetails />} />
                       <Route path="/clientes" element={<Clients />} />
+                      <Route path="/meus-chales" element={<Properties />} />
+                      <Route path="/chale/:id/dashboard" element={<PropertyDashboard />} />
                     </Routes>
                     <MobileNav />
                     <PWAInstallPrompt />
