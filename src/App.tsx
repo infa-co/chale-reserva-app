@@ -1,25 +1,42 @@
 
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import NewBooking from "./pages/NewBooking";
-import EditBooking from "./pages/EditBooking";
-import BookingList from "./pages/BookingList";
-import BookingDetails from "./pages/BookingDetails";
-import Clients from "./pages/Clients";
-import Properties from "./pages/Properties";
-import PropertyDashboard from "./pages/PropertyDashboard";
-import Auth from "./pages/Auth";
-import MobileNav from "./components/MobileNav";
-import ProtectedRoute from "./components/ProtectedRoute";
-import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BookingProvider } from "./contexts/BookingContext";
+import Auth from "./pages/Auth";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import MobileNav from "./components/MobileNav";
 
-const queryClient = new QueryClient();
+// Lazy load das páginas para melhor performance
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const NewBooking = lazy(() => import("./pages/NewBooking"));
+const EditBooking = lazy(() => import("./pages/EditBooking"));
+const BookingList = lazy(() => import("./pages/BookingList"));
+const BookingDetails = lazy(() => import("./pages/BookingDetails"));
+const Clients = lazy(() => import("./pages/Clients"));
+const Properties = lazy(() => import("./pages/Properties"));
+const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutos
+      gcTime: 10 * 60 * 1000, // 10 minutos
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage-600"></div>
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -34,16 +51,18 @@ const App = () => (
               <Route path="/*" element={
                 <ProtectedRoute>
                   <div className="mobile-container pb-16">
-                    <Routes>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/nova-reserva" element={<NewBooking />} />
-                      <Route path="/editar-reserva/:id" element={<EditBooking />} />
-                      <Route path="/reservas" element={<BookingList />} />
-                      <Route path="/reserva/:id" element={<BookingDetails />} />
-                      <Route path="/clientes" element={<Clients />} />
-                      <Route path="/meus-chales" element={<Properties />} />
-                      <Route path="/chale/:id/dashboard" element={<PropertyDashboard />} />
-                    </Routes>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/nova-reserva" element={<NewBooking />} />
+                        <Route path="/editar-reserva/:id" element={<EditBooking />} />
+                        <Route path="/reservas" element={<BookingList />} />
+                        <Route path="/reserva/:id" element={<BookingDetails />} />
+                        <Route path="/clientes" element={<Clients />} />
+                        <Route path="/meus-chales" element={<Properties />} />
+                        <Route path="/chale/:id/dashboard" element={<PropertyDashboard />} />
+                      </Routes>
+                    </Suspense>
                     <MobileNav />
                     <PWAInstallPrompt />
                   </div>

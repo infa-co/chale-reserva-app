@@ -1,10 +1,9 @@
 
+import { memo, useState, useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import { useBookings } from '@/contexts/BookingContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import QuickStats from '@/components/dashboard/QuickStats';
@@ -12,15 +11,16 @@ import CalendarNavigation from '@/components/dashboard/CalendarNavigation';
 import CalendarWithFilters from '@/components/dashboard/CalendarWithFilters';
 import MonthlyBookings from '@/components/dashboard/MonthlyBookings';
 
-const Dashboard = () => {
+const Dashboard = memo(() => {
   const { bookings, loading } = useBookings();
-  const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const currentMonthBookings = bookings.filter(booking => {
-    const bookingDate = new Date(booking.booking_date);
-    return bookingDate >= startOfMonth(currentDate) && bookingDate <= endOfMonth(currentDate);
-  });
+  const currentMonthBookings = useMemo(() => {
+    return bookings.filter(booking => {
+      const bookingDate = new Date(booking.booking_date);
+      return bookingDate >= startOfMonth(currentDate) && bookingDate <= endOfMonth(currentDate);
+    });
+  }, [bookings, currentDate]);
 
   const previousMonth = () => {
     setCurrentDate(subMonths(currentDate, 1));
@@ -66,6 +66,8 @@ const Dashboard = () => {
       </Link>
     </div>
   );
-};
+});
+
+Dashboard.displayName = 'Dashboard';
 
 export default Dashboard;

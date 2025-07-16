@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -10,8 +10,11 @@ export const useBookings = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  const fetchBookings = async () => {
-    if (!user) return;
+  const fetchBookings = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     try {
       const { data, error } = await supabase
@@ -25,7 +28,6 @@ export const useBookings = () => {
         return;
       }
 
-      // Cast the data to match our Booking interface
       const typedBookings: Booking[] = (data || []).map(booking => ({
         ...booking,
         status: booking.status as Booking['status']
@@ -38,13 +40,13 @@ export const useBookings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchBookings();
-  }, [user]);
+  }, [fetchBookings]);
 
-  const addBooking = async (bookingData: Omit<Booking, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  const addBooking = useCallback(async (bookingData: Omit<Booking, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return;
 
     try {
@@ -74,9 +76,9 @@ export const useBookings = () => {
       console.error('Error adding booking:', error);
       toast.error('Erro ao criar reserva');
     }
-  };
+  }, [user]);
 
-  const updateBooking = async (id: string, bookingData: Partial<Booking>) => {
+  const updateBooking = useCallback(async (id: string, bookingData: Partial<Booking>) => {
     if (!user) return;
 
     try {
@@ -109,9 +111,9 @@ export const useBookings = () => {
       console.error('Error updating booking:', error);
       toast.error('Erro ao atualizar reserva');
     }
-  };
+  }, [user]);
 
-  const deleteBooking = async (id: string) => {
+  const deleteBooking = useCallback(async (id: string) => {
     if (!user) return;
 
     try {
@@ -133,11 +135,11 @@ export const useBookings = () => {
       console.error('Error deleting booking:', error);
       toast.error('Erro ao excluir reserva');
     }
-  };
+  }, [user]);
 
-  const getBookingById = (id: string) => {
+  const getBookingById = useCallback((id: string) => {
     return bookings.find(booking => booking.id === id);
-  };
+  }, [bookings]);
 
   return {
     bookings,

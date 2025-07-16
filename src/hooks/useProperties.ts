@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -10,8 +10,11 @@ export const useProperties = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  const fetchProperties = async () => {
-    if (!user) return;
+  const fetchProperties = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     try {
       const { data, error } = await supabase
@@ -32,13 +35,13 @@ export const useProperties = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchProperties();
-  }, [user]);
+  }, [fetchProperties]);
 
-  const addProperty = async (propertyData: Omit<Property, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  const addProperty = useCallback(async (propertyData: Omit<Property, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return;
 
     try {
@@ -64,9 +67,9 @@ export const useProperties = () => {
       console.error('Error adding property:', error);
       toast.error('Erro ao criar propriedade');
     }
-  };
+  }, [user]);
 
-  const updateProperty = async (id: string, propertyData: Partial<Property>) => {
+  const updateProperty = useCallback(async (id: string, propertyData: Partial<Property>) => {
     if (!user) return;
 
     try {
@@ -95,13 +98,12 @@ export const useProperties = () => {
       console.error('Error updating property:', error);
       toast.error('Erro ao atualizar propriedade');
     }
-  };
+  }, [user]);
 
-  const deleteProperty = async (id: string) => {
+  const deleteProperty = useCallback(async (id: string) => {
     if (!user) return;
 
     try {
-      // Verificar se há reservas ativas para esta propriedade
       const { data: bookings, error: bookingsError } = await supabase
         .from('bookings')
         .select('id')
@@ -137,11 +139,11 @@ export const useProperties = () => {
       console.error('Error deleting property:', error);
       toast.error('Erro ao excluir propriedade');
     }
-  };
+  }, [user]);
 
-  const getPropertyById = (id: string) => {
+  const getPropertyById = useCallback((id: string) => {
     return properties.find(property => property.id === id);
-  };
+  }, [properties]);
 
   return {
     properties,

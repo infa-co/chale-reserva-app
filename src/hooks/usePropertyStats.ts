@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PropertyStats } from '@/types/property';
@@ -10,19 +10,20 @@ export const usePropertyStats = (propertyId?: string) => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  const fetchStats = async () => {
-    if (!user) return;
+  const fetchStats = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     try {
       setLoading(true);
       
-      // Query base para reservas
       let bookingsQuery = supabase
         .from('bookings')
         .select('total_value, check_in, check_out, nights, status')
         .eq('user_id', user.id);
 
-      // Se propertyId for fornecido, filtrar por propriedade específica
       if (propertyId) {
         bookingsQuery = bookingsQuery.eq('property_id', propertyId);
       }
@@ -36,7 +37,6 @@ export const usePropertyStats = (propertyId?: string) => {
 
       if (!bookings) return;
 
-      // Calcular estatísticas
       const now = new Date();
       const monthStart = startOfMonth(now);
       const monthEnd = endOfMonth(now);
@@ -53,13 +53,11 @@ export const usePropertyStats = (propertyId?: string) => {
       const totalNights = confirmedBookings.reduce((sum, booking) => sum + booking.nights, 0);
       const averageDailyRate = totalNights > 0 ? totalRevenue / totalNights : 0;
 
-      // Calcular taxa de ocupação (simplificada - baseada no mês atual)
       const daysInMonth = monthEnd.getDate();
       const occupiedNights = monthlyBookings.reduce((sum, booking) => {
         const checkIn = new Date(booking.check_in);
         const checkOut = new Date(booking.check_out);
         
-        // Calcular noites que se sobrepõem com o mês atual
         const overlapStart = checkIn < monthStart ? monthStart : checkIn;
         const overlapEnd = checkOut > monthEnd ? monthEnd : checkOut;
         
@@ -77,7 +75,7 @@ export const usePropertyStats = (propertyId?: string) => {
         monthlyBookings: monthlyBookings.length,
         totalRevenue,
         monthlyRevenue,
-        occupancyRate: Math.min(occupancyRate, 100), // Máximo 100%
+        occupancyRate: Math.min(occupancyRate, 100),
         averageDailyRate
       };
 
@@ -87,11 +85,11 @@ export const usePropertyStats = (propertyId?: string) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, propertyId]);
 
   useEffect(() => {
     fetchStats();
-  }, [user, propertyId]);
+  }, [fetchStats]);
 
   return {
     stats,
