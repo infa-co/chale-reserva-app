@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBookings } from '@/contexts/BookingContext';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, isWithinInterval } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, startOfWeek, endOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface CalendarProps {
@@ -24,7 +24,13 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
   
   const monthStart = startOfMonth(activeDate);
   const monthEnd = endOfMonth(activeDate);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  
+  // Obter o primeiro dia da semana (segunda-feira) e o último dia da semana (domingo)
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  
+  // Criar array com todos os dias do calendário (incluindo dias do mês anterior/posterior)
+  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   
   const currentMonthBookings = bookings.filter(booking => {
     const checkIn = parseISO(booking.check_in);
@@ -68,6 +74,13 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
     }
   };
 
+  // Gerar nomes dos dias da semana usando date-fns com locale brasileiro
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - date.getDay() + i + 1); // Começar na segunda-feira
+    return format(date, 'EEE', { locale: ptBR }).slice(0, 3);
+  });
+
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border">
       <div className="flex items-center justify-between mb-4">
@@ -93,7 +106,7 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
       </div>
       
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
+        {weekDays.map(day => (
           <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
             {day}
           </div>
@@ -111,6 +124,7 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
           );
           
           const hasBookings = dayBookings.length > 0;
+          const isCurrentMonth = day >= monthStart && day <= monthEnd;
           
           let borderClasses = '';
           if (checkInBookings.length > 0) {
@@ -128,10 +142,11 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
                 transition-colors duration-200 rounded-sm
                 ${hasBookings ? 'bg-sage-200/80 hover:bg-sage-300' : 'hover:bg-sage-100'}
                 ${borderClasses}
+                ${!isCurrentMonth ? 'text-gray-400' : 'text-sage-800'}
                 cursor-default
               `}
             >
-              <span className="relative z-10 font-medium text-sage-800">
+              <span className="relative z-10 font-medium">
                 {format(day, 'd')}
               </span>
             </div>
