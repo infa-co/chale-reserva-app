@@ -2,6 +2,7 @@
 export interface Booking {
   id: string;
   user_id: string;
+  property_id?: string; // Adicionando property_id como opcional
   guest_name: string;
   phone: string;
   email?: string;
