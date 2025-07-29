@@ -130,6 +130,103 @@ export type Database = {
         }
         Relationships: []
       }
+      external_bookings: {
+        Row: {
+          created_at: string
+          end_date: string
+          external_id: string
+          ical_sync_id: string
+          id: string
+          platform_name: string
+          raw_ical_data: string | null
+          start_date: string
+          summary: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          external_id: string
+          ical_sync_id: string
+          id?: string
+          platform_name?: string
+          raw_ical_data?: string | null
+          start_date: string
+          summary: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          external_id?: string
+          ical_sync_id?: string
+          id?: string
+          platform_name?: string
+          raw_ical_data?: string | null
+          start_date?: string
+          summary?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_bookings_ical_sync_id_fkey"
+            columns: ["ical_sync_id"]
+            isOneToOne: false
+            referencedRelation: "ical_syncs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ical_syncs: {
+        Row: {
+          created_at: string
+          ical_url: string
+          id: string
+          is_active: boolean
+          last_sync_at: string | null
+          platform_name: string
+          property_id: string | null
+          sync_frequency_hours: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ical_url: string
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          platform_name?: string
+          property_id?: string | null
+          sync_frequency_hours?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ical_url?: string
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          platform_name?: string
+          property_id?: string | null
+          sync_frequency_hours?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ical_syncs_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
