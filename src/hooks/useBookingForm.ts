@@ -9,7 +9,7 @@ export const useBookingForm = () => {
     email: '',
     city: '',
     state: '',
-    bookingDate: new Date().toISOString().split('T')[0],
+    bookingDate: new Date().toLocaleDateString('sv-SE'), // formato YYYY-MM-DD na timezone local
     checkIn: '',
     checkOut: '',
     totalValue: '',
