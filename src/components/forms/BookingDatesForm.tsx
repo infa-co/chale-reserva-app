@@ -31,8 +31,7 @@ export const BookingDatesForm = ({ formData, onInputChange, nights }: BookingDat
           type="date"
           value={formData.bookingDate}
           onChange={(e) => onInputChange('bookingDate', e.target.value)}
-          min={`${currentYear}-01-01`}
-          max={`${currentYear + 2}-12-31`}
+          max={currentDate}
           className="mt-1"
         />
       </div>
