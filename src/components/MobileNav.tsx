@@ -1,5 +1,5 @@
 
-import { Home, Plus, Calendar, Users, Building, RefreshCw } from 'lucide-react';
+import { Home, Plus, Calendar, Users, Building } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const MobileNav = () => {
@@ -11,7 +11,6 @@ const MobileNav = () => {
     { href: '/nova-reserva', icon: Plus, label: 'Nova', isButton: true },
     { href: '/clientes', icon: Users, label: 'Clientes' },
     { href: '/meus-chales', icon: Building, label: 'Chalés' },
-    { href: '/sincronizacao', icon: RefreshCw, label: 'Sync' },
   ];
 
   return (

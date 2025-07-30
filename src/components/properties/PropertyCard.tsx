@@ -1,5 +1,5 @@
 
-import { Home, MapPin, Users, DollarSign, MoreVertical, Eye, Edit, Archive } from 'lucide-react';
+import { Home, MapPin, Users, DollarSign, MoreVertical, Eye, Edit, Archive, Calendar, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,14 +10,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Property } from '@/types/property';
 import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { useICalSyncs } from '@/hooks/useICalSyncs';
 
 interface PropertyCardProps {
   property: Property;
   onEdit: (property: Property) => void;
   onToggleActive: (property: Property) => void;
+  onManageSync?: (property: Property) => void;
 }
 
-const PropertyCard = ({ property, onEdit, onToggleActive }: PropertyCardProps) => {
+const PropertyCard = ({ property, onEdit, onToggleActive, onManageSync }: PropertyCardProps) => {
+  const { getSyncsForProperty } = useICalSyncs();
+  const propertySyncs = getSyncsForProperty(property.id);
+  const activeSyncs = propertySyncs.filter(sync => sync.is_active);
+
   const formatCurrency = (value?: number) => {
     if (!value) return 'Não definido';
     return new Intl.NumberFormat('pt-BR', {
@@ -59,6 +66,12 @@ const PropertyCard = ({ property, onEdit, onToggleActive }: PropertyCardProps) =
                 <Edit className="h-4 w-4 mr-2" />
                 Editar
               </DropdownMenuItem>
+              {onManageSync && (
+                <DropdownMenuItem onClick={() => onManageSync(property)}>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Gerenciar Sincronização
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={() => onToggleActive(property)}>
                 <Archive className="h-4 w-4 mr-2" />
                 {property.is_active ? 'Desativar' : 'Ativar'}
@@ -83,6 +96,19 @@ const PropertyCard = ({ property, onEdit, onToggleActive }: PropertyCardProps) =
             <span>{formatCurrency(property.default_daily_rate)} por diária</span>
           </div>
         </div>
+
+        {/* Sync Status */}
+        {propertySyncs.length > 0 && (
+          <div className="mt-4 flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <Badge variant={activeSyncs.length > 0 ? "default" : "secondary"} className="text-xs">
+              {activeSyncs.length > 0 
+                ? `${activeSyncs.length} sync${activeSyncs.length > 1 ? 's' : ''} ativa${activeSyncs.length > 1 ? 's' : ''}`
+                : `${propertySyncs.length} sync${propertySyncs.length > 1 ? 's' : ''} inativa${propertySyncs.length > 1 ? 's' : ''}`
+              }
+            </Badge>
+          </div>
+        )}
 
         {property.fixed_notes && (
           <div className="mt-4 p-3 bg-sage-50 rounded-lg">

@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Plus, Home } from 'lucide-react';
+import { Plus, Home, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -8,9 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProperties } from '@/hooks/useProperties';
 import PropertyCard from '@/components/properties/PropertyCard';
 import PropertyForm from '@/components/properties/PropertyForm';
+import SyncManager from '@/components/properties/SyncManager';
 import { Property } from '@/types/property';
 
 const Properties = () => {
@@ -75,33 +77,53 @@ const Properties = () => {
         </Button>
       </div>
 
-      {/* Conteúdo */}
-      {properties.length === 0 ? (
-        <div className="text-center py-12">
-          <Home className="h-12 w-12 text-sage-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-sage-800 mb-2">
-            Nenhum chalé cadastrado
-          </h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Comece criando seu primeiro chalé para organizar suas reservas por propriedade.
-          </p>
-          <Button onClick={handleAddProperty} className="bg-sage-600 hover:bg-sage-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Criar Primeiro Chalé
-          </Button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {properties.map((property) => (
-            <PropertyCard
-              key={property.id}
-              property={property}
-              onEdit={handleEditProperty}
-              onToggleActive={handleToggleActive}
-            />
-          ))}
-        </div>
-      )}
+      {/* Tabs */}
+      <Tabs defaultValue="properties" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="properties" className="flex items-center gap-2">
+            <Home className="h-4 w-4" />
+            Propriedades
+          </TabsTrigger>
+          <TabsTrigger value="sync" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Sincronização
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="properties" className="space-y-6">
+          {/* Conteúdo das Propriedades */}
+          {properties.length === 0 ? (
+            <div className="text-center py-12">
+              <Home className="h-12 w-12 text-sage-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-sage-800 mb-2">
+                Nenhum chalé cadastrado
+              </h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Comece criando seu primeiro chalé para organizar suas reservas por propriedade.
+              </p>
+              <Button onClick={handleAddProperty} className="bg-sage-600 hover:bg-sage-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Criar Primeiro Chalé
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {properties.map((property) => (
+                <PropertyCard
+                  key={property.id}
+                  property={property}
+                  onEdit={handleEditProperty}
+                  onToggleActive={handleToggleActive}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="sync">
+          <SyncManager properties={properties} />
+        </TabsContent>
+      </Tabs>
 
       {/* Dialog para criar/editar propriedade */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
