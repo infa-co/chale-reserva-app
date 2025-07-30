@@ -63,15 +63,11 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
   };
 
   const previousMonth = () => {
-    if (!currentMonth) {
-      setInternalCurrentDate(new Date(activeDate.getFullYear(), activeDate.getMonth() - 1));
-    }
+    setInternalCurrentDate(new Date(activeDate.getFullYear(), activeDate.getMonth() - 1));
   };
 
   const nextMonth = () => {
-    if (!currentMonth) {
-      setInternalCurrentDate(new Date(activeDate.getFullYear(), activeDate.getMonth() + 1));
-    }
+    setInternalCurrentDate(new Date(activeDate.getFullYear(), activeDate.getMonth() + 1));
   };
 
   // Gerar nomes dos dias da semana usando date-fns com locale brasileiro
