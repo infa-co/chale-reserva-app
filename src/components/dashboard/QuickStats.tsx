@@ -3,17 +3,28 @@ import { Bed, TrendingUp, History } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Booking } from '@/types/booking';
 import { useAllBookings } from '@/hooks/useAllBookings';
+import { useMonthlyStats } from '@/hooks/useMonthlyStats';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface QuickStatsProps {
   bookings: Booking[];
+  selectedMonth?: Date;
 }
 
-const QuickStats = ({ bookings }: QuickStatsProps) => {
+const QuickStats = ({ bookings, selectedMonth = new Date() }: QuickStatsProps) => {
   const { allBookings } = useAllBookings();
-  const confirmedBookings = bookings.filter(booking => booking.status === 'confirmed');
-  const pendingBookings = bookings.filter(booking => booking.status === 'pending');
-  const historicalBookings = allBookings.filter(booking => booking.is_historical);
-  const totalRevenue = allBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
+  const {
+    totalBookings,
+    confirmedBookings,
+    pendingBookings,
+    historicalBookings,
+    monthlyRevenue
+  } = useMonthlyStats(allBookings, bookings, selectedMonth);
+
+  const isCurrentMonth = selectedMonth.getMonth() === new Date().getMonth() && 
+                        selectedMonth.getFullYear() === new Date().getFullYear();
+  const monthLabel = isCurrentMonth ? 'Este Mês' : format(selectedMonth, 'MMM yyyy', { locale: ptBR });
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -21,13 +32,13 @@ const QuickStats = ({ bookings }: QuickStatsProps) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <Bed className="h-4 w-4 text-sage-600" />
-            Total de Reservas
+            Reservas - {monthLabel}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-sage-800">{bookings.length}</div>
+          <div className="text-2xl font-bold text-sage-800">{totalBookings}</div>
           <p className="text-xs text-muted-foreground">
-            {confirmedBookings.length} confirmadas
+            {confirmedBookings} confirmadas
           </p>
         </CardContent>
       </Card>
@@ -36,15 +47,15 @@ const QuickStats = ({ bookings }: QuickStatsProps) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-sage-600" />
-            Receita Total
+            Receita - {monthLabel}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-sage-800">
-            R$ {totalRevenue.toLocaleString('pt-BR')}
+            R$ {monthlyRevenue.toLocaleString('pt-BR')}
           </div>
           <p className="text-xs text-muted-foreground">
-            {pendingBookings.length} pendentes
+            {pendingBookings} pendentes
           </p>
         </CardContent>
       </Card>
@@ -57,9 +68,9 @@ const QuickStats = ({ bookings }: QuickStatsProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-sage-800">{historicalBookings.length}</div>
+          <div className="text-2xl font-bold text-sage-800">{historicalBookings}</div>
           <p className="text-xs text-muted-foreground">
-            reservas concluídas
+            histórico - {monthLabel}
           </p>
         </CardContent>
       </Card>

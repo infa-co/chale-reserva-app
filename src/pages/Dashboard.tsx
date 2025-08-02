@@ -42,7 +42,7 @@ const Dashboard = memo(() => {
     <div className="p-4 space-y-6 pb-32">
       <DashboardHeader />
       
-      <QuickStats bookings={bookings} />
+      <QuickStats bookings={bookings} selectedMonth={currentDate} />
 
       <CalendarNavigation 
         currentDate={currentDate}
