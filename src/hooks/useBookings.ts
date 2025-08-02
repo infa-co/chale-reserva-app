@@ -20,6 +20,7 @@ export const useBookings = () => {
       const { data, error } = await supabase
         .from('bookings')
         .select('*')
+        .eq('is_historical', false)
         .order('created_at', { ascending: false });
 
       if (error) {

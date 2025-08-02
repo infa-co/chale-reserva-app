@@ -1,5 +1,5 @@
 
-import { Home, Plus, Calendar, Users, Building } from 'lucide-react';
+import { Home, Plus, Calendar, Users, Building, History } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const MobileNav = () => {
@@ -9,7 +9,7 @@ const MobileNav = () => {
     { href: '/', icon: Home, label: 'Início' },
     { href: '/reservas', icon: Calendar, label: 'Reservas' },
     { href: '/nova-reserva', icon: Plus, label: 'Nova', isButton: true },
-    { href: '/clientes', icon: Users, label: 'Clientes' },
+    { href: '/historico-reservas', icon: History, label: 'Histórico' },
     { href: '/meus-chales', icon: Building, label: 'Chalés' },
   ];
 

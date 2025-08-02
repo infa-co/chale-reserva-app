@@ -18,6 +18,8 @@ export interface Booking {
   notes?: string;
   created_at: string;
   updated_at?: string;
+  is_historical?: boolean;
+  historical_registration_date?: string;
 }
 
 export interface Client {

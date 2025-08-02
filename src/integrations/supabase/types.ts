@@ -23,7 +23,9 @@ export type Database = {
           created_at: string | null
           email: string | null
           guest_name: string
+          historical_registration_date: string | null
           id: string
+          is_historical: boolean
           nights: number
           notes: string | null
           payment_method: string
@@ -43,7 +45,9 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           guest_name: string
+          historical_registration_date?: string | null
           id?: string
+          is_historical?: boolean
           nights: number
           notes?: string | null
           payment_method: string
@@ -63,7 +67,9 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           guest_name?: string
+          historical_registration_date?: string | null
           id?: string
+          is_historical?: boolean
           nights?: number
           notes?: string | null
           payment_method?: string

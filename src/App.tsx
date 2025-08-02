@@ -21,6 +21,7 @@ const BookingDetails = lazy(() => import("./pages/BookingDetails"));
 const Clients = lazy(() => import("./pages/Clients"));
 const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
+const HistoricalBookings = lazy(() => import("./pages/HistoricalBookings"));
 
 
 const queryClient = new QueryClient({
@@ -62,6 +63,7 @@ const App = () => (
                         <Route path="/clientes" element={<Clients />} />
                         <Route path="/meus-chales" element={<Properties />} />
                         <Route path="/chale/:id/dashboard" element={<PropertyDashboard />} />
+                        <Route path="/historico-reservas" element={<HistoricalBookings />} />
                         
                       </Routes>
                     </Suspense>
