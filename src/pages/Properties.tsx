@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import OptimizedPropertyCard from '@/components/properties/OptimizedPropertyCard';
 import PropertyForm from '@/components/properties/PropertyForm';
-import OptimizedSyncManager from '@/components/properties/OptimizedSyncManager';
+import ICalSyncSettings from '@/components/properties/ICalSyncSettings';
 import { Property } from '@/types/property';
 
 const Properties = () => {
@@ -121,7 +121,7 @@ const Properties = () => {
         </TabsContent>
 
         <TabsContent value="sync">
-          <OptimizedSyncManager properties={properties} />
+          <ICalSyncSettings />
         </TabsContent>
       </Tabs>
 

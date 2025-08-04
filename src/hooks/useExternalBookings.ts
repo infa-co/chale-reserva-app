@@ -2,20 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-
-export interface ExternalBooking {
-  id: string;
-  user_id: string;
-  ical_sync_id: string;
-  external_id: string;
-  summary: string;
-  start_date: string;
-  end_date: string;
-  platform_name: string;
-  raw_ical_data: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { ExternalBooking } from '@/types/externalBooking';
 
 export const useExternalBookings = () => {
   const { user } = useAuth();
