@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { Booking } from '@/types/booking';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -163,7 +163,7 @@ export const useBookingExport = () => {
         booking.status
       ]);
 
-      (doc as any).autoTable({
+      autoTable(doc, {
         head: [['Nome', 'Telefone', 'Check-in', 'Check-out', 'Noites', 'Valor', 'Status']],
         body: activeTableData,
         startY: currentY,
@@ -207,7 +207,7 @@ export const useBookingExport = () => {
           format(parseISO(booking.historical_registration_date), 'dd/MM/yyyy', { locale: ptBR }) : ''
       ]);
 
-      (doc as any).autoTable({
+      autoTable(doc, {
         head: [['Nome', 'Telefone', 'Check-in', 'Check-out', 'Noites', 'Valor', 'Reg. em']],
         body: historicalTableData,
         startY: currentY,
