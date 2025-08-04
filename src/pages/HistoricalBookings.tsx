@@ -70,19 +70,21 @@ const HistoricalBookings = () => {
   const totalRevenue = historicalBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
 
   return (
-    <div className="p-4 space-y-6 pb-32">
-      <div className="flex items-center justify-between">
+    <div className="p-2 sm:p-4 space-y-4 sm:space-y-6 pb-32">
+      {/* Header - Mobile Responsive */}
+      <div className="space-y-3 sm:space-y-0">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <History className="h-6 w-6" />
+          <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <History className="h-5 w-5 sm:h-6 sm:w-6" />
             Histórico de Reservas
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gerencie reservas passadas e registre hóspedes anteriores
           </p>
         </div>
         
-        <div className="flex items-center gap-2">
+        {/* Mobile: Stack buttons vertically, Desktop: Horizontal */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2 sm:justify-end">
           <BookingExportDialog 
             activeBookings={bookings}
             historicalBookings={historicalBookings}
@@ -91,16 +93,17 @@ const HistoricalBookings = () => {
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
-              Registrar Reserva Passada
+              <span className="hidden sm:inline">Registrar Reserva Passada</span>
+              <span className="sm:hidden">Nova Reserva</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="mx-2 w-[calc(100vw-1rem)] sm:mx-auto sm:w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Registrar Reserva Histórica</DialogTitle>
+              <DialogTitle className="text-lg sm:text-xl">Registrar Reserva Histórica</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <GuestInfoForm 
                 formData={formData}
                 onInputChange={handleInputChange}
@@ -127,16 +130,16 @@ const HistoricalBookings = () => {
                 onInputChange={handleInputChange}
               />
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={() => setIsDialogOpen(false)}
-                  className="flex-1"
+                  className="flex-1 order-2 sm:order-1"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" className="flex-1">
+                <Button type="submit" className="flex-1 order-1 sm:order-2">
                   Registrar Reserva
                 </Button>
               </div>
@@ -204,17 +207,17 @@ const HistoricalBookings = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-3 sm:gap-4">
             {historicalBookings.map((booking) => (
               <Card key={booking.id} className="border-l-4 border-l-amber-500">
-                <CardContent className="pt-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="font-semibold text-lg">{booking.guest_name}</h3>
+                <CardContent className="pt-3 sm:pt-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 sm:mb-2 space-y-2 sm:space-y-0">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-base sm:text-lg">{booking.guest_name}</h3>
                       <p className="text-sm text-muted-foreground">{booking.phone}</p>
                     </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-lg text-sage-600">
+                    <div className="sm:text-right">
+                      <div className="font-semibold text-base sm:text-lg text-sage-600">
                         R$ {Number(booking.total_value).toLocaleString('pt-BR')}
                       </div>
                       <div className="text-sm text-muted-foreground">
@@ -223,7 +226,7 @@ const HistoricalBookings = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                     <div>
                       <span className="text-muted-foreground">Check-in:</span>
                       <div className="font-medium">
