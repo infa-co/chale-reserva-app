@@ -1,4 +1,5 @@
 
+import { memo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -9,7 +10,7 @@ interface CalendarNavigationProps {
   onNextMonth: () => void;
 }
 
-const CalendarNavigation = ({ currentDate, onPreviousMonth, onNextMonth }: CalendarNavigationProps) => {
+const CalendarNavigation = memo(({ currentDate, onPreviousMonth, onNextMonth }: CalendarNavigationProps) => {
   return (
     <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border">
       <button
@@ -29,6 +30,8 @@ const CalendarNavigation = ({ currentDate, onPreviousMonth, onNextMonth }: Calen
       </button>
     </div>
   );
-};
+});
+
+CalendarNavigation.displayName = 'CalendarNavigation';
 
 export default CalendarNavigation;

@@ -1,4 +1,5 @@
 
+import { memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -11,7 +12,7 @@ interface MonthlyBookingsProps {
   title: string;
 }
 
-const MonthlyBookings = ({ bookings, month, title }: MonthlyBookingsProps) => {
+const MonthlyBookings = memo(({ bookings, month, title }: MonthlyBookingsProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -38,6 +39,9 @@ const MonthlyBookings = ({ bookings, month, title }: MonthlyBookingsProps) => {
     }
   };
 
+  // Memoize the displayed bookings to avoid unnecessary recalculations
+  const displayedBookings = useMemo(() => bookings.slice(0, 3), [bookings]);
+
   return (
     <Card>
       <CardHeader>
@@ -47,7 +51,7 @@ const MonthlyBookings = ({ bookings, month, title }: MonthlyBookingsProps) => {
         {bookings.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nenhuma reserva este mês</p>
         ) : (
-          bookings.slice(0, 3).map((booking) => (
+          displayedBookings.map((booking) => (
             <div key={booking.id} className="flex items-center justify-between p-2 bg-sage-50 rounded-lg">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-sage-800 truncate">
@@ -74,6 +78,8 @@ const MonthlyBookings = ({ bookings, month, title }: MonthlyBookingsProps) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+MonthlyBookings.displayName = 'MonthlyBookings';
 
 export default MonthlyBookings;

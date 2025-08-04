@@ -1,7 +1,8 @@
 
+import { memo } from 'react';
 import UserMenu from '@/components/UserMenu';
 
-const DashboardHeader = () => {
+const DashboardHeader = memo(() => {
   return (
     <header className="text-center py-6 relative">
       <div className="absolute top-4 right-4">
@@ -19,6 +20,8 @@ const DashboardHeader = () => {
       </p>
     </header>
   );
-};
+});
+
+DashboardHeader.displayName = 'DashboardHeader';
 
 export default DashboardHeader;

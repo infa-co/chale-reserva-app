@@ -1,8 +1,9 @@
 
+import { memo } from 'react';
 import { Bed, TrendingUp, History } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Booking } from '@/types/booking';
-import { useAllBookings } from '@/hooks/useAllBookings';
+import { useBookings } from '@/contexts/BookingContext';
 import { useMonthlyStats } from '@/hooks/useMonthlyStats';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -12,8 +13,8 @@ interface QuickStatsProps {
   selectedMonth?: Date;
 }
 
-const QuickStats = ({ bookings, selectedMonth = new Date() }: QuickStatsProps) => {
-  const { allBookings } = useAllBookings();
+const QuickStats = memo(({ bookings, selectedMonth = new Date() }: QuickStatsProps) => {
+  const { allBookings } = useBookings();
   const {
     totalBookings,
     confirmedBookings,
@@ -76,6 +77,8 @@ const QuickStats = ({ bookings, selectedMonth = new Date() }: QuickStatsProps) =
       </Card>
     </div>
   );
-};
+});
+
+QuickStats.displayName = 'QuickStats';
 
 export default QuickStats;

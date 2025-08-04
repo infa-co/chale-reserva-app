@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBookings } from '@/contexts/BookingContext';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, startOfWeek, endOfWeek } from 'date-fns';
@@ -10,7 +10,7 @@ interface CalendarProps {
   statusFilter?: 'all' | 'confirmed' | 'pending' | 'cancelled';
 }
 
-const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
+const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
   const [internalCurrentDate, setInternalCurrentDate] = useState(new Date());
   const { bookings } = useBookings();
   
@@ -22,37 +22,41 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
     }
   }, [currentMonth]);
   
-  const monthStart = startOfMonth(activeDate);
-  const monthEnd = endOfMonth(activeDate);
-  
-  // Obter o primeiro dia da semana (segunda-feira) e o último dia da semana (domingo)
-  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
-  
-  // Criar array com todos os dias do calendário (incluindo dias do mês anterior/posterior)
-  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-  
-  const currentMonthBookings = bookings.filter(booking => {
-    const checkIn = parseISO(booking.check_in);
-    const checkOut = parseISO(booking.check_out);
+  // Memoize date calculations
+  const dateInfo = useMemo(() => {
+    const monthStart = startOfMonth(activeDate);
+    const monthEnd = endOfMonth(activeDate);
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+    const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
     
-    const hasOverlap = checkIn <= monthEnd && checkOut >= monthStart;
-    
-    if (!hasOverlap) return false;
-    
-    if (statusFilter === 'all') return true;
-    return booking.status === statusFilter;
-  });
+    return { monthStart, monthEnd, calendarStart, calendarEnd, days };
+  }, [activeDate]);
+
+  // Memoize filtered bookings
+  const currentMonthBookings = useMemo(() => {
+    return bookings.filter(booking => {
+      const checkIn = parseISO(booking.check_in);
+      const checkOut = parseISO(booking.check_out);
+      
+      const hasOverlap = checkIn <= dateInfo.monthEnd && checkOut >= dateInfo.monthStart;
+      
+      if (!hasOverlap) return false;
+      
+      if (statusFilter === 'all') return true;
+      return booking.status === statusFilter;
+    });
+  }, [bookings, dateInfo.monthStart, dateInfo.monthEnd, statusFilter]);
   
-  const getBookingsForDate = (date: Date) => {
+  const getBookingsForDate = useCallback((date: Date) => {
     return currentMonthBookings.filter(booking => {
       const checkIn = parseISO(booking.check_in);
       const checkOut = parseISO(booking.check_out);
       return isSameDay(checkIn, date) || isSameDay(checkOut, date);
     });
-  };
+  }, [currentMonthBookings]);
 
-  const getStatusBorderClass = (status: string, type: 'checkin' | 'checkout') => {
+  const getStatusBorderClass = useCallback((status: string, type: 'checkin' | 'checkout') => {
     const baseClass = type === 'checkin' ? 'border-l-4' : 'border-r-4';
     const colors = {
       confirmed: 'border-success',
@@ -60,22 +64,24 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
       cancelled: 'border-danger'
     };
     return `${baseClass} ${colors[status as keyof typeof colors] || 'border-sage-500'}`;
-  };
+  }, []);
 
-  const previousMonth = () => {
+  const previousMonth = useCallback(() => {
     setInternalCurrentDate(new Date(activeDate.getFullYear(), activeDate.getMonth() - 1));
-  };
+  }, [activeDate]);
 
-  const nextMonth = () => {
+  const nextMonth = useCallback(() => {
     setInternalCurrentDate(new Date(activeDate.getFullYear(), activeDate.getMonth() + 1));
-  };
+  }, [activeDate]);
 
-  // Gerar nomes dos dias da semana usando date-fns com locale brasileiro
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - date.getDay() + i + 1); // Começar na segunda-feira
-    return format(date, 'EEE', { locale: ptBR }).slice(0, 3);
-  });
+  // Memoize week days calculation
+  const weekDays = useMemo(() => {
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - date.getDay() + i + 1); // Começar na segunda-feira
+      return format(date, 'EEE', { locale: ptBR }).slice(0, 3);
+    });
+  }, []);
 
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border">
@@ -110,7 +116,7 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
       </div>
       
       <div className="grid grid-cols-7 gap-1">
-        {days.map(day => {
+        {dateInfo.days.map(day => {
           const dayBookings = getBookingsForDate(day);
           const checkInBookings = dayBookings.filter(booking => 
             isSameDay(parseISO(booking.check_in), day)
@@ -120,7 +126,7 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
           );
           
           const hasBookings = dayBookings.length > 0;
-          const isCurrentMonth = day >= monthStart && day <= monthEnd;
+          const isCurrentMonth = day >= dateInfo.monthStart && day <= dateInfo.monthEnd;
           
           let borderClasses = '';
           if (checkInBookings.length > 0) {
@@ -193,6 +199,8 @@ const Calendar = ({ currentMonth, statusFilter = 'all' }: CalendarProps) => {
       </div>
     </div>
   );
-};
+});
+
+Calendar.displayName = 'Calendar';
 
 export default Calendar;
