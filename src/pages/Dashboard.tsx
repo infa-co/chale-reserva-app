@@ -1,18 +1,18 @@
 
-import { memo, useState, useMemo } from 'react';
+import { memo, useState, useMemo, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { useBookings } from '@/contexts/BookingContext';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import QuickStats from '@/components/dashboard/QuickStats';
+import OptimizedQuickStats from '@/components/dashboard/OptimizedQuickStats';
 import CalendarNavigation from '@/components/dashboard/CalendarNavigation';
 import CalendarWithFilters from '@/components/dashboard/CalendarWithFilters';
 import MonthlyBookings from '@/components/dashboard/MonthlyBookings';
 
 const Dashboard = memo(() => {
-  const { bookings, loading } = useBookings();
+  const { bookings, allBookings, loading } = useBookings();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const currentMonthBookings = useMemo(() => {
@@ -22,13 +22,18 @@ const Dashboard = memo(() => {
     });
   }, [bookings, currentDate]);
 
-  const previousMonth = () => {
+  const previousMonth = useCallback(() => {
     setCurrentDate(subMonths(currentDate, 1));
-  };
+  }, [currentDate]);
 
-  const nextMonthNav = () => {
+  const nextMonthNav = useCallback(() => {
     setCurrentDate(addMonths(currentDate, 1));
-  };
+  }, [currentDate]);
+
+  const monthTitle = useMemo(() => 
+    format(currentDate, 'MMMM yyyy', { locale: ptBR }),
+    [currentDate]
+  );
 
   if (loading) {
     return (
@@ -42,7 +47,7 @@ const Dashboard = memo(() => {
     <div className="p-4 space-y-6 pb-32">
       <DashboardHeader />
       
-      <QuickStats bookings={bookings} selectedMonth={currentDate} />
+      <OptimizedQuickStats bookings={bookings} allBookings={allBookings} selectedMonth={currentDate} />
 
       <CalendarNavigation 
         currentDate={currentDate}
@@ -55,7 +60,7 @@ const Dashboard = memo(() => {
       <MonthlyBookings 
         bookings={currentMonthBookings}
         month={currentDate}
-        title={format(currentDate, 'MMMM yyyy', { locale: ptBR })}
+        title={monthTitle}
       />
 
       <Link

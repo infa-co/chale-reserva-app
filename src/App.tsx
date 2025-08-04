@@ -16,9 +16,9 @@ import MobileNav from "./components/MobileNav";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const NewBooking = lazy(() => import("./pages/NewBooking"));
 const EditBooking = lazy(() => import("./pages/EditBooking"));
-const BookingList = lazy(() => import("./pages/BookingList"));
+const OptimizedBookingList = lazy(() => import("./pages/OptimizedBookingList"));
 const BookingDetails = lazy(() => import("./pages/BookingDetails"));
-const Clients = lazy(() => import("./pages/Clients"));
+const OptimizedClients = lazy(() => import("./pages/OptimizedClients"));
 const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
 const HistoricalBookings = lazy(() => import("./pages/HistoricalBookings"));
@@ -58,9 +58,9 @@ const App = () => (
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/nova-reserva" element={<NewBooking />} />
                         <Route path="/editar-reserva/:id" element={<EditBooking />} />
-                        <Route path="/reservas" element={<BookingList />} />
+                        <Route path="/reservas" element={<OptimizedBookingList />} />
                         <Route path="/reserva/:id" element={<BookingDetails />} />
-                        <Route path="/clientes" element={<Clients />} />
+                        <Route path="/clientes" element={<OptimizedClients />} />
                         <Route path="/meus-chales" element={<Properties />} />
                         <Route path="/chale/:id/dashboard" element={<PropertyDashboard />} />
                         <Route path="/historico-reservas" element={<HistoricalBookings />} />
