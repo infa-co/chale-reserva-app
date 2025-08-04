@@ -9,14 +9,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProperties } from '@/hooks/useProperties';
-import PropertyCard from '@/components/properties/PropertyCard';
+import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
+import OptimizedPropertyCard from '@/components/properties/OptimizedPropertyCard';
 import PropertyForm from '@/components/properties/PropertyForm';
-import SyncManager from '@/components/properties/SyncManager';
+import OptimizedSyncManager from '@/components/properties/OptimizedSyncManager';
 import { Property } from '@/types/property';
 
 const Properties = () => {
-  const { properties, loading, addProperty, updateProperty } = useProperties();
+  const { properties, loading, addProperty, updateProperty } = useOptimizedProperties();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,7 +109,7 @@ const Properties = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.map((property) => (
-                <PropertyCard
+                <OptimizedPropertyCard
                   key={property.id}
                   property={property}
                   onEdit={handleEditProperty}
@@ -121,7 +121,7 @@ const Properties = () => {
         </TabsContent>
 
         <TabsContent value="sync">
-          <SyncManager properties={properties} />
+          <OptimizedSyncManager properties={properties} />
         </TabsContent>
       </Tabs>
 
