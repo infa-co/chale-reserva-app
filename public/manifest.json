@@ -1,7 +1,7 @@
 
 {
-  "name": "OR DOMO - Gestão de Reservas",
-  "short_name": "OR DOMO",
+  "name": "ORDOMO - Gestão de Reservas",
+  "short_name": "ORDOMO",
   "description": "App para gestão de reservas de chalés - Organize suas hospedagens de forma simples e prática",
   "start_url": "/",
   "display": "standalone",
