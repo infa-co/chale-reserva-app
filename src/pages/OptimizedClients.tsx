@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useBookings } from '@/contexts/BookingContext';
@@ -7,7 +7,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import ClientsByMonthOptimized from '@/components/ClientsByMonthOptimized';
 import ClientExportDialog from '@/components/ClientExportDialog';
 
-const OptimizedClients = () => {
+const OptimizedClients: React.FC = () => {
   const { bookings } = useBookings();
   const { clients, loading } = useOptimizedClients(bookings);
   const [searchTerm, setSearchTerm] = useState('');
