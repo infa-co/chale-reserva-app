@@ -67,60 +67,76 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount }:
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-3 sm:space-y-4">
-          <div className="bg-sage-50 rounded-lg p-3 sm:p-4">
-            <h4 className="font-medium text-sage-800 mb-2 text-sm sm:text-base">Resumo dos Dados</h4>
-            <div className="space-y-1 text-xs sm:text-sm text-sage-600">
-              <div className="flex justify-between">
-                <span>Reservas Ativas:</span>
-                <span className="font-medium">{activeCount}</span>
+        <div className="space-y-4">
+          {/* Data Summary Card */}
+          <div className="bg-gradient-to-r from-sage-50 to-sage-100 rounded-xl p-4 border border-sage-200">
+            <h4 className="font-semibold text-sage-800 mb-3 text-base flex items-center gap-2">
+              <FileDown size={16} />
+              Resumo dos Dados
+            </h4>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="space-y-1">
+                <div className="text-xs text-sage-600 font-medium">Ativas</div>
+                <div className="text-lg font-bold text-sage-800">{activeCount}</div>
               </div>
-              <div className="flex justify-between">
-                <span>Reservas Históricas:</span>
-                <span className="font-medium">{historicalCount}</span>
+              <div className="space-y-1">
+                <div className="text-xs text-sage-600 font-medium">Históricas</div>
+                <div className="text-lg font-bold text-sage-800">{historicalCount}</div>
               </div>
-              <div className="flex justify-between border-t border-sage-200 pt-1 mt-2">
-                <span className="font-medium">Total:</span>
-                <span className="font-bold">{totalCount}</span>
+              <div className="space-y-1 border-l border-sage-300 pl-2">
+                <div className="text-xs text-sage-600 font-medium">Total</div>
+                <div className="text-xl font-bold text-sage-700">{totalCount}</div>
               </div>
             </div>
           </div>
 
           {isExporting ? (
-            <div className="flex items-center justify-center py-6 sm:py-8">
-              <div className="text-center">
-                <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin mx-auto mb-2 text-sage-600" />
-                <p className="text-xs sm:text-sm text-sage-600">Gerando exportação...</p>
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center space-y-3">
+                <Loader2 className="h-10 w-10 animate-spin mx-auto text-sage-600" />
+                <div className="space-y-1">
+                  <p className="font-medium text-sage-800">Gerando exportação...</p>
+                  <p className="text-sm text-sage-600">Isso pode levar alguns segundos</p>
+                </div>
               </div>
             </div>
           ) : (
-            <div className="space-y-2">
-              <h4 className="font-medium text-sage-800 mb-2 sm:mb-3 text-sm sm:text-base">Escolha o formato:</h4>
-              {exportOptions.map((option) => {
-                const Icon = option.icon;
-                return (
-                  <Button
-                    key={option.format}
-                    variant="outline"
-                    className="w-full justify-start h-auto p-3 sm:p-4 relative"
-                    onClick={() => handleExport(option.format)}
-                  >
-                    {option.recommended && (
-                      <div className="absolute -top-1 -right-1 bg-sage-600 text-white text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full">
-                        <span className="hidden sm:inline">Recomendado</span>
-                        <span className="sm:hidden">★</span>
+            <div className="space-y-4">
+              <div className="text-center">
+                <h4 className="font-semibold text-sage-800 text-lg">Escolha o formato</h4>
+                <p className="text-sm text-sage-600 mt-1">Selecione como deseja exportar seus dados</p>
+              </div>
+              
+              <div className="space-y-3">
+                {exportOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <Button
+                      key={option.format}
+                      variant="outline"
+                      className="w-full justify-start h-auto p-4 relative hover:bg-sage-50 transition-colors group border-sage-200"
+                      onClick={() => handleExport(option.format)}
+                    >
+                      {option.recommended && (
+                        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-sage-600 to-sage-700 text-white text-xs px-2 py-1 rounded-full shadow-md">
+                          ⭐ Recomendado
+                        </div>
+                      )}
+                      <div className="flex items-center w-full">
+                        <div className="flex-shrink-0 w-12 h-12 bg-sage-100 rounded-lg flex items-center justify-center mr-4 group-hover:bg-sage-200 transition-colors">
+                          <Icon size={20} className="text-sage-600" />
+                        </div>
+                        <div className="text-left flex-1 min-w-0">
+                          <div className="font-semibold text-sage-800 text-base mb-1">{option.title}</div>
+                          <div className="text-sm text-sage-600 leading-relaxed">
+                            {option.description}
+                          </div>
+                        </div>
                       </div>
-                    )}
-                    <Icon size={18} className="mr-2 sm:mr-3 text-sage-600 flex-shrink-0" />
-                    <div className="text-left min-w-0 flex-1">
-                      <div className="font-medium text-sage-800 text-sm sm:text-base">{option.title}</div>
-                      <div className="text-xs sm:text-sm text-sage-600 mt-0.5 sm:mt-1 leading-tight">
-                        {option.description}
-                      </div>
-                    </div>
-                  </Button>
-                );
-              })}
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
