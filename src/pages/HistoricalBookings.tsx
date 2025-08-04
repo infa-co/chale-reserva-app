@@ -3,6 +3,7 @@ import { Plus, History, Calendar, DollarSign } from 'lucide-react';
 import { useHistoricalBookings } from '@/hooks/useHistoricalBookings';
 import { useHistoricalBookingForm } from '@/hooks/useHistoricalBookingForm';
 import { useBookingValidation } from '@/hooks/useBookingValidation';
+import { useBookings } from '@/contexts/BookingContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -10,11 +11,13 @@ import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
 import { HistoricalBookingForm } from '@/components/forms/HistoricalBookingForm';
 import { PaymentForm } from '@/components/forms/PaymentForm';
 import { NotesForm } from '@/components/forms/NotesForm';
+import BookingExportDialog from '@/components/BookingExportDialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const HistoricalBookings = () => {
   const { historicalBookings, loading, addHistoricalBooking } = useHistoricalBookings();
+  const { bookings } = useBookings();
   const { formData, handleInputChange, calculateNights, getMaxDate } = useHistoricalBookingForm();
   const { validateBookingData } = useBookingValidation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -78,8 +81,15 @@ const HistoricalBookings = () => {
             Gerencie reservas passadas e registre hóspedes anteriores
           </p>
         </div>
-
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        
+        <div className="flex items-center gap-2">
+          <BookingExportDialog 
+            activeBookings={bookings}
+            historicalBookings={historicalBookings}
+            totalCount={bookings.length + historicalBookings.length}
+          />
+          
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
@@ -132,7 +142,8 @@ const HistoricalBookings = () => {
               </div>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Statistics Cards */}

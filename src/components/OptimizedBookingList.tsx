@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Booking } from '@/types/booking';
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import BookingExportDialog from '@/components/BookingExportDialog';
+import { useBookings } from '@/contexts/BookingContext';
 
 interface OptimizedBookingListProps {
   bookings: Booking[];
@@ -99,6 +101,7 @@ const BookingCard = memo(({ booking }: { booking: Booking }) => {
 BookingCard.displayName = 'BookingCard';
 
 const OptimizedBookingList = memo(({ bookings }: OptimizedBookingListProps) => {
+  const { historicalBookings } = useBookings();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -153,7 +156,14 @@ const OptimizedBookingList = memo(({ bookings }: OptimizedBookingListProps) => {
   return (
     <div className="p-4">
       <header className="mb-6">
-        <h1 className="text-xl font-bold text-sage-800 mb-4">Reservas</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-bold text-sage-800">Reservas</h1>
+          <BookingExportDialog 
+            activeBookings={bookings}
+            historicalBookings={historicalBookings}
+            totalCount={bookings.length + historicalBookings.length}
+          />
+        </div>
         
         {/* Month Navigation */}
         <div className="bg-white rounded-xl p-4 shadow-sm border mb-4">
