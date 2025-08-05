@@ -141,10 +141,26 @@ async function syncICalendar(supabase: any, syncId: string) {
     
     const relevantEvents = events.filter(event => {
       const startDate = parseICalDate(event.dtstart);
-      const isRelevant = startDate >= now && startDate <= twoYearsFromNow;
+      const endDate = parseICalDate(event.dtend);
+      
+      // Include events that:
+      // 1. Are currently active (started in past but end in future)
+      // 2. Start in the future (up to 2 years)
+      // 3. Ended recently (within last 7 days) to show recent bookings
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const isRelevant = (
+        (endDate >= now && startDate <= twoYearsFromNow) || // Active or future events
+        (endDate >= sevenDaysAgo && endDate < now) // Recently ended events
+      );
+      
       if (!isRelevant) {
-        console.log(`Filtering out event "${event.summary}": start date ${startDate.toISOString()} is outside range (now: ${now.toISOString()}, limit: ${twoYearsFromNow.toISOString()})`);
+        console.log(`Filtering out event "${event.summary}": start ${startDate.toISOString()}, end ${endDate.toISOString()} is outside range (7 days ago: ${sevenDaysAgo.toISOString()}, now: ${now.toISOString()}, limit: ${twoYearsFromNow.toISOString()})`);
+      } else {
+        console.log(`Including event "${event.summary}": start ${startDate.toISOString()}, end ${endDate.toISOString()}`);
       }
+      
       return isRelevant;
     });
     
