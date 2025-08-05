@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.trigger-sync]
 verify_jwt = false
+
+[functions.export-ical]
+verify_jwt = false
