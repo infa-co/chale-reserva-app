@@ -44,147 +44,86 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="space-y-4">
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Export Section */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Sincronizações</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <ExternalLink className="h-4 w-4" />
+              Exportar ({properties.length} propriedades)
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Links para bloquear datas no Airbnb
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalSyncs}</div>
-            <p className="text-xs text-muted-foreground">
-              Configuradas no sistema
-            </p>
+          <CardContent className="space-y-3">
+            {properties.length > 0 ? (
+              properties.map((property) => {
+                const exportUrl = generateExportUrl(property.id);
+                return (
+                  <div key={property.id} className="flex items-center gap-2 p-2 border rounded">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate">{property.name}</div>
+                      <div className="font-mono text-xs text-muted-foreground truncate">
+                        {exportUrl}
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => copyToClipboard(exportUrl, property.name)}
+                      size="sm"
+                      variant="outline"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhuma propriedade disponível</p>
+            )}
           </CardContent>
         </Card>
 
+        {/* Import Status */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sincronizações Ativas</CardTitle>
-            <RefreshCw className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Importar ({activeSyncs.length}/{totalSyncs} ativas)
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Status das sincronizações configuradas
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{activeSyncs.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Executando automaticamente
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Propriedades</CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{properties.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Disponíveis para sincronização
-            </p>
+            {totalSyncs > 0 ? (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Total configuradas:</span>
+                  <Badge variant="outline">{totalSyncs}</Badge>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Ativas:</span>
+                  <Badge variant={activeSyncs.length > 0 ? "default" : "secondary"}>
+                    {activeSyncs.length}
+                  </Badge>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhuma sincronização configurada</p>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Export URLs */}
-      <Card className="border-green-200 bg-green-50/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-800">
-            <ExternalLink className="h-5 w-5" />
-            Exportar para Airbnb/Booking.com
-          </CardTitle>
-          <CardDescription className="text-green-700">
-            Use os links abaixo para bloquear datas no Airbnb e outras plataformas quando você tem reservas no Ordomo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {properties.length > 0 ? (
-            <div className="space-y-4">
-              {properties.map((property) => {
-                const exportUrl = generateExportUrl(property.id);
-                return (
-                  <div key={property.id} className="p-4 border border-green-200 rounded-lg bg-white">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-green-800">{property.name}</h4>
-                      <Badge variant="outline" className="text-green-700 border-green-300">
-                        {property.location}
-                      </Badge>
-                    </div>
-                    <div className="flex gap-2">
-                      <Input
-                        value={exportUrl}
-                        readOnly
-                        className="font-mono text-xs bg-green-50 border-green-300"
-                      />
-                      <Button
-                        onClick={() => copyToClipboard(exportUrl, property.name)}
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-green-700">Nenhuma propriedade disponível para exportação.</p>
-          )}
-          
-          <div className="mt-4 p-3 bg-green-100 rounded-lg">
-            <h5 className="font-medium text-green-800 mb-2">Como configurar no Airbnb:</h5>
-            <ol className="list-decimal list-inside text-sm text-green-700 space-y-1">
-              <li>Copie o link da propriedade acima</li>
-              <li>Acesse "Calendário" no painel do Airbnb</li>
-              <li>Clique em "Importar calendário"</li>
-              <li>Cole o link copiado</li>
-              <li>As reservas do Ordomo aparecerão como bloqueadas</li>
-            </ol>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Info Card */}
-      <Card className="border-blue-200 bg-blue-50/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-800">
-            <AlertCircle className="h-5 w-5" />
-            Sincronização Bidirecional
-          </CardTitle>
-          <CardDescription className="text-blue-700">
-            Configure tanto a importação quanto a exportação para sincronização completa.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-blue-700">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <strong>Importar (Airbnb → Ordomo):</strong>
-              <ul className="list-disc list-inside mt-1 space-y-1">
-                <li>Configure abaixo o link iCal do Airbnb</li>
-                <li>Reservas externas aparecem no calendário</li>
-                <li>Sincronização automática a cada hora</li>
-              </ul>
-            </div>
-            <div>
-              <strong>Exportar (Ordomo → Airbnb):</strong>
-              <ul className="list-disc list-inside mt-1 space-y-1">
-                <li>Use os links de exportação acima</li>
-                <li>Bloqueia datas no Airbnb automaticamente</li>
-                <li>Evita reservas duplas</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Sync Manager */}
       <Card>
-        <CardHeader>
-          <CardTitle>Gerenciar Sincronizações</CardTitle>
-          <CardDescription>
-            Configure e gerencie suas sincronizações de calendário externo
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Configurar Sincronizações</CardTitle>
+          <CardDescription className="text-sm">
+            Gerencie importações de calendários externos
           </CardDescription>
         </CardHeader>
         <CardContent>
