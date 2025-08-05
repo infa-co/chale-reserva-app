@@ -121,7 +121,7 @@ const Properties = () => {
         </TabsContent>
 
         <TabsContent value="sync">
-          <ICalSyncSettings />
+          <ICalSyncSettings properties={properties} />
         </TabsContent>
       </Tabs>
 
