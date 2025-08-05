@@ -156,8 +156,8 @@ export const useOptimizedICalSyncs = () => {
 
   const manualSyncMutation = useMutation({
     mutationFn: async (syncId: string) => {
-      const { data, error } = await supabase.functions.invoke('trigger-sync', {
-        body: { syncId }
+      const { data, error } = await supabase.functions.invoke('sync-ical', {
+        body: { sync_id: syncId }
       });
 
       if (error) {
@@ -167,8 +167,9 @@ export const useOptimizedICalSyncs = () => {
 
       return data;
     },
-    onSuccess: () => {
-      toast.success('Sincronização manual executada com sucesso!');
+    onSuccess: (data) => {
+      const syncedCount = data?.synced_count || 0;
+      toast.success(`Sincronização concluída! ${syncedCount} eventos importados.`);
       refetch();
     },
     onError: () => {

@@ -129,9 +129,23 @@ async function syncICalendar(supabase: any, syncId: string) {
     const twoYearsFromNow = new Date();
     twoYearsFromNow.setFullYear(now.getFullYear() + 2);
     
+    // Log raw iCal sample for debugging
+    console.log(`Raw iCal sample (first 500 chars): ${icalText.substring(0, 500)}`);
+    
+    // Log parsed events details
+    events.forEach((event, index) => {
+      const startDate = parseICalDate(event.dtstart);
+      const endDate = parseICalDate(event.dtend);
+      console.log(`Event ${index + 1}: ${event.summary} | Start: ${event.dtstart} (parsed: ${startDate.toISOString()}) | End: ${event.dtend} (parsed: ${endDate.toISOString()})`);
+    });
+    
     const relevantEvents = events.filter(event => {
       const startDate = parseICalDate(event.dtstart);
-      return startDate >= now && startDate <= twoYearsFromNow;
+      const isRelevant = startDate >= now && startDate <= twoYearsFromNow;
+      if (!isRelevant) {
+        console.log(`Filtering out event "${event.summary}": start date ${startDate.toISOString()} is outside range (now: ${now.toISOString()}, limit: ${twoYearsFromNow.toISOString()})`);
+      }
+      return isRelevant;
     });
     
     console.log(`Filtered to ${relevantEvents.length} relevant events`);
