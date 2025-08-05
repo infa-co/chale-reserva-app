@@ -45,78 +45,109 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
 
   return (
     <div className="space-y-4">
-      {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Export Section */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <ExternalLink className="h-4 w-4" />
-              Exportar ({properties.length} propriedades)
-            </CardTitle>
-            <CardDescription className="text-sm">
-              Links para bloquear datas no Airbnb
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {properties.length > 0 ? (
-              properties.map((property) => {
-                const exportUrl = generateExportUrl(property.id);
-                return (
-                  <div key={property.id} className="flex items-center gap-2 p-2 border rounded">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{property.name}</div>
-                      <div className="font-mono text-xs text-muted-foreground truncate">
-                        {exportUrl}
+      {/* Sync Overview */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Sincronização de Calendários
+          </CardTitle>
+          <CardDescription>
+            Configure a sincronização bidirecional com plataformas externas
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* Export Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <ExternalLink className="h-4 w-4 text-primary" />
+                <h3 className="font-medium">Exportar para Airbnb</h3>
+                <Badge variant="outline" className="ml-auto">
+                  {properties.length} propriedades
+                </Badge>
+              </div>
+              
+              <div className="space-y-3">
+                {properties.length > 0 ? (
+                  properties.map((property) => {
+                    const exportUrl = generateExportUrl(property.id);
+                    return (
+                      <div key={property.id} className="p-3 border rounded-lg bg-card">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium text-sm">{property.name}</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {property.location}
+                          </Badge>
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="flex-1 p-2 bg-muted rounded text-xs font-mono truncate">
+                            {exportUrl}
+                          </div>
+                          <Button
+                            onClick={() => copyToClipboard(exportUrl, property.name)}
+                            size="sm"
+                            variant="outline"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <Button
-                      onClick={() => copyToClipboard(exportUrl, property.name)}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </Button>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-4 text-muted-foreground text-sm">
+                    Nenhuma propriedade disponível
                   </div>
-                );
-              })
-            ) : (
-              <p className="text-sm text-muted-foreground">Nenhuma propriedade disponível</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Import Status */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <RefreshCw className="h-4 w-4" />
-              Importar ({activeSyncs.length}/{totalSyncs} ativas)
-            </CardTitle>
-            <CardDescription className="text-sm">
-              Status das sincronizações configuradas
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {totalSyncs > 0 ? (
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Total configuradas:</span>
-                  <Badge variant="outline">{totalSyncs}</Badge>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Ativas:</span>
-                  <Badge variant={activeSyncs.length > 0 ? "default" : "secondary"}>
-                    {activeSyncs.length}
-                  </Badge>
+                )}
+                
+                <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded">
+                  <strong>Como usar:</strong> Copie o link e cole em "Importar calendário" no Airbnb
                 </div>
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">Nenhuma sincronização configurada</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            </div>
+
+            {/* Import Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <RefreshCw className="h-4 w-4 text-primary" />
+                <h3 className="font-medium">Importar do Airbnb</h3>
+                <Badge variant="outline" className="ml-auto">
+                  {activeSyncs.length}/{totalSyncs} ativas
+                </Badge>
+              </div>
+              
+              <div className="space-y-3">
+                {totalSyncs > 0 ? (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center p-3 border rounded-lg">
+                        <div className="text-2xl font-bold">{totalSyncs}</div>
+                        <div className="text-xs text-muted-foreground">Configuradas</div>
+                      </div>
+                      <div className="text-center p-3 border rounded-lg">
+                        <div className="text-2xl font-bold text-green-600">{activeSyncs.length}</div>
+                        <div className="text-xs text-muted-foreground">Ativas</div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded">
+                      <strong>Status:</strong> Sincronizações importam reservas externas automaticamente
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <RefreshCw className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <div className="text-sm">Nenhuma importação configurada</div>
+                    <div className="text-xs">Configure abaixo para importar reservas</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Sync Manager */}
       <Card>
