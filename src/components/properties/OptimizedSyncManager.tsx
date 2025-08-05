@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useOptimizedICalSyncs } from '@/hooks/useOptimizedICalSyncs';
 import { Property } from '@/types/property';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SyncManagerProps {
   properties: Property[];
@@ -27,6 +28,7 @@ const SyncFormCard = memo(({
   onAdd: (sync: any) => void;
   onCancel: () => void;
 }) => {
+  const isMobile = useIsMobile();
   const [newSync, setNewSync] = useState({
     property_id: selectedPropertyId || '',
     platform_name: 'Airbnb',
@@ -47,13 +49,13 @@ const SyncFormCard = memo(({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Nova Sincronização</CardTitle>
-        <CardDescription>
+      <CardHeader className={isMobile ? "px-4 pt-4 pb-3" : ""}>
+        <CardTitle className={isMobile ? "text-base" : ""}>Nova Sincronização</CardTitle>
+        <CardDescription className={isMobile ? "text-sm" : ""}>
           Adicione um calendário iCal de uma plataforma externa
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className={`space-y-4 ${isMobile ? 'px-4 pb-4' : ''}`}>
         <div className="space-y-2">
           <Label htmlFor="property">Propriedade</Label>
           <Select 
@@ -121,9 +123,9 @@ const SyncFormCard = memo(({
           </Select>
         </div>
 
-        <div className="flex gap-2">
-          <Button onClick={handleSubmit}>Adicionar</Button>
-          <Button variant="outline" onClick={onCancel}>
+        <div className={`${isMobile ? 'space-y-2' : 'flex gap-2'}`}>
+          <Button onClick={handleSubmit} className={isMobile ? "w-full" : ""}>Adicionar</Button>
+          <Button variant="outline" onClick={onCancel} className={isMobile ? "w-full" : ""}>
             Cancelar
           </Button>
         </div>
@@ -141,68 +143,84 @@ const SyncCard = memo(({
   onToggleActive, 
   onManualSync, 
   onDelete 
-}: any) => (
-  <Card>
-    <CardContent className="p-4">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span className="font-medium">{sync.platform_name}</span>
-            <Badge variant={sync.is_active ? "default" : "secondary"}>
-              {sync.is_active ? "Ativa" : "Inativa"}
-            </Badge>
-          </div>
-          {!selectedPropertyId && syncProperty && (
-            <p className="text-sm text-muted-foreground">
-              {syncProperty.name} - {syncProperty.location}
+}: any) => {
+  const isMobile = useIsMobile();
+  
+  return (
+    <Card>
+      <CardContent className={isMobile ? "p-4" : "p-4"}>
+        <div className={isMobile ? "space-y-3" : "flex items-center justify-between"}>
+          <div className="space-y-1">
+            <div className={`flex items-center gap-2 ${isMobile ? 'flex-wrap' : ''}`}>
+              <Calendar className="h-4 w-4" />
+              <span className={`font-medium ${isMobile ? 'text-sm' : ''}`}>{sync.platform_name}</span>
+              <Badge variant={sync.is_active ? "default" : "secondary"} className={isMobile ? "text-xs" : ""}>
+                {sync.is_active ? "Ativa" : "Inativa"}
+              </Badge>
+            </div>
+            {!selectedPropertyId && syncProperty && (
+              <p className={`text-sm text-muted-foreground ${isMobile ? 'text-xs' : ''}`}>
+                {syncProperty.name} - {syncProperty.location}
+              </p>
+            )}
+            <p className={`text-xs text-muted-foreground ${isMobile ? 'text-xs' : ''}`}>
+              {sync.last_sync_at 
+                ? `Última sincronização: ${new Date(sync.last_sync_at).toLocaleString('pt-BR')}`
+                : 'Nunca sincronizado'
+              }
             </p>
-          )}
-          <p className="text-xs text-muted-foreground">
-            {sync.last_sync_at 
-              ? `Última sincronização: ${new Date(sync.last_sync_at).toLocaleString('pt-BR')}`
-              : 'Nunca sincronizado'
-            }
-          </p>
+          </div>
+          
+          <div className={`${isMobile ? 'flex flex-wrap gap-2 pt-2' : 'flex items-center gap-1'}`}>
+            <div className={`flex items-center gap-2 ${isMobile ? 'w-full justify-between' : ''}`}>
+              <span className={`text-sm font-medium ${isMobile ? 'block' : 'hidden'}`}>Ativa:</span>
+              <Switch
+                checked={sync.is_active}
+                onCheckedChange={(checked) => onToggleActive(sync.id, { is_active: checked })}
+              />
+            </div>
+            <div className={`${isMobile ? 'flex gap-2 w-full' : 'flex gap-1'}`}>
+              <Button
+                size={isMobile ? "sm" : "sm"}
+                variant="outline"
+                onClick={() => onManualSync(sync.id)}
+                className={isMobile ? "flex-1" : ""}
+              >
+                <RefreshCw className="h-4 w-4" />
+                {isMobile && <span className="ml-1">Sync</span>}
+              </Button>
+              <Button
+                size={isMobile ? "sm" : "sm"}
+                variant="outline"
+                onClick={() => window.open(sync.ical_url, '_blank')}
+                className={isMobile ? "flex-1" : ""}
+              >
+                <ExternalLink className="h-4 w-4" />
+                {isMobile && <span className="ml-1">Ver</span>}
+              </Button>
+              <Button
+                size={isMobile ? "sm" : "sm"}
+                variant="destructive"
+                onClick={() => onDelete(sync.id)}
+                className={isMobile ? "flex-1" : ""}
+              >
+                <Trash2 className="h-4 w-4" />
+                {isMobile && <span className="ml-1">Excluir</span>}
+              </Button>
+            </div>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-1">
-          <Switch
-            checked={sync.is_active}
-            onCheckedChange={(checked) => onToggleActive(sync.id, { is_active: checked })}
-          />
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onManualSync(sync.id)}
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => window.open(sync.ical_url, '_blank')}
-          >
-            <ExternalLink className="h-4 w-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={() => onDelete(sync.id)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-));
+      </CardContent>
+    </Card>
+  );
+});
 
 SyncCard.displayName = 'SyncCard';
 
 const OptimizedSyncManager = memo(({ properties, selectedPropertyId }: SyncManagerProps) => {
   const { syncs, loading, addSync, updateSync, deleteSync, manualSync, getSyncsForProperty } = useOptimizedICalSyncs();
   const [showAddForm, setShowAddForm] = useState(false);
+  const isMobile = useIsMobile();
 
   const displaySyncs = useMemo(() => 
     selectedPropertyId ? getSyncsForProperty(selectedPropertyId) : syncs,
@@ -226,18 +244,22 @@ const OptimizedSyncManager = memo(({ properties, selectedPropertyId }: SyncManag
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={`space-y-6 ${isMobile ? 'space-y-4' : ''}`}>
+      <div className={`${isMobile ? 'space-y-3' : 'flex items-center justify-between'}`}>
         <div>
-          <h3 className="text-lg font-semibold">
+          <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>
             {selectedPropertyId ? 'Sincronizações da Propriedade' : 'Todas as Sincronizações'}
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className={`text-sm text-muted-foreground ${isMobile ? 'text-xs' : ''}`}>
             Gerencie sincronizações com calendários externos
           </p>
         </div>
-        <Button onClick={() => setShowAddForm(true)} size="sm">
-          <Plus className="mr-2 h-4 w-4" />
+        <Button 
+          onClick={() => setShowAddForm(true)} 
+          size={isMobile ? "default" : "sm"}
+          className={isMobile ? "w-full" : ""}
+        >
+          <Plus className={`${isMobile ? 'mr-2 h-4 w-4' : 'mr-2 h-4 w-4'}`} />
           Adicionar
         </Button>
       </div>
@@ -280,13 +302,13 @@ const OptimizedSyncManager = memo(({ properties, selectedPropertyId }: SyncManag
 
       {displaySyncs.length === 0 && !showAddForm && (
         <Card>
-          <CardContent className="p-6 text-center">
-            <Calendar className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">Nenhuma sincronização configurada</h3>
-            <p className="text-muted-foreground mb-4">
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'} text-center`}>
+            <Calendar className={`mx-auto ${isMobile ? 'h-8 w-8' : 'h-12 w-12'} text-muted-foreground mb-4`} />
+            <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-medium mb-2`}>Nenhuma sincronização configurada</h3>
+            <p className={`text-muted-foreground mb-4 ${isMobile ? 'text-sm' : ''}`}>
               Configure sincronizações com plataformas externas para centralizar seus calendários
             </p>
-            <Button onClick={() => setShowAddForm(true)}>
+            <Button onClick={() => setShowAddForm(true)} className={isMobile ? "w-full" : ""}>
               <Plus className="mr-2 h-4 w-4" />
               Adicionar primeira sincronização
             </Button>

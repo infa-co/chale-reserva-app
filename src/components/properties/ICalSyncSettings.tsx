@@ -8,6 +8,7 @@ import { useOptimizedICalSyncs } from '@/hooks/useOptimizedICalSyncs';
 import { Property } from '@/types/property';
 import OptimizedSyncManager from './OptimizedSyncManager';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ICalSyncSettingsProps {
   properties: Property[];
@@ -15,6 +16,7 @@ interface ICalSyncSettingsProps {
 
 const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
   const { syncs, loading } = useOptimizedICalSyncs();
+  const isMobile = useIsMobile();
 
   const activeSyncs = syncs.filter(sync => sync.is_active);
   const totalSyncs = syncs.length;
@@ -44,27 +46,27 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 ${isMobile ? 'pb-20' : ''}`}>
       {/* Sync Overview */}
       <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
+        <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-4"}>
+          <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} flex items-center gap-2`}>
+            <Calendar className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
             Sincronização de Calendários
           </CardTitle>
-          <CardDescription>
+          <CardDescription className={isMobile ? "text-sm" : ""}>
             Configure a sincronização bidirecional com plataformas externas
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CardContent className={isMobile ? "px-4 pb-4" : ""}>
+          <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-1 lg:grid-cols-2 gap-6'}`}>
             
             {/* Export Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b">
+              <div className={`flex items-center gap-2 pb-2 border-b ${isMobile ? 'flex-wrap' : ''}`}>
                 <ExternalLink className="h-4 w-4 text-primary" />
-                <h3 className="font-medium">Exportar para Airbnb</h3>
-                <Badge variant="outline" className="ml-auto">
+                <h3 className={`font-medium ${isMobile ? 'text-sm' : ''}`}>Exportar para Airbnb</h3>
+                <Badge variant="outline" className={`${isMobile ? 'text-xs ml-auto' : 'ml-auto'}`}>
                   {properties.length} propriedades
                 </Badge>
               </div>
@@ -74,23 +76,25 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
                   properties.map((property) => {
                     const exportUrl = generateExportUrl(property.id);
                     return (
-                      <div key={property.id} className="p-3 border rounded-lg bg-card">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium text-sm">{property.name}</span>
+                      <div key={property.id} className={`${isMobile ? 'p-3' : 'p-3'} border rounded-lg bg-card`}>
+                        <div className={`flex items-center justify-between mb-2 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
+                          <span className={`font-medium ${isMobile ? 'text-sm' : 'text-sm'}`}>{property.name}</span>
                           <Badge variant="secondary" className="text-xs">
                             {property.location}
                           </Badge>
                         </div>
-                        <div className="flex gap-2">
-                          <div className="flex-1 p-2 bg-muted rounded text-xs font-mono truncate">
+                        <div className={`${isMobile ? 'space-y-2' : 'flex gap-2'}`}>
+                          <div className={`${isMobile ? 'w-full' : 'flex-1'} p-2 bg-muted rounded text-xs font-mono ${isMobile ? 'break-all' : 'truncate'}`}>
                             {exportUrl}
                           </div>
                           <Button
                             onClick={() => copyToClipboard(exportUrl, property.name)}
-                            size="sm"
+                            size={isMobile ? "default" : "sm"}
                             variant="outline"
+                            className={isMobile ? "w-full" : ""}
                           >
-                            <Copy className="h-3 w-3" />
+                            <Copy className={`${isMobile ? 'h-4 w-4 mr-2' : 'h-3 w-3'}`} />
+                            {isMobile && 'Copiar URL'}
                           </Button>
                         </div>
                       </div>
@@ -102,7 +106,7 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
                   </div>
                 )}
                 
-                <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded">
+                <div className={`text-xs text-muted-foreground bg-muted/50 ${isMobile ? 'p-3' : 'p-3'} rounded`}>
                   <strong>Como usar:</strong> Copie o link e cole em "Importar calendário" no Airbnb
                 </div>
               </div>
@@ -110,10 +114,10 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
 
             {/* Import Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b">
+              <div className={`flex items-center gap-2 pb-2 border-b ${isMobile ? 'flex-wrap' : ''}`}>
                 <RefreshCw className="h-4 w-4 text-primary" />
-                <h3 className="font-medium">Importar do Airbnb</h3>
-                <Badge variant="outline" className="ml-auto">
+                <h3 className={`font-medium ${isMobile ? 'text-sm' : ''}`}>Importar do Airbnb</h3>
+                <Badge variant="outline" className={`${isMobile ? 'text-xs ml-auto' : 'ml-auto'}`}>
                   {activeSyncs.length}/{totalSyncs} ativas
                 </Badge>
               </div>
@@ -122,23 +126,23 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
                 {totalSyncs > 0 ? (
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-3 border rounded-lg">
-                        <div className="text-2xl font-bold">{totalSyncs}</div>
+                      <div className={`text-center ${isMobile ? 'p-2' : 'p-3'} border rounded-lg`}>
+                        <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>{totalSyncs}</div>
                         <div className="text-xs text-muted-foreground">Configuradas</div>
                       </div>
-                      <div className="text-center p-3 border rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">{activeSyncs.length}</div>
+                      <div className={`text-center ${isMobile ? 'p-2' : 'p-3'} border rounded-lg`}>
+                        <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-green-600`}>{activeSyncs.length}</div>
                         <div className="text-xs text-muted-foreground">Ativas</div>
                       </div>
                     </div>
                     
-                    <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded">
+                    <div className={`text-xs text-muted-foreground bg-muted/50 ${isMobile ? 'p-3' : 'p-3'} rounded`}>
                       <strong>Status:</strong> Sincronizações importam reservas externas automaticamente
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-6 text-muted-foreground">
-                    <RefreshCw className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <div className={`text-center ${isMobile ? 'py-4' : 'py-6'} text-muted-foreground`}>
+                    <RefreshCw className={`${isMobile ? 'h-6 w-6' : 'h-8 w-8'} mx-auto mb-2 opacity-50`} />
                     <div className="text-sm">Nenhuma importação configurada</div>
                     <div className="text-xs">Configure abaixo para importar reservas</div>
                   </div>
@@ -151,13 +155,13 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
 
       {/* Sync Manager */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Configurar Sincronizações</CardTitle>
+        <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-3"}>
+          <CardTitle className={isMobile ? "text-sm" : "text-base"}>Configurar Sincronizações</CardTitle>
           <CardDescription className="text-sm">
             Gerencie importações de calendários externos
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className={isMobile ? "px-4 pb-4" : ""}>
           <OptimizedSyncManager properties={properties} />
         </CardContent>
       </Card>
