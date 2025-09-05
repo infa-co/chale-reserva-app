@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { MessageCircle, Mail, Eye } from 'lucide-react';
 import { useCommunicationTemplates } from '@/hooks/useCommunicationTemplates';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
@@ -62,6 +62,15 @@ export const CommunicationTemplates = ({
     label: 'Cancelamento',
     color: 'bg-red-100 text-red-700'
   }];
+
+  // Calculate template counts for each category to ensure accuracy
+  const templateCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    categories.forEach(category => {
+      counts[category.key] = templates.filter(template => template.category === category.key).length;
+    });
+    return counts;
+  }, [templates]);
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
     const result = generateMessage(templateId, booking, customVariables, selectedProperty);
@@ -114,12 +123,13 @@ export const CommunicationTemplates = ({
       <div className="grid grid-cols-2 gap-2 mb-4">
         {categories.map(category => {
         const categoryTemplates = getTemplatesByCategory(category.key as any);
+        const count = templateCounts[category.key] || 0;
         return <Dialog key={category.key}>
               <DialogTrigger asChild>
                 <Button variant="outline" className={`h-auto p-3 flex flex-col items-start ${category.color} border-current/20`}>
                   <span className="font-medium text-sm">{category.label}</span>
                   <span className="text-xs opacity-75">
-                    {categoryTemplates.length} template{categoryTemplates.length !== 1 ? 's' : ''}
+                    {count} template{count !== 1 ? 's' : ''}
                   </span>
                 </Button>
               </DialogTrigger>
