@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { MessageCircle, Mail, Copy, Send, Eye } from 'lucide-react';
 import { useCommunicationTemplates } from '@/hooks/useCommunicationTemplates';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
+import { isInIframe, getWhatsAppUrl } from '@/lib/whatsapp';
 import { Booking } from '@/types/booking';
 import { Property } from '@/types/property';
 import { Button } from '@/components/ui/button';
@@ -92,11 +93,18 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
       return;
     }
     
-    const success = openWhatsApp(booking.phone, customMessage, removeEmojis);
-    if (success) {
+    if (isInIframe()) {
+      // In iframe, open as link
+      const url = getWhatsAppUrl({ phone: booking.phone, message: customMessage, asciiFallback: removeEmojis });
+      window.open(url, '_blank');
       toast.success('WhatsApp aberto');
     } else {
-      toast.error('Erro ao abrir WhatsApp - verifique as instruções');
+      const success = openWhatsApp(booking.phone, customMessage, removeEmojis);
+      if (success) {
+        toast.success('WhatsApp aberto');
+      } else {
+        toast.error('Erro ao abrir WhatsApp - verifique as instruções');
+      }
     }
   };
 
@@ -243,7 +251,7 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
                 value={customMessage}
                 onChange={(e) => setCustomMessage(e.target.value)}
                 rows={12}
-                className="font-mono text-sm"
+                className="text-sm"
               />
             </div>
 
@@ -258,13 +266,26 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
               </Button>
               
               {booking.phone && (
-                <Button
-                  onClick={handleSendWhatsApp}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <MessageCircle size={14} className="mr-1" />
-                  WhatsApp
-                </Button>
+                isInIframe() ? (
+                  <a
+                    href={getWhatsAppUrl({ phone: booking.phone, message: customMessage, asciiFallback: removeEmojis })}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white hover:bg-green-700 h-10 px-4 py-2"
+                    onClick={() => toast.success('WhatsApp aberto')}
+                  >
+                    <MessageCircle size={14} className="mr-1" />
+                    WhatsApp
+                  </a>
+                ) : (
+                  <Button
+                    onClick={handleSendWhatsApp}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <MessageCircle size={14} className="mr-1" />
+                    WhatsApp
+                  </Button>
+                )
               )}
               
               {booking.email && (

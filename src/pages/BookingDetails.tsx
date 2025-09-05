@@ -7,7 +7,7 @@ import { useBookings } from '@/contexts/BookingContext';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
-import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
+import { openWhatsApp as openWhatsAppUtil, isInIframe, getWhatsAppUrl } from '@/lib/whatsapp';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,7 +72,13 @@ const BookingDetails = () => {
   const openWhatsApp = () => {
     if (booking.phone) {
       const message = `Olá ${booking.guest_name}! Confirmando sua reserva:\n\nCheck-in: ${format(parseISO(booking.check_in), "dd/MM/yyyy", { locale: ptBR })}\nCheck-out: ${format(parseISO(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}\nValor: R$ ${booking.total_value.toLocaleString('pt-BR')}\n\nQualquer dúvida, estarei aqui!`;
-      openWhatsAppUtil({ phone: booking.phone, message });
+      
+      if (isInIframe()) {
+        const url = getWhatsAppUrl({ phone: booking.phone, message });
+        window.open(url, '_blank');
+      } else {
+        openWhatsAppUtil({ phone: booking.phone, message });
+      }
     }
   };
 
@@ -132,15 +138,30 @@ const BookingDetails = () => {
               <div className="flex items-center gap-3">
                 <Phone size={16} className="text-muted-foreground" />
                 <span>{booking.phone}</span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={openWhatsApp}
-                  className="ml-auto"
-                >
-                  <MessageCircle size={14} className="text-green-600 mr-1" />
-                  WhatsApp
-                </Button>
+                {isInIframe() ? (
+                  <a
+                    href={getWhatsAppUrl({ 
+                      phone: booking.phone, 
+                      message: `Olá ${booking.guest_name}! Confirmando sua reserva:\n\nCheck-in: ${format(parseISO(booking.check_in), "dd/MM/yyyy", { locale: ptBR })}\nCheck-out: ${format(parseISO(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}\nValor: R$ ${booking.total_value.toLocaleString('pt-BR')}\n\nQualquer dúvida, estarei aqui!`
+                    })}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 ml-auto"
+                  >
+                    <MessageCircle size={14} className="text-green-600 mr-1" />
+                    WhatsApp
+                  </a>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={openWhatsApp}
+                    className="ml-auto"
+                  >
+                    <MessageCircle size={14} className="text-green-600 mr-1" />
+                    WhatsApp
+                  </Button>
+                )}
               </div>
             )}
             

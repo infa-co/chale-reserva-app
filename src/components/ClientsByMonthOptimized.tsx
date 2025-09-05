@@ -1,6 +1,7 @@
 import { useState, memo, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, TrendingUp, Calendar, ChevronDown, ChevronRight, Users } from 'lucide-react';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -24,12 +25,6 @@ interface ClientsByMonthProps {
 }
 
 const ClientCard = memo(({ client }: { client: ProcessedClient }) => {
-  const openWhatsApp = useCallback((phone: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const cleanPhone = phone.replace(/\D/g, '');
-    window.open(`https://wa.me/55${cleanPhone}`, '_blank');
-  }, []);
 
   const sortedBookings = useMemo(() => 
     client.bookings
@@ -69,12 +64,15 @@ const ClientCard = memo(({ client }: { client: ProcessedClient }) => {
         
         <div className="flex items-center gap-2">
           {client.phone && (
-            <button
-              onClick={(e) => openWhatsApp(client.phone, e)}
+            <a
+              href={getWhatsAppUrl({ phone: client.phone })}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
               className="p-2 hover:bg-green-50 rounded-lg transition-colors"
             >
               <MessageCircle size={18} className="text-green-600" />
-            </button>
+            </a>
           )}
         </div>
       </div>

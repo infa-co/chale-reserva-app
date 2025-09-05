@@ -99,12 +99,49 @@ export const sanitizeMessage = (message: string, options?: { asciiFallback?: boo
       .replace(/🌻/g, '[Girassol]')
       .replace(/🌷/g, '[Tulipa]')
       .replace(/⚘/g, '[Flor]');
+      
+    // Remove variation selectors and other problematic Unicode sequences when using ASCII fallback
+    sanitized = sanitized.replace(/[\uFE00-\uFE0F\u200D\u20E3]/g, '');
+  } else {
+    // Only remove variation selectors when NOT using ASCII fallback
+    sanitized = sanitized.replace(/[\uFE00-\uFE0F]/g, '');
   }
   
-  // Remove variation selectors and other problematic Unicode sequences
-  sanitized = sanitized.replace(/[\uFE00-\uFE0F\u200D\u20E3]/g, '');
+  // Replace bullet points with dashes for better compatibility
+  sanitized = sanitized.replace(/•/g, '-');
+  
+  // Normalize line breaks
+  sanitized = sanitized.replace(/\r\n|\r/g, '\n');
   
   return sanitized;
+};
+
+export const isInIframe = (): boolean => {
+  try {
+    return window.self !== window.top;
+  } catch (e) {
+    return true;
+  }
+};
+
+export const getWhatsAppUrl = ({ 
+  phone, 
+  message = '', 
+  asciiFallback = false 
+}: { 
+  phone: string; 
+  message?: string; 
+  asciiFallback?: boolean; 
+}): string => {
+  const normalizedPhone = normalizePhone(phone);
+  
+  // Auto-detect if we need ASCII fallback due to  characters
+  const needsAsciiFallback = asciiFallback || message.includes('');
+  
+  const sanitizedMessage = sanitizeMessage(message, { asciiFallback: needsAsciiFallback });
+  const encodedMessage = encodeURIComponent(sanitizedMessage);
+  
+  return `https://wa.me/${normalizedPhone}${message ? `?text=${encodedMessage}` : ''}`;
 };
 
 export const openWhatsApp = ({ 
@@ -118,8 +155,6 @@ export const openWhatsApp = ({
 }): boolean => {
   try {
     const normalizedPhone = normalizePhone(phone);
-    const sanitizedMessage = sanitizeMessage(message, { asciiFallback });
-    const encodedMessage = encodeURIComponent(sanitizedMessage);
     
     // Validate phone number (should have at least 12-13 digits: 55 + DDD + number)
     if (normalizedPhone.length < 12) {
@@ -128,7 +163,7 @@ export const openWhatsApp = ({
       return false;
     }
     
-    const whatsappUrl = `https://wa.me/${normalizedPhone}${message ? `?text=${encodedMessage}` : ''}`;
+    const whatsappUrl = getWhatsAppUrl({ phone: normalizedPhone, message, asciiFallback });
     
     console.info('WhatsApp URL:', whatsappUrl);
     console.info('Telefone normalizado:', normalizedPhone);
@@ -140,6 +175,7 @@ export const openWhatsApp = ({
     if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
       // Fallback: copy message and show instructions
       if (message) {
+        const sanitizedMessage = sanitizeMessage(message, { asciiFallback });
         navigator.clipboard.writeText(sanitizedMessage).then(() => {
           alert(`WhatsApp bloqueado pelo navegador.\n\nMensagem copiada!\nAbra o WhatsApp manualmente e cole para: +${normalizedPhone}`);
         }).catch(() => {
