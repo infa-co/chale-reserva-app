@@ -1,13 +1,11 @@
-
 import { useState } from 'react';
-import { MessageCircle, Mail, Copy, Eye } from 'lucide-react';
+import { MessageCircle, Copy, Eye } from 'lucide-react';
 import { useCommunicationTemplates } from '@/hooks/useCommunicationTemplates';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { openWhatsApp } from '@/lib/whatsapp';
 import { Booking } from '@/types/booking';
 import { Property } from '@/types/property';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
@@ -35,8 +33,7 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
   const {
     templates,
     getTemplatesByCategory,
-    generateMessage,
-    generateEmailLink
+    generateMessage
   } = useCommunicationTemplates();
   
   const { properties } = useOptimizedProperties();
@@ -99,23 +96,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
     toast.success('WhatsApp aberto com mensagem pronta para envio!');
   };
 
-  const handleSendEmail = () => {
-    if (!booking.email) {
-      toast.error('Email não informado');
-      return;
-    }
-
-    const template = templates.find(t => t.id === selectedTemplate);
-    const result = generateMessage(selectedTemplate, booking, customVariables, selectedProperty);
-    const subject = template?.subject && typeof result === 'object' && result.subject ?
-      result.subject : 
-      'Reserva';
-    
-    const emailLink = generateEmailLink(booking.email, subject, customMessage);
-    window.open(emailLink);
-    toast.success('Email aberto');
-  };
-
   const handleCopyMessage = () => {
     navigator.clipboard.writeText(customMessage);
     toast.success('Mensagem copiada');
@@ -157,9 +137,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium">{template.name}</span>
                         <div className="flex items-center gap-2">
-                        <Badge variant="outline">
-                          <Mail size={12} className="mr-1" /> Email
-                        </Badge>
                           <Button
                             size="sm"
                             variant="outline"
@@ -218,7 +195,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
               </Select>
             </div>
 
-
             {/* Mensagem Editável */}
             <div>
               <Label htmlFor="message">Mensagem</Label>
@@ -250,7 +226,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
                   WhatsApp
                 </Button>
               )}
-              
             </div>
           </div>
         </DialogContent>
