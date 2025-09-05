@@ -17,77 +17,6 @@ interface CommunicationTemplate {
 export const useCommunicationTemplates = () => {
   const templates: CommunicationTemplate[] = [
     {
-      id: 'whatsapp_confirmation',
-      name: 'Confirmação - WhatsApp',
-      type: 'whatsapp',
-      category: 'confirmation',
-      message: `Olá {{guest_name}}! 🏡
-
-✅ Sua reserva foi CONFIRMADA!
-
-📅 Check-in: {{check_in_formatted}}
-📅 Check-out: {{check_out_formatted}}
-🛏️ {{nights}} noite(s)
-💰 Total: R$ {{total_value}}
-
-Estamos ansiosos para recebê-la(o)!
-
-Qualquer dúvida, estarei aqui! 😊`
-    },
-    {
-      id: 'whatsapp_reminder',
-      name: 'Lembrete Check-in - WhatsApp',
-      type: 'whatsapp',
-      category: 'reminder',
-      message: `Oi {{guest_name}}! 👋
-
-Lembrete: seu check-in é AMANHÃ! 🗓️
-
-⏰ Check-in: {{check_in_formatted}}
-📍 Endereço será enviado às 14h
-🔑 Check-in a partir das 15h
-
-Mal podemos esperar para recebê-la(o)! ✨`
-    },
-    {
-      id: 'whatsapp_checkin',
-      name: 'Instruções Check-in - WhatsApp',
-      type: 'whatsapp',
-      category: 'checkin',
-      message: `{{guest_name}}, chegou o dia! 🎉
-
-🏡 SEU CHECK-IN É HOJE!
-
-📍 Endereço: [INSERIR ENDEREÇO]
-⏰ A partir das 15h
-🔑 Código do portão: [INSERIR CÓDIGO]
-
-Instruções detalhadas:
-• Wifi: [INSERIR WIFI]
-• Lixo: [INSERIR INSTRUÇÕES]
-• Checkout: até 11h
-
-Tenha uma estadia incrível! 🌟`
-    },
-    {
-      id: 'whatsapp_payment',
-      name: 'Cobrança Pagamento - WhatsApp',
-      type: 'whatsapp',
-      category: 'payment',
-      message: `Oi {{guest_name}}! 😊
-
-Só lembrando que temos uma reserva confirmada para {{check_in_formatted}} e o pagamento ainda está pendente.
-
-💰 Valor: R$ {{total_value}}
-📅 Check-in: {{check_in_formatted}}
-
-Pix: [INSERIR PIX]
-ou
-Link de pagamento: [INSERIR LINK]
-
-Assim que confirmado, envio todos os detalhes! ✨`
-    },
-    {
       id: 'email_confirmation',
       name: 'Confirmação - Email',
       type: 'email',
@@ -110,35 +39,72 @@ Atenciosamente,
 {{property_name}}`
     },
     {
-      id: 'whatsapp_checkout_reminder',
-      name: 'Lembrete Check-out - WhatsApp',
-      type: 'whatsapp',
-      category: 'checkout',
-      message: `Oi {{guest_name}}! 😊
+      id: 'email_reminder',
+      name: 'Lembrete Check-in - Email',
+      type: 'email',
+      category: 'reminder',
+      subject: 'Lembrete: Check-in Amanhã - {{guest_name}}',
+      message: `Olá {{guest_name}},
 
-Hoje é o dia do seu CHECK-OUT! 🗓️
+Lembrete: seu check-in é amanhã!
 
-⏰ Check-out: até 11h
-🧹 Deixe a casa organizada
-🔑 Deixe as chaves no local indicado
-🗑️ Lixo na lixeira externa
+DETALHES:
+• Check-in: {{check_in_formatted}}
+• Endereço será enviado às 14h
+• Check-in a partir das 15h
 
-Esperamos que tenha curtido sua estadia! ✨
-Avaliações são muito bem-vindas! ⭐`
+Mal podemos esperar para recebê-la(o)!
+
+Atenciosamente,
+{{property_name}}`
     },
     {
-      id: 'whatsapp_checkout_thanks',
-      name: 'Agradecimento Pós Check-out - WhatsApp',
-      type: 'whatsapp',
-      category: 'checkout',
-      message: `{{guest_name}}, muito obrigada pela estadia! 🙏
+      id: 'email_checkin',
+      name: 'Instruções Check-in - Email',
+      type: 'email',
+      category: 'checkin',
+      subject: 'Check-in Hoje - {{guest_name}}',
+      message: `{{guest_name}}, chegou o dia!
 
-Foi um prazer recebê-la(o) aqui! 🏡✨
+SEU CHECK-IN É HOJE!
 
-Se puder nos ajudar com uma avaliação, ficaremos muito gratos! ⭐
+INFORMAÇÕES:
+• Endereço: [INSERIR ENDEREÇO]
+• Horário: a partir das 15h
+• Código do portão: [INSERIR CÓDIGO]
 
-Esperamos te receber novamente em breve! 😊
-Sempre às ordens! 💚`
+INSTRUÇÕES DETALHADAS:
+• Wifi: [INSERIR WIFI]
+• Lixo: [INSERIR INSTRUÇÕES]
+• Checkout: até 11h
+
+Tenha uma estadia incrível!
+
+Atenciosamente,
+{{property_name}}`
+    },
+    {
+      id: 'email_payment',
+      name: 'Cobrança Pagamento - Email',
+      type: 'email',
+      category: 'payment',
+      subject: 'Pagamento Pendente - {{guest_name}}',
+      message: `Olá {{guest_name}},
+
+Lembramos que temos uma reserva confirmada para {{check_in_formatted}} e o pagamento ainda está pendente.
+
+DETALHES:
+• Valor: R$ {{total_value}}
+• Check-in: {{check_in_formatted}}
+
+FORMAS DE PAGAMENTO:
+• Pix: [INSERIR PIX]
+• Link de pagamento: [INSERIR LINK]
+
+Assim que confirmado, enviaremos todos os detalhes!
+
+Atenciosamente,
+{{property_name}}`
     },
     {
       id: 'email_checkout',
@@ -162,24 +128,6 @@ Se puder nos ajudar com uma avaliação, ficaremos muito gratos!
 
 Atenciosamente,
 {{property_name}}`
-    },
-    {
-      id: 'whatsapp_cancellation',
-      name: 'Cancelamento - WhatsApp',
-      type: 'whatsapp',
-      category: 'cancellation',
-      message: `Oi {{guest_name}}! 😔
-
-Confirmamos o cancelamento da sua reserva:
-
-📅 Check-in: {{check_in_formatted}}
-📅 Check-out: {{check_out_formatted}}
-💰 Valor: R$ {{total_value}}
-
-Sentimos muito pelo cancelamento! 💔
-Esperamos recebê-la(o) em uma próxima oportunidade! 🤗
-
-Qualquer dúvida, estarei aqui! 😊`
     },
     {
       id: 'email_cancellation',

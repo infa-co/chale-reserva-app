@@ -1,17 +1,14 @@
 
-import { useState, useEffect } from 'react';
-import { MessageCircle, Mail, Copy, Send, Eye } from 'lucide-react';
+import { useState } from 'react';
+import { Mail, Copy, Eye } from 'lucide-react';
 import { useCommunicationTemplates } from '@/hooks/useCommunicationTemplates';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
-import { isInIframe, getWhatsAppUrl } from '@/lib/whatsapp';
 import { Booking } from '@/types/booking';
 import { Property } from '@/types/property';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -38,7 +35,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
     templates,
     getTemplatesByCategory,
     generateMessage,
-    openWhatsApp,
     generateEmailLink
   } = useCommunicationTemplates();
   
@@ -48,7 +44,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
   const [customMessage, setCustomMessage] = useState('');
   const [customVariables, setCustomVariables] = useState<Record<string, string>>({});
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [removeEmojis, setRemoveEmojis] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | undefined>(() => {
     // Se a reserva tem property_id, tentar encontrar a propriedade correspondente
     if (booking.property_id && properties.length > 0) {
@@ -71,12 +66,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
     const result = generateMessage(templateId, booking, customVariables, selectedProperty);
     if (typeof result === 'object' && result.message) {
       setCustomMessage(result.message);
-      
-      // Auto-detect corrupted emojis and enable ASCII fallback
-      if (result.message.includes('�')) {
-        setRemoveEmojis(true);
-        toast.info('Emojis convertidos automaticamente para melhor compatibilidade');
-      }
     }
   };
 
@@ -89,40 +78,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
       const result = generateMessage(selectedTemplate, booking, customVariables, property);
       if (typeof result === 'object' && result.message) {
         setCustomMessage(result.message);
-        
-        // Auto-detect corrupted emojis and enable ASCII fallback
-        if (result.message.includes('�')) {
-          setRemoveEmojis(true);
-          toast.info('Emojis convertidos automaticamente para melhor compatibilidade');
-        }
-      }
-    }
-  };
-
-  const handleSendWhatsApp = () => {
-    if (!booking.phone) {
-      toast.error('Telefone não informado');
-      return;
-    }
-    
-    // Auto-activate ASCII fallback if corrupted characters detected
-    let useAsciiFallback = removeEmojis;
-    if (!removeEmojis && customMessage.includes('�')) {
-      useAsciiFallback = true;
-      toast.info('Emojis convertidos automaticamente devido a caracteres corrompidos');
-    }
-    
-    if (isInIframe()) {
-      // In iframe, open as link
-      const url = getWhatsAppUrl({ phone: booking.phone, message: customMessage, asciiFallback: useAsciiFallback });
-      window.open(url, '_blank');
-      toast.success('WhatsApp aberto');
-    } else {
-      const success = openWhatsApp(booking.phone, customMessage, useAsciiFallback);
-      if (success) {
-        toast.success('WhatsApp aberto');
-      } else {
-        toast.error('Erro ao abrir WhatsApp - verifique as instruções');
       }
     }
   };
@@ -185,13 +140,9 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium">{template.name}</span>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline">
-                            {template.type === 'whatsapp' ? (
-                              <><MessageCircle size={12} className="mr-1" /> WhatsApp</>
-                            ) : (
-                              <><Mail size={12} className="mr-1" /> Email</>
-                            )}
-                          </Badge>
+                        <Badge variant="outline">
+                          <Mail size={12} className="mr-1" /> Email
+                        </Badge>
                           <Button
                             size="sm"
                             variant="outline"
@@ -250,22 +201,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
               </Select>
             </div>
 
-            {/* Checkbox para remover emojis */}
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="removeEmojis" 
-                checked={removeEmojis}
-                onCheckedChange={(checked) => setRemoveEmojis(checked as boolean)}
-              />
-              <Label htmlFor="removeEmojis" className="text-sm">
-                Remover emojis (recomendado se houver problemas no WhatsApp)
-                {customMessage.includes('�') && (
-                  <span className="text-amber-600 ml-1">
-                    ⚠️ Caracteres corrompidos detectados
-                  </span>
-                )}
-              </Label>
-            </div>
 
             {/* Mensagem Editável */}
             <div>
@@ -288,29 +223,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
                 <Copy size={14} className="mr-1" />
                 Copiar
               </Button>
-              
-              {booking.phone && (
-                isInIframe() ? (
-                  <a
-                    href={getWhatsAppUrl({ phone: booking.phone, message: customMessage, asciiFallback: removeEmojis })}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white hover:bg-green-700 h-10 px-4 py-2"
-                    onClick={() => toast.success('WhatsApp aberto')}
-                  >
-                    <MessageCircle size={14} className="mr-1" />
-                    WhatsApp
-                  </a>
-                ) : (
-                  <Button
-                    onClick={handleSendWhatsApp}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <MessageCircle size={14} className="mr-1" />
-                    WhatsApp
-                  </Button>
-                )
-              )}
               
               {booking.email && (
                 <Button
