@@ -47,17 +47,43 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- PWA Service Worker Registration -->
+    <!-- PWA Service Worker Registration with Update Handling -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
               console.log('SW registered: ', registration);
+              
+              // Check for updates periodically
+              setInterval(() => {
+                registration.update();
+              }, 60000); // Check every minute
+              
+              // Handle updates
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('New service worker found, installing...');
+                
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('New version available, reloading...');
+                    // Automatically reload to get the new version
+                    window.location.reload();
+                  }
+                });
+              });
             })
             .catch((registrationError) => {
               console.log('SW registration failed: ', registrationError);
             });
+            
+          // Listen for messages from service worker
+          navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'RELOAD_PAGE') {
+              window.location.reload();
+            }
+          });
         });
       }
     </script>
