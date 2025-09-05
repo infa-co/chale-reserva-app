@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageCircle, Copy, Eye } from 'lucide-react';
+import { MessageCircle, Mail, Eye } from 'lucide-react';
 import { useCommunicationTemplates } from '@/hooks/useCommunicationTemplates';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { openWhatsApp } from '@/lib/whatsapp';
@@ -33,7 +33,8 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
   const {
     templates,
     getTemplatesByCategory,
-    generateMessage
+    generateMessage,
+    generateEmailLink
   } = useCommunicationTemplates();
   
   const { properties } = useOptimizedProperties();
@@ -96,9 +97,21 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
     toast.success('WhatsApp aberto com mensagem pronta para envio!');
   };
 
-  const handleCopyMessage = () => {
-    navigator.clipboard.writeText(customMessage);
-    toast.success('Mensagem copiada');
+  const handleSendEmail = () => {
+    if (!booking.email) {
+      toast.error('Email não informado');
+      return;
+    }
+
+    const template = templates.find(t => t.id === selectedTemplate);
+    const result = generateMessage(selectedTemplate, booking, customVariables, selectedProperty);
+    const subject = template?.subject && typeof result === 'object' && result.subject ?
+      result.subject : 
+      'Reserva';
+    
+    const emailLink = generateEmailLink(booking.email, subject, customMessage);
+    window.open(emailLink);
+    toast.success('Email aberto');
   };
 
   return (
@@ -209,13 +222,15 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
 
             {/* Ações */}
             <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                onClick={handleCopyMessage}
-              >
-                <Copy size={14} className="mr-1" />
-                Copiar
-              </Button>
+              {booking.email && (
+                <Button
+                  onClick={handleSendEmail}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Mail size={14} className="mr-1" />
+                  Email
+                </Button>
+              )}
               
               {booking.phone && (
                 <Button
