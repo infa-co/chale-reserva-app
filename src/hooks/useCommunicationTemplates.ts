@@ -250,9 +250,41 @@ Atenciosamente,
   };
 
   const openWhatsApp = (phone: string, message: string) => {
-    const cleanPhone = phone.replace(/\D/g, '');
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/55${cleanPhone}?text=${encodedMessage}`, '_blank');
+    try {
+      const cleanPhone = phone.replace(/\D/g, '');
+      // Ensure phone starts with country code
+      const phoneWithCountry = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
+      const encodedMessage = encodeURIComponent(message);
+      
+      // Use direct wa.me link to avoid API issues
+      const whatsappUrl = `https://wa.me/${phoneWithCountry}?text=${encodedMessage}`;
+      
+      // Try to open WhatsApp
+      const newWindow = window.open(whatsappUrl, '_blank');
+      
+      // If blocked, provide fallback
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        // Fallback: copy message and show instructions
+        navigator.clipboard.writeText(message).then(() => {
+          alert(`Mensagem copiada! Abra o WhatsApp manualmente e cole a mensagem para: +${phoneWithCountry}`);
+        }).catch(() => {
+          alert(`Erro ao abrir WhatsApp. Copie esta mensagem manualmente:\n\n${message}\n\nPara: +${phoneWithCountry}`);
+        });
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Erro ao abrir WhatsApp:', error);
+      // Fallback: copy message
+      try {
+        navigator.clipboard.writeText(message);
+        alert('Erro ao abrir WhatsApp. Mensagem copiada para a área de transferência.');
+      } catch (clipboardError) {
+        alert(`Erro ao abrir WhatsApp. Copie esta mensagem manualmente:\n\n${message}`);
+      }
+      return false;
+    }
   };
 
   const generateEmailLink = (email: string, subject: string, message: string) => {

@@ -89,8 +89,12 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
       return;
     }
     
-    openWhatsApp(booking.phone, customMessage);
-    toast.success('WhatsApp aberto');
+    const success = openWhatsApp(booking.phone, customMessage);
+    if (success) {
+      toast.success('WhatsApp aberto');
+    } else {
+      toast.error('Erro ao abrir WhatsApp - verifique as instruções');
+    }
   };
 
   const handleSendEmail = () => {
