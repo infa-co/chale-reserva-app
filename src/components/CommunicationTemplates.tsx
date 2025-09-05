@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageCircle, Mail, Copy, Send, Eye } from 'lucide-react';
 import { useCommunicationTemplates } from '@/hooks/useCommunicationTemplates';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
@@ -71,6 +71,12 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
     const result = generateMessage(templateId, booking, customVariables, selectedProperty);
     if (typeof result === 'object' && result.message) {
       setCustomMessage(result.message);
+      
+      // Auto-detect corrupted emojis and enable ASCII fallback
+      if (result.message.includes('�')) {
+        setRemoveEmojis(true);
+        toast.info('Emojis convertidos automaticamente para melhor compatibilidade');
+      }
     }
   };
 
@@ -83,6 +89,12 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
       const result = generateMessage(selectedTemplate, booking, customVariables, property);
       if (typeof result === 'object' && result.message) {
         setCustomMessage(result.message);
+        
+        // Auto-detect corrupted emojis and enable ASCII fallback
+        if (result.message.includes('�')) {
+          setRemoveEmojis(true);
+          toast.info('Emojis convertidos automaticamente para melhor compatibilidade');
+        }
       }
     }
   };
@@ -93,13 +105,20 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
       return;
     }
     
+    // Auto-activate ASCII fallback if corrupted characters detected
+    let useAsciiFallback = removeEmojis;
+    if (!removeEmojis && customMessage.includes('�')) {
+      useAsciiFallback = true;
+      toast.info('Emojis convertidos automaticamente devido a caracteres corrompidos');
+    }
+    
     if (isInIframe()) {
       // In iframe, open as link
-      const url = getWhatsAppUrl({ phone: booking.phone, message: customMessage, asciiFallback: removeEmojis });
+      const url = getWhatsAppUrl({ phone: booking.phone, message: customMessage, asciiFallback: useAsciiFallback });
       window.open(url, '_blank');
       toast.success('WhatsApp aberto');
     } else {
-      const success = openWhatsApp(booking.phone, customMessage, removeEmojis);
+      const success = openWhatsApp(booking.phone, customMessage, useAsciiFallback);
       if (success) {
         toast.success('WhatsApp aberto');
       } else {
@@ -240,6 +259,11 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
               />
               <Label htmlFor="removeEmojis" className="text-sm">
                 Remover emojis (recomendado se houver problemas no WhatsApp)
+                {customMessage.includes('�') && (
+                  <span className="text-amber-600 ml-1">
+                    ⚠️ Caracteres corrompidos detectados
+                  </span>
+                )}
               </Label>
             </div>
 

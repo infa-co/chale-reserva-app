@@ -22,11 +22,15 @@ export const sanitizeMessage = (message: string, options?: { asciiFallback?: boo
     // Replace common emojis and symbols with ASCII equivalents
     sanitized = sanitized
       .replace(/📅/g, '[Data]')
+      .replace(/🗓️/g, '[Calendario]')
       .replace(/🏠/g, '[Casa]')
+      .replace(/🛏️/g, '[Cama]')
       .replace(/💰/g, '[Valor]')
       .replace(/✅/g, '[Confirmado]')
       .replace(/📋/g, '[Info]')
       .replace(/📞/g, '[Telefone]')
+      .replace(/🧹/g, '[Limpeza]')
+      .replace(/🗑️/g, '[Lixo]')
       .replace(/✨/g, '*')
       .replace(/🎉/g, '!')
       .replace(/🔥/g, '[Hot]')
@@ -67,7 +71,7 @@ export const sanitizeMessage = (message: string, options?: { asciiFallback?: boo
       .replace(/🥰/g, '<3')
       .replace(/😘/g, ':*')
       .replace(/😗/g, ':*')
-      .replace(/🤗/g, ':)')
+      .replace(/🤗/g, '[Abraco]')
       .replace(/🤝/g, '[Acordo]')
       .replace(/👏/g, '[Aplauso]')
       .replace(/👍/g, '[Like]')
@@ -98,13 +102,34 @@ export const sanitizeMessage = (message: string, options?: { asciiFallback?: boo
       .replace(/🌺/g, '[Flor]')
       .replace(/🌻/g, '[Girassol]')
       .replace(/🌷/g, '[Tulipa]')
-      .replace(/⚘/g, '[Flor]');
+      .replace(/⚘/g, '[Flor]')
+      .replace(/🛡️/g, '[Seguro]')
+      .replace(/🔑/g, '[Chave]')
+      .replace(/🚪/g, '[Porta]')
+      .replace(/🛁/g, '[Banho]')
+      .replace(/🚿/g, '[Chuveiro]')
+      .replace(/🍽️/g, '[Comida]')
+      .replace(/☕/g, '[Cafe]')
+      .replace(/🧊/g, '[Gelo]')
+      .replace(/🎮/g, '[Game]')
+      .replace(/📺/g, '[TV]')
+      .replace(/🔌/g, '[Energia]')
+      .replace(/💡/g, '[Luz]')
+      .replace(/🌡️/g, '[Temp]')
+      .replace(/❄️/g, '[Frio]')
+      .replace(/🔥/g, '[Quente]')
+      .replace(/🌊/g, '[Agua]')
+      .replace(/🏔️/g, '[Montanha]')
+      .replace(/🌲/g, '[Arvore]')
+      .replace(/🦎/g, '[Animal]')
+      .replace(/🐛/g, '[Inseto]')
+      .replace(/🌙/g, '[Noite]')
+      .replace(/☀️/g, '[Sol]')
+      .replace(/⛈️/g, '[Chuva]')
+      .replace(/🌈/g, '[Arco-iris]');
       
     // Remove variation selectors and other problematic Unicode sequences when using ASCII fallback
     sanitized = sanitized.replace(/[\uFE00-\uFE0F\u200D\u20E3]/g, '');
-  } else {
-    // Only remove variation selectors when NOT using ASCII fallback
-    sanitized = sanitized.replace(/[\uFE00-\uFE0F]/g, '');
   }
   
   // Replace bullet points with dashes for better compatibility
@@ -135,8 +160,8 @@ export const getWhatsAppUrl = ({
 }): string => {
   const normalizedPhone = normalizePhone(phone);
   
-  // Auto-detect if we need ASCII fallback due to  characters
-  const needsAsciiFallback = asciiFallback || message.includes('');
+  // Auto-detect if we need ASCII fallback due to � characters
+  const needsAsciiFallback = asciiFallback || message.includes('�');
   
   const sanitizedMessage = sanitizeMessage(message, { asciiFallback: needsAsciiFallback });
   const encodedMessage = encodeURIComponent(sanitizedMessage);
