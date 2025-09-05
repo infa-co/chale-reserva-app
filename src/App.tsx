@@ -13,8 +13,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import MobileNav from "./components/MobileNav";
 
-// Lazy load das páginas para melhor performance
-const Dashboard = lazy(() => import("./pages/Dashboard"));
+// Import das páginas diretamente para resolver problemas de dynamic import
+import Dashboard from "./pages/Dashboard";
 const NewBooking = lazy(() => import("./pages/NewBooking"));
 const EditBooking = lazy(() => import("./pages/EditBooking"));
 const OptimizedBookingList = lazy(() => import("./pages/OptimizedBookingList"));
