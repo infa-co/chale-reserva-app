@@ -3,6 +3,7 @@ import { Booking } from '@/types/booking';
 import { Property } from '@/types/property';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
 interface CommunicationTemplate {
   id: string;
@@ -249,42 +250,8 @@ Atenciosamente,
     };
   };
 
-  const openWhatsApp = (phone: string, message: string) => {
-    try {
-      const cleanPhone = phone.replace(/\D/g, '');
-      // Ensure phone starts with country code
-      const phoneWithCountry = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
-      const encodedMessage = encodeURIComponent(message);
-      
-      // Use direct wa.me link to avoid API issues
-      const whatsappUrl = `https://wa.me/${phoneWithCountry}?text=${encodedMessage}`;
-      
-      // Try to open WhatsApp
-      const newWindow = window.open(whatsappUrl, '_blank');
-      
-      // If blocked, provide fallback
-      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        // Fallback: copy message and show instructions
-        navigator.clipboard.writeText(message).then(() => {
-          alert(`Mensagem copiada! Abra o WhatsApp manualmente e cole a mensagem para: +${phoneWithCountry}`);
-        }).catch(() => {
-          alert(`Erro ao abrir WhatsApp. Copie esta mensagem manualmente:\n\n${message}\n\nPara: +${phoneWithCountry}`);
-        });
-        return false;
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('Erro ao abrir WhatsApp:', error);
-      // Fallback: copy message
-      try {
-        navigator.clipboard.writeText(message);
-        alert('Erro ao abrir WhatsApp. Mensagem copiada para a área de transferência.');
-      } catch (clipboardError) {
-        alert(`Erro ao abrir WhatsApp. Copie esta mensagem manualmente:\n\n${message}`);
-      }
-      return false;
-    }
+  const openWhatsApp = (phone: string, message: string, asciiFallback = false) => {
+    return openWhatsAppUtil({ phone, message, asciiFallback });
   };
 
   const generateEmailLink = (email: string, subject: string, message: string) => {

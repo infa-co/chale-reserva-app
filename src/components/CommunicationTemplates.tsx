@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -20,6 +21,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -45,6 +47,7 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
   const [customMessage, setCustomMessage] = useState('');
   const [customVariables, setCustomVariables] = useState<Record<string, string>>({});
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [removeEmojis, setRemoveEmojis] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | undefined>(() => {
     // Se a reserva tem property_id, tentar encontrar a propriedade correspondente
     if (booking.property_id && properties.length > 0) {
@@ -89,7 +92,7 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
       return;
     }
     
-    const success = openWhatsApp(booking.phone, customMessage);
+    const success = openWhatsApp(booking.phone, customMessage, removeEmojis);
     if (success) {
       toast.success('WhatsApp aberto');
     } else {
@@ -144,6 +147,9 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Templates - {category.label}</DialogTitle>
+                  <DialogDescription>
+                    Escolha um template para personalizar sua mensagem
+                  </DialogDescription>
                 </DialogHeader>
                 
                 <div className="space-y-4">
@@ -191,6 +197,9 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Preview e Edição da Mensagem</DialogTitle>
+            <DialogDescription>
+              Selecione a propriedade e personalize a mensagem antes de enviar
+            </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
@@ -214,6 +223,17 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
               </Select>
             </div>
 
+            {/* Checkbox para remover emojis */}
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="removeEmojis" 
+                checked={removeEmojis}
+                onCheckedChange={(checked) => setRemoveEmojis(checked as boolean)}
+              />
+              <Label htmlFor="removeEmojis" className="text-sm">
+                Remover emojis (recomendado se houver problemas no WhatsApp)
+              </Label>
+            </div>
 
             {/* Mensagem Editável */}
             <div>

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useBookings } from '@/contexts/BookingContext';
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
 const BookingList = () => {
   const { bookings } = useBookings();
@@ -55,8 +56,7 @@ const BookingList = () => {
   const openWhatsApp = (phone: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const cleanPhone = phone.replace(/\D/g, '');
-    window.open(`https://wa.me/55${cleanPhone}`, '_blank');
+    openWhatsAppUtil({ phone });
   };
 
   const toggleSort = () => {

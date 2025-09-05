@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { differenceInDays, parseISO, subDays } from 'date-fns';
+import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
 export const useHistoricalBookingForm = () => {
   const [formData, setFormData] = useState({
@@ -31,8 +32,7 @@ export const useHistoricalBookingForm = () => {
 
   const openWhatsApp = () => {
     if (formData.phone) {
-      const cleanPhone = formData.phone.replace(/\D/g, '');
-      window.open(`https://wa.me/55${cleanPhone}`, '_blank');
+      openWhatsAppUtil({ phone: formData.phone });
     }
   };
 

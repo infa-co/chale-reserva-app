@@ -8,6 +8,7 @@ import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths
 import { ptBR } from 'date-fns/locale';
 import BookingExportDialog from '@/components/BookingExportDialog';
 import { useBookings } from '@/contexts/BookingContext';
+import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
 interface OptimizedBookingListProps {
   bookings: Booking[];
@@ -17,8 +18,7 @@ const BookingCard = memo(({ booking }: { booking: Booking }) => {
   const openWhatsApp = useCallback((phone: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const cleanPhone = phone.replace(/\D/g, '');
-    window.open(`https://wa.me/55${cleanPhone}`, '_blank');
+    openWhatsAppUtil({ phone });
   }, []);
 
   const getStatusColor = useCallback((status: string) => {

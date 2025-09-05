@@ -5,6 +5,7 @@ import { MessageCircle, TrendingUp, Calendar, ChevronDown, ChevronRight, Users }
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
 interface ProcessedClient {
   id: string;
@@ -30,8 +31,7 @@ const ClientsByMonth = ({ clients, searchTerm }: ClientsByMonthProps) => {
   const openWhatsApp = (phone: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const cleanPhone = phone.replace(/\D/g, '');
-    window.open(`https://wa.me/55${cleanPhone}`, '_blank');
+    openWhatsAppUtil({ phone });
   };
 
   const toggleMonth = (monthKey: string) => {

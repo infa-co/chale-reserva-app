@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { differenceInDays, parseISO, format } from 'date-fns';
 import { Booking } from '@/types/booking';
+import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
 export const useEditBookingForm = (booking?: Booking) => {
   const [formData, setFormData] = useState({
@@ -57,20 +58,7 @@ export const useEditBookingForm = (booking?: Booking) => {
 
   const openWhatsApp = () => {
     if (formData.phone) {
-      try {
-        const cleanPhone = formData.phone.replace(/\D/g, '');
-        const phoneWithCountry = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
-        const whatsappUrl = `https://wa.me/${phoneWithCountry}`;
-        
-        const newWindow = window.open(whatsappUrl, '_blank');
-        
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-          alert(`Erro ao abrir WhatsApp. Acesse manualmente: +${phoneWithCountry}`);
-        }
-      } catch (error) {
-        console.error('Erro ao abrir WhatsApp:', error);
-        alert('Erro ao abrir WhatsApp. Verifique se o número está correto.');
-      }
+      openWhatsAppUtil({ phone: formData.phone });
     }
   };
 

@@ -7,6 +7,7 @@ import { useBookings } from '@/contexts/BookingContext';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,9 +71,8 @@ const BookingDetails = () => {
 
   const openWhatsApp = () => {
     if (booking.phone) {
-      const cleanPhone = booking.phone.replace(/\D/g, '');
       const message = `Olá ${booking.guest_name}! Confirmando sua reserva:\n\nCheck-in: ${format(parseISO(booking.check_in), "dd/MM/yyyy", { locale: ptBR })}\nCheck-out: ${format(parseISO(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}\nValor: R$ ${booking.total_value.toLocaleString('pt-BR')}\n\nQualquer dúvida, estarei aqui!`;
-      window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+      openWhatsAppUtil({ phone: booking.phone, message });
     }
   };
 
