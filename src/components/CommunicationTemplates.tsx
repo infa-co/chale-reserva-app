@@ -210,33 +210,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
               </Select>
             </div>
 
-            {/* Variáveis Customizáveis */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="endereco">Endereço do Chalé</Label>
-                <Input
-                  id="endereco"
-                  placeholder="Rua exemplo, 123"
-                  value={customVariables.endereco || ''}
-                  onChange={(e) => setCustomVariables(prev => ({
-                    ...prev,
-                    endereco: e.target.value
-                  }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="codigo_portao">Código do Portão</Label>
-                <Input
-                  id="codigo_portao"
-                  placeholder="1234"
-                  value={customVariables.codigo_portao || ''}
-                  onChange={(e) => setCustomVariables(prev => ({
-                    ...prev,
-                    codigo_portao: e.target.value
-                  }))}
-                />
-              </div>
-            </div>
 
             {/* Mensagem Editável */}
             <div>
