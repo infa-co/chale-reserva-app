@@ -1,5 +1,6 @@
 
 import { Booking } from '@/types/booking';
+import { Property } from '@/types/property';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -105,7 +106,7 @@ DETALHES DA RESERVA:
 Enviaremos as instruções de check-in 1 dia antes da sua chegada.
 
 Atenciosamente,
-[NOME DO CHALÉ]`
+{{property_name}}`
     },
     {
       id: 'whatsapp_checkout_reminder',
@@ -159,7 +160,7 @@ Esperamos que tenha aproveitado sua estadia conosco.
 Se puder nos ajudar com uma avaliação, ficaremos muito gratos!
 
 Atenciosamente,
-[NOME DO CHALÉ]`
+{{property_name}}`
     },
     {
       id: 'whatsapp_cancellation',
@@ -200,7 +201,7 @@ Sentimos muito pelo cancelamento e esperamos recebê-la(o) em uma próxima oport
 Se houver reembolso devido, será processado conforme nossa política de cancelamento.
 
 Atenciosamente,
-[NOME DO CHALÉ]`
+{{property_name}}`
     }
   ];
 
@@ -212,7 +213,7 @@ Atenciosamente,
     return templates.filter(t => t.type === type);
   };
 
-  const generateMessage = (templateId: string, booking: Booking, customVariables: Record<string, string> = {}) => {
+  const generateMessage = (templateId: string, booking: Booking, customVariables: Record<string, string> = {}, selectedProperty?: Property) => {
     const template = templates.find(t => t.id === templateId);
     if (!template) return '';
 
@@ -227,6 +228,7 @@ Atenciosamente,
       email: booking.email || '',
       city: booking.city || '',
       state: booking.state || '',
+      property_name: selectedProperty?.name || '[SELECIONE O CHALÉ]',
       ...customVariables
     };
 

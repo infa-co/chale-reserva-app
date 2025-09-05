@@ -2,12 +2,21 @@
 import { useState } from 'react';
 import { MessageCircle, Mail, Copy, Send, Eye } from 'lucide-react';
 import { useCommunicationTemplates } from '@/hooks/useCommunicationTemplates';
+import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { Booking } from '@/types/booking';
+import { Property } from '@/types/property';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -29,11 +38,20 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
     openWhatsApp,
     generateEmailLink
   } = useCommunicationTemplates();
+  
+  const { properties } = useOptimizedProperties();
 
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [customMessage, setCustomMessage] = useState('');
   const [customVariables, setCustomVariables] = useState<Record<string, string>>({});
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState<Property | undefined>(() => {
+    // Se a reserva tem property_id, tentar encontrar a propriedade correspondente
+    if (booking.property_id && properties.length > 0) {
+      return properties.find(p => p.id === booking.property_id);
+    }
+    return undefined;
+  });
 
   const categories = [
     { key: 'confirmation', label: 'Confirmação', color: 'bg-green-100 text-green-700' },
@@ -46,9 +64,22 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
 
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
-    const result = generateMessage(templateId, booking, customVariables);
+    const result = generateMessage(templateId, booking, customVariables, selectedProperty);
     if (typeof result === 'object' && result.message) {
       setCustomMessage(result.message);
+    }
+  };
+
+  const handlePropertyChange = (propertyId: string) => {
+    const property = properties.find(p => p.id === propertyId);
+    setSelectedProperty(property);
+    
+    // Regenerar mensagem se já houver uma selecionada
+    if (selectedTemplate) {
+      const result = generateMessage(selectedTemplate, booking, customVariables, property);
+      if (typeof result === 'object' && result.message) {
+        setCustomMessage(result.message);
+      }
     }
   };
 
@@ -69,8 +100,8 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
     }
 
     const template = templates.find(t => t.id === selectedTemplate);
-    const result = generateMessage(selectedTemplate, booking, customVariables);
-    const subject = template?.subject && typeof result === 'object' && result.subject ? 
+    const result = generateMessage(selectedTemplate, booking, customVariables, selectedProperty);
+    const subject = template?.subject && typeof result === 'object' && result.subject ?
       result.subject : 
       'Reserva';
     
@@ -159,6 +190,26 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
           </DialogHeader>
           
           <div className="space-y-4">
+            {/* Seleção de Propriedade */}
+            <div>
+              <Label htmlFor="property_select">Selecionar Chalé</Label>
+              <Select
+                value={selectedProperty?.id || ''}
+                onValueChange={handlePropertyChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o chalé" />
+                </SelectTrigger>
+                <SelectContent>
+                  {properties.map((property) => (
+                    <SelectItem key={property.id} value={property.id}>
+                      {property.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Variáveis Customizáveis */}
             <div className="grid grid-cols-2 gap-3">
               <div>
