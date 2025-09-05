@@ -227,7 +227,7 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
                   onClick={handleSendEmail}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  <Mail size={14} className="mr-1" />
+                  <Mail size={16} className="mr-2" />
                   Email
                 </Button>
               )}
@@ -237,7 +237,7 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
                   onClick={handleSendWhatsApp}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
-                  <MessageCircle size={14} className="mr-1" />
+                  <MessageCircle size={16} className="mr-2" />
                   WhatsApp
                 </Button>
               )}
