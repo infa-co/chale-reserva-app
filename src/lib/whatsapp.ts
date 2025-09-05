@@ -17,127 +17,35 @@ export const normalizePhone = (phone: string): string => {
 
 export const sanitizeMessage = (message: string, options?: { asciiFallback?: boolean }): string => {
   let sanitized = message;
-  
-  if (options?.asciiFallback) {
-    // Replace common emojis and symbols with ASCII equivalents
+
+  const useAsciiFallback = !!options?.asciiFallback;
+
+  if (useAsciiFallback) {
+    // Normalize and aggressively replace problematic characters/emojis with '-'
+    // Replace known problematic bullets and the replacement char
     sanitized = sanitized
-      .replace(/📅/g, '[Data]')
-      .replace(/🗓️/g, '[Calendario]')
-      .replace(/🏠/g, '[Casa]')
-      .replace(/🛏️/g, '[Cama]')
-      .replace(/💰/g, '[Valor]')
-      .replace(/✅/g, '[Confirmado]')
-      .replace(/📋/g, '[Info]')
-      .replace(/📞/g, '[Telefone]')
-      .replace(/🧹/g, '[Limpeza]')
-      .replace(/🗑️/g, '[Lixo]')
-      .replace(/✨/g, '*')
-      .replace(/🎉/g, '!')
-      .replace(/🔥/g, '[Hot]')
-      .replace(/💡/g, '[Dica]')
-      .replace(/🚗/g, '[Carro]')
-      .replace(/🎯/g, '[Meta]')
-      .replace(/📈/g, '[Crescimento]')
-      .replace(/🎊/g, '!')
-      .replace(/🌟/g, '*')
-      .replace(/⭐/g, '*')
-      .replace(/🎈/g, '')
-      .replace(/🎁/g, '[Presente]')
-      .replace(/🏆/g, '[Premio]')
-      .replace(/🎖️/g, '[Medal]')
-      .replace(/🥇/g, '[1º]')
-      .replace(/🏅/g, '[Medal]')
-      .replace(/🎪/g, '[Evento]')
-      .replace(/🎭/g, '[Show]')
-      .replace(/🎨/g, '[Arte]')
-      .replace(/🎬/g, '[Video]')
-      .replace(/📱/g, '[App]')
-      .replace(/💻/g, '[PC]')
-      .replace(/⚡/g, '[Rapido]')
-      .replace(/🔔/g, '[Notif]')
-      .replace(/📢/g, '[Aviso]')
-      .replace(/📣/g, '[Anuncio]')
-      .replace(/🎵/g, '[Musica]')
-      .replace(/🎶/g, '[Som]')
-      .replace(/🎤/g, '[Mic]')
-      .replace(/🎧/g, '[Fone]')
-      .replace(/🎸/g, '[Guitarra]')
-      .replace(/🥳/g, '!')
-      .replace(/😍/g, ':)')
-      .replace(/😊/g, ':)')
-      .replace(/😉/g, ';)')
-      .replace(/😎/g, 'B)')
-      .replace(/🤩/g, ':D')
-      .replace(/🥰/g, '<3')
-      .replace(/😘/g, ':*')
-      .replace(/😗/g, ':*')
-      .replace(/🤗/g, '[Abraco]')
-      .replace(/🤝/g, '[Acordo]')
-      .replace(/👏/g, '[Aplauso]')
-      .replace(/👍/g, '[Like]')
-      .replace(/👌/g, '[OK]')
-      .replace(/✌️/g, '[Paz]')
-      .replace(/🤞/g, '[Sorte]')
-      .replace(/🙏/g, '[Obrigado]')
-      .replace(/💪/g, '[Forca]')
-      .replace(/🔥/g, '[Top]')
-      .replace(/💯/g, '[100%]')
-      .replace(/❤️/g, '<3')
-      .replace(/💖/g, '<3')
-      .replace(/💕/g, '<3')
-      .replace(/💗/g, '<3')
-      .replace(/💓/g, '<3')
-      .replace(/💜/g, '<3')
-      .replace(/💙/g, '<3')
-      .replace(/💚/g, '<3')
-      .replace(/🧡/g, '<3')
-      .replace(/💛/g, '<3')
-      .replace(/🤍/g, '<3')
-      .replace(/🖤/g, '<3')
-      .replace(/❣️/g, '<3')
-      .replace(/💝/g, '[Presente]')
-      .replace(/💐/g, '[Flores]')
-      .replace(/🌹/g, '[Rosa]')
-      .replace(/🌸/g, '[Flor]')
-      .replace(/🌺/g, '[Flor]')
-      .replace(/🌻/g, '[Girassol]')
-      .replace(/🌷/g, '[Tulipa]')
-      .replace(/⚘/g, '[Flor]')
-      .replace(/🛡️/g, '[Seguro]')
-      .replace(/🔑/g, '[Chave]')
-      .replace(/🚪/g, '[Porta]')
-      .replace(/🛁/g, '[Banho]')
-      .replace(/🚿/g, '[Chuveiro]')
-      .replace(/🍽️/g, '[Comida]')
-      .replace(/☕/g, '[Cafe]')
-      .replace(/🧊/g, '[Gelo]')
-      .replace(/🎮/g, '[Game]')
-      .replace(/📺/g, '[TV]')
-      .replace(/🔌/g, '[Energia]')
-      .replace(/💡/g, '[Luz]')
-      .replace(/🌡️/g, '[Temp]')
-      .replace(/❄️/g, '[Frio]')
-      .replace(/🔥/g, '[Quente]')
-      .replace(/🌊/g, '[Agua]')
-      .replace(/🏔️/g, '[Montanha]')
-      .replace(/🌲/g, '[Arvore]')
-      .replace(/🦎/g, '[Animal]')
-      .replace(/🐛/g, '[Inseto]')
-      .replace(/🌙/g, '[Noite]')
-      .replace(/☀️/g, '[Sol]')
-      .replace(/⛈️/g, '[Chuva]')
-      .replace(/🌈/g, '[Arco-iris]');
-      
-    // Remove variation selectors and other problematic Unicode sequences when using ASCII fallback
-    sanitized = sanitized.replace(/[\uFE00-\uFE0F\u200D\u20E3]/g, '');
+      .replace(/[\uFFFD]/g, '-') // corrupted replacement char
+      .replace(/[▪▫◾◽◼◻🔹🔸✔️✅☑️✳️✴️❗️❕•●○◦]/g, '-')
+      .replace(/[📅🗓️🏠🛏️💰✅📋📞🧹🗑️✨🎉🔥💡🚗🎯📈🎊🌟⭐🎈🎁🏆🎖️🥇🏅🎪🎭🎨🎬📱💻⚡🔔📢📣🎵🎶🎤🎧🎸🥳😍😊😉😎🤩🥰😘😗🤗🤝👏👍👌✌️🤞🙏💪💯❤️💖💕💗💓💜💙💚🧡💛🤍🖤❣️💝💐🌹🌸🌺🌻🌷⚘🛡️🔑🚪🛁🚿🍽️☕🧊🎮📺🔌💡🌡️❄️🔥🌊🏔️🌲🦎🐛🌙☀️⛈️🌈]/g, '-')
+      // Remove variation selectors and zero-width joiners that break rendering
+      .replace(/[\uFE00-\uFE0F\u200D\u20E3]/g, '');
+
+    // Replace any remaining emoji code points with '-'
+    sanitized = sanitized
+      .replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '-');
+
+    // Collapse repeated dashes and ensure space after dash at line starts
+    sanitized = sanitized
+      .replace(/-+/g, '-')
+      .replace(/(^|\n)\s*-\s*/g, '$1- ');
   }
-  
-  // Replace bullet points with dashes for better compatibility
+
+  // Replace bullet points with dashes for better compatibility in all modes
   sanitized = sanitized.replace(/•/g, '-');
-  
+
   // Normalize line breaks
   sanitized = sanitized.replace(/\r\n|\r/g, '\n');
-  
+
   return sanitized;
 };
 
@@ -160,8 +68,9 @@ export const getWhatsAppUrl = ({
 }): string => {
   const normalizedPhone = normalizePhone(phone);
   
-  // Auto-detect if we need ASCII fallback due to � characters
-  const needsAsciiFallback = asciiFallback || message.includes('�');
+  // Auto-detect if we need ASCII fallback due to replacement chars or problematic bullets
+  const problematicBullets = /[▪▫◾◽◼◻🔹🔸✔️✅☑️✳️✴️❗️❕]/u;
+  const needsAsciiFallback = asciiFallback || message.includes('�') || problematicBullets.test(message);
   
   const sanitizedMessage = sanitizeMessage(message, { asciiFallback: needsAsciiFallback });
   const encodedMessage = encodeURIComponent(sanitizedMessage);
