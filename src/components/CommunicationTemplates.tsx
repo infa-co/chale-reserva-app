@@ -251,15 +251,6 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
                 </Button>
               )}
               
-              {booking.email && (
-                <Button
-                  onClick={handleSendEmail}
-                  variant="outline"
-                >
-                  <Mail size={14} className="mr-1" />
-                  Email
-                </Button>
-              )}
             </div>
           </div>
         </DialogContent>
