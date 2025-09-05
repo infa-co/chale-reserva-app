@@ -106,6 +106,101 @@ Enviaremos as instruções de check-in 1 dia antes da sua chegada.
 
 Atenciosamente,
 [NOME DO CHALÉ]`
+    },
+    {
+      id: 'whatsapp_checkout_reminder',
+      name: 'Lembrete Check-out - WhatsApp',
+      type: 'whatsapp',
+      category: 'checkout',
+      message: `Oi {{guest_name}}! 😊
+
+Hoje é o dia do seu CHECK-OUT! 🗓️
+
+⏰ Check-out: até 11h
+🧹 Deixe a casa organizada
+🔑 Deixe as chaves no local indicado
+🗑️ Lixo na lixeira externa
+
+Esperamos que tenha curtido sua estadia! ✨
+Avaliações são muito bem-vindas! ⭐`
+    },
+    {
+      id: 'whatsapp_checkout_thanks',
+      name: 'Agradecimento Pós Check-out - WhatsApp',
+      type: 'whatsapp',
+      category: 'checkout',
+      message: `{{guest_name}}, muito obrigada pela estadia! 🙏
+
+Foi um prazer recebê-la(o) aqui! 🏡✨
+
+Se puder nos ajudar com uma avaliação, ficaremos muito gratos! ⭐
+
+Esperamos te receber novamente em breve! 😊
+Sempre às ordens! 💚`
+    },
+    {
+      id: 'email_checkout',
+      name: 'Check-out - Email',
+      type: 'email',
+      category: 'checkout',
+      subject: 'Check-out Hoje - {{guest_name}}',
+      message: `Olá {{guest_name}},
+
+Hoje é o dia do seu check-out!
+
+INSTRUÇÕES DE SAÍDA:
+• Horário: até 11h
+• Deixe a casa organizada
+• Deixe as chaves no local indicado
+• Coloque o lixo na lixeira externa
+
+Esperamos que tenha aproveitado sua estadia conosco.
+
+Se puder nos ajudar com uma avaliação, ficaremos muito gratos!
+
+Atenciosamente,
+[NOME DO CHALÉ]`
+    },
+    {
+      id: 'whatsapp_cancellation',
+      name: 'Cancelamento - WhatsApp',
+      type: 'whatsapp',
+      category: 'cancellation',
+      message: `Oi {{guest_name}}! 😔
+
+Confirmamos o cancelamento da sua reserva:
+
+📅 Check-in: {{check_in_formatted}}
+📅 Check-out: {{check_out_formatted}}
+💰 Valor: R$ {{total_value}}
+
+Sentimos muito pelo cancelamento! 💔
+Esperamos recebê-la(o) em uma próxima oportunidade! 🤗
+
+Qualquer dúvida, estarei aqui! 😊`
+    },
+    {
+      id: 'email_cancellation',
+      name: 'Cancelamento - Email',
+      type: 'email',
+      category: 'cancellation',
+      subject: 'Cancelamento Confirmado - {{guest_name}}',
+      message: `Olá {{guest_name}},
+
+Confirmamos o cancelamento da sua reserva:
+
+DETALHES DA RESERVA CANCELADA:
+• Check-in: {{check_in_formatted}}
+• Check-out: {{check_out_formatted}}
+• Noites: {{nights}}
+• Valor total: R$ {{total_value}}
+
+Sentimos muito pelo cancelamento e esperamos recebê-la(o) em uma próxima oportunidade.
+
+Se houver reembolso devido, será processado conforme nossa política de cancelamento.
+
+Atenciosamente,
+[NOME DO CHALÉ]`
     }
   ];
 
