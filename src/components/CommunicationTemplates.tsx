@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
-import { Mail, Copy, Eye } from 'lucide-react';
+import { MessageCircle, Mail, Copy, Eye } from 'lucide-react';
 import { useCommunicationTemplates } from '@/hooks/useCommunicationTemplates';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
+import { openWhatsApp } from '@/lib/whatsapp';
 import { Booking } from '@/types/booking';
 import { Property } from '@/types/property';
 import { Button } from '@/components/ui/button';
@@ -80,6 +81,21 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
         setCustomMessage(result.message);
       }
     }
+  };
+
+  const handleSendWhatsApp = () => {
+    if (!booking.phone) {
+      toast.error('Telefone não informado');
+      return;
+    }
+    
+    // Copiar mensagem automaticamente
+    navigator.clipboard.writeText(customMessage);
+    
+    // Abrir WhatsApp apenas com o telefone (método confiável)
+    openWhatsApp({ phone: booking.phone });
+    
+    toast.success('Mensagem copiada! Cole no WhatsApp que acabou de abrir');
   };
 
   const handleSendEmail = () => {
@@ -223,6 +239,16 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
                 <Copy size={14} className="mr-1" />
                 Copiar
               </Button>
+              
+              {booking.phone && (
+                <Button
+                  onClick={handleSendWhatsApp}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <MessageCircle size={14} className="mr-1" />
+                  WhatsApp
+                </Button>
+              )}
               
               {booking.email && (
                 <Button
