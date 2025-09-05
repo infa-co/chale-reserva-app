@@ -22,7 +22,7 @@ export const useCommunicationTemplates = () => {
       type: 'email',
       category: 'confirmation',
       subject: 'Reserva Confirmada - {{guest_name}}',
-      message: `Olá {{guest_name}},
+      message: `Olá {{guest_name}}!
 
 Sua reserva foi confirmada com sucesso!
 
@@ -44,7 +44,7 @@ Atenciosamente,
       type: 'email',
       category: 'reminder',
       subject: 'Lembrete: Check-in Amanhã - {{guest_name}}',
-      message: `Olá {{guest_name}},
+      message: `Olá {{guest_name}}!
 
 Lembrete: seu check-in é amanhã!
 
@@ -89,7 +89,7 @@ Atenciosamente,
       type: 'email',
       category: 'payment',
       subject: 'Pagamento Pendente - {{guest_name}}',
-      message: `Olá {{guest_name}},
+      message: `Olá {{guest_name}}!
 
 Lembramos que temos uma reserva confirmada para {{check_in_formatted}} e o pagamento ainda está pendente.
 
@@ -112,7 +112,7 @@ Atenciosamente,
       type: 'email',
       category: 'checkout',
       subject: 'Check-out Hoje - {{guest_name}}',
-      message: `Olá {{guest_name}},
+      message: `Olá {{guest_name}}!
 
 Hoje é o dia do seu check-out!
 
@@ -135,7 +135,7 @@ Atenciosamente,
       type: 'email',
       category: 'cancellation',
       subject: 'Cancelamento Confirmado - {{guest_name}}',
-      message: `Olá {{guest_name}},
+      message: `Olá {{guest_name}}!
 
 Confirmamos o cancelamento da sua reserva:
 
