@@ -89,13 +89,14 @@ export const CommunicationTemplates = ({ booking }: CommunicationTemplatesProps)
       return;
     }
     
-    // Copiar mensagem automaticamente
-    navigator.clipboard.writeText(customMessage);
+    // Abrir WhatsApp com a mensagem já preenchida
+    openWhatsApp({ 
+      phone: booking.phone, 
+      message: customMessage, 
+      asciiFallback: true 
+    });
     
-    // Abrir WhatsApp apenas com o telefone (método confiável)
-    openWhatsApp({ phone: booking.phone });
-    
-    toast.success('Mensagem copiada! Cole no WhatsApp que acabou de abrir');
+    toast.success('WhatsApp aberto com mensagem pronta para envio!');
   };
 
   const handleSendEmail = () => {
