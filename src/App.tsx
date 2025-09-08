@@ -3,7 +3,7 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BookingProvider } from "./contexts/BookingContext";
@@ -26,15 +26,6 @@ const HistoricalBookings = lazy(() => import("./pages/HistoricalBookings"));
 const Settings = lazy(() => import("./pages/Settings"));
 
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutos
-      gcTime: 10 * 60 * 1000, // 10 minutos
-      refetchOnWindowFocus: false,
-    },
-  },
-});
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -43,8 +34,7 @@ const LoadingSpinner = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+  <TooltipProvider>
       <AuthProvider>
         <BookingProvider>
           <Toaster />
@@ -78,10 +68,9 @@ const App = () => (
               } />
             </Routes>
           </BrowserRouter>
-        </BookingProvider>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+    </BookingProvider>
+  </AuthProvider>
+  </TooltipProvider>
 );
 
 export default App;
