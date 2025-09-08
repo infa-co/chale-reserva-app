@@ -99,10 +99,10 @@ export const ProfilePhotoDialog = ({ open, onOpenChange, currentAvatarUrl, onAva
         .from('profiles')
         .upsert({
           id: user.id,
-          avatar_url: publicUrl,
           name: user.user_metadata?.name || '',
-          email: user.email || ''
-        });
+          email: user.email || '',
+          avatar_url: publicUrl
+        } as any);
 
       if (updateError) {
         throw updateError;
@@ -156,7 +156,7 @@ export const ProfilePhotoDialog = ({ open, onOpenChange, currentAvatarUrl, onAva
       // Update user profile to remove avatar_url
       const { error } = await supabase
         .from('profiles')
-        .update({ avatar_url: null })
+        .update({ avatar_url: null } as any)
         .eq('id', user.id);
 
       if (error) {

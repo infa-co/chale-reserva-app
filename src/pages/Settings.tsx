@@ -46,12 +46,12 @@ const Settings = () => {
       try {
         const { data } = await supabase
           .from('profiles')
-          .select('avatar_url')
+          .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
         
-        if (data?.avatar_url) {
-          setAvatarUrl(data.avatar_url);
+        if (data && (data as any).avatar_url) {
+          setAvatarUrl((data as any).avatar_url);
         }
       } catch (error) {
         console.error('Error loading profile:', error);
