@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, CreditCard, Save, Camera, Globe, Shield, Crown, Zap, Star, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,19 +11,24 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { ChangePasswordDialog } from '@/components/dialogs/ChangePasswordDialog';
 import { ChangeEmailDialog } from '@/components/dialogs/ChangeEmailDialog';
 import { SessionsDialog } from '@/components/dialogs/SessionsDialog';
+import { ProfilePhotoDialog } from '@/components/dialogs/ProfilePhotoDialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Settings = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
   // Dialog states
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [showSessionsDialog, setShowSessionsDialog] = useState(false);
+  const [showPhotoDialog, setShowPhotoDialog] = useState(false);
   
   // General settings state
   const [generalSettings, setGeneralSettings] = useState({
@@ -33,7 +38,33 @@ const Settings = () => {
     language: 'pt-BR',
   });
 
-  // Subscription state (mock data - will be connected to Stripe)
+  // Load user avatar on component mount
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (!user) return;
+      
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single();
+        
+        if (data?.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    };
+    
+    loadUserProfile();
+  }, [user]);
+
+  const getUserInitials = () => {
+    const name = user?.user_metadata?.name || user?.email || '';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
   const [subscription] = useState({
     currentPlan: 'free',
     planName: 'Plano Gratuito',
@@ -190,10 +221,18 @@ const Settings = () => {
             <CardContent className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-                    <User size={24} className="text-muted-foreground" />
-                  </div>
-                  <Button size="sm" variant="outline" className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0">
+                  <Avatar className="w-20 h-20">
+                    <AvatarImage src={avatarUrl || undefined} />
+                    <AvatarFallback className="text-lg">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
+                    onClick={() => setShowPhotoDialog(true)}
+                  >
                     <Camera size={14} />
                   </Button>
                 </div>
@@ -501,6 +540,13 @@ const Settings = () => {
       <SessionsDialog
         open={showSessionsDialog}
         onOpenChange={setShowSessionsDialog}
+      />
+      
+      <ProfilePhotoDialog
+        open={showPhotoDialog}
+        onOpenChange={setShowPhotoDialog}
+        currentAvatarUrl={avatarUrl}
+        onAvatarUpdate={setAvatarUrl}
       />
     </div>
   );
