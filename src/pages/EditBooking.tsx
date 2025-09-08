@@ -21,7 +21,10 @@ const EditBooking = () => {
     handleInputChange, 
     calculateNights, 
     openWhatsApp,
-    hasChanges 
+    hasChanges,
+    isLoading,
+    setIsLoading,
+    updateOriginalData
   } = useEditBookingForm(booking);
   const { checkDateConflict, validateBookingData } = useBookingValidation();
 
@@ -39,46 +42,64 @@ const EditBooking = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validar dados básicos
-    const validation = validateBookingData({
-      guestName: formData.guestName,
-      phone: formData.phone,
-      checkIn: formData.checkIn,
-      checkOut: formData.checkOut,
-      totalValue: formData.totalValue
-    });
-
-    if (!validation.isValid) {
-      toast.error(validation.errors[0]);
+    if (!hasChanges) {
+      toast.info('Nenhuma alteração foi feita');
       return;
     }
 
-    // Verificar conflitos de data (excluindo a própria reserva)
-    const dateConflict = checkDateConflict(formData.checkIn, formData.checkOut, booking.id);
-    if (dateConflict?.hasConflict) {
-      toast.error(dateConflict.message);
-      return;
+    setIsLoading(true);
+    
+    try {
+      // Validar dados básicos
+      const validation = validateBookingData({
+        guestName: formData.guestName,
+        phone: formData.phone,
+        checkIn: formData.checkIn,
+        checkOut: formData.checkOut,
+        totalValue: formData.totalValue
+      });
+
+      if (!validation.isValid) {
+        toast.error(validation.errors[0]);
+        return;
+      }
+
+      // Verificar conflitos de data (excluindo a própria reserva)
+      const dateConflict = checkDateConflict(formData.checkIn, formData.checkOut, booking.id);
+      if (dateConflict?.hasConflict) {
+        toast.error(dateConflict.message);
+        return;
+      }
+
+      const nights = calculateNights();
+
+      await updateBooking(booking.id, {
+        guest_name: formData.guestName,
+        phone: formData.phone,
+        email: formData.email || undefined,
+        city: formData.city || undefined,
+        state: formData.state || undefined,
+        booking_date: formData.bookingDate,
+        check_in: formData.checkIn,
+        check_out: formData.checkOut,
+        nights,
+        total_value: parseFloat(formData.totalValue),
+        payment_method: formData.paymentMethod,
+        status: formData.status,
+        notes: formData.notes || undefined
+      });
+
+      // Update original data to reflect the saved state
+      updateOriginalData();
+      
+      toast.success('Reserva atualizada com sucesso!');
+      navigate(`/reserva/${booking.id}`);
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      toast.error('Erro ao atualizar reserva');
+    } finally {
+      setIsLoading(false);
     }
-
-    const nights = calculateNights();
-
-    await updateBooking(booking.id, {
-      guest_name: formData.guestName,
-      phone: formData.phone,
-      email: formData.email || undefined,
-      city: formData.city || undefined,
-      state: formData.state || undefined,
-      booking_date: formData.bookingDate,
-      check_in: formData.checkIn,
-      check_out: formData.checkOut,
-      nights,
-      total_value: parseFloat(formData.totalValue),
-      payment_method: formData.paymentMethod,
-      status: formData.status,
-      notes: formData.notes || undefined
-    });
-
-    navigate(`/reserva/${booking.id}`);
   };
 
   return (
@@ -145,9 +166,9 @@ const EditBooking = () => {
           <Button
             type="submit"
             className="flex-1 bg-sage-600 hover:bg-sage-700"
-            disabled={!hasChanges}
+            disabled={!hasChanges || isLoading}
           >
-            Salvar Alterações
+            {isLoading ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>
       </form>
