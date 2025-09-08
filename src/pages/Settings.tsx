@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, CreditCard, Save, Camera, Globe, Shield, Crown, Zap, Star, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -189,6 +189,7 @@ const Settings = () => {
   };
 
   return (
+    <React.Fragment>
     <div className="container mx-auto py-6 px-4 max-w-5xl">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-foreground">Configurações</h1>
@@ -549,6 +550,7 @@ const Settings = () => {
         onAvatarUpdate={setAvatarUrl}
       />
     </div>
+    </React.Fragment>
   );
 };
 

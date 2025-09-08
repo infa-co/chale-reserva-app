@@ -1,9 +1,7 @@
-
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BookingProvider } from "./contexts/BookingContext";
@@ -25,16 +23,15 @@ const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
 const HistoricalBookings = lazy(() => import("./pages/HistoricalBookings"));
 const Settings = lazy(() => import("./pages/Settings"));
 
-
-
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage-600"></div>
   </div>
 );
 
-const App = () => (
-  <TooltipProvider>
+function App() {
+  return (
+    <TooltipProvider>
       <AuthProvider>
         <BookingProvider>
           <Toaster />
@@ -58,7 +55,6 @@ const App = () => (
                         <Route path="/chale/:id/dashboard" element={<PropertyDashboard />} />
                         <Route path="/historico-reservas" element={<HistoricalBookings />} />
                         <Route path="/configuracoes" element={<Settings />} />
-                        
                       </Routes>
                     </Suspense>
                     <MobileNav />
@@ -68,9 +64,10 @@ const App = () => (
               } />
             </Routes>
           </BrowserRouter>
-    </BookingProvider>
-  </AuthProvider>
-  </TooltipProvider>
-);
+        </BookingProvider>
+      </AuthProvider>
+    </TooltipProvider>
+  );
+}
 
 export default App;
