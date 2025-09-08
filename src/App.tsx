@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BookingProvider } from "./contexts/BookingContext";
 import Auth from "./pages/Auth";
@@ -29,6 +29,18 @@ const LoadingSpinner = () => (
   </div>
 );
 
+const ProtectedShell = () => (
+  <ProtectedRoute>
+    <div className="mobile-container pb-16">
+      <Suspense fallback={<LoadingSpinner />}>
+        <Outlet />
+      </Suspense>
+      <MobileNav />
+      <PWAInstallPrompt />
+    </div>
+  </ProtectedRoute>
+);
+
 function App() {
   return (
     <TooltipProvider>
@@ -40,28 +52,19 @@ function App() {
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/*" element={
-                <ProtectedRoute>
-                  <div className="mobile-container pb-16">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/nova-reserva" element={<NewBooking />} />
-                        <Route path="/editar-reserva/:id" element={<EditBooking />} />
-                        <Route path="/reservas" element={<OptimizedBookingList />} />
-                        <Route path="/reserva/:id" element={<BookingDetails />} />
-                        <Route path="/clientes" element={<OptimizedClients />} />
-                        <Route path="/meus-chales" element={<Properties />} />
-                        <Route path="/chale/:id/dashboard" element={<PropertyDashboard />} />
-                        <Route path="/historico-reservas" element={<HistoricalBookings />} />
-                        <Route path="/configuracoes" element={<Settings />} />
-                      </Routes>
-                    </Suspense>
-                    <MobileNav />
-                    <PWAInstallPrompt />
-                  </div>
-                </ProtectedRoute>
-              } />
+
+              <Route element={<ProtectedShell />}>
+                <Route index element={<Dashboard />} />
+                <Route path="nova-reserva" element={<NewBooking />} />
+                <Route path="editar-reserva/:id" element={<EditBooking />} />
+                <Route path="reservas" element={<OptimizedBookingList />} />
+                <Route path="reserva/:id" element={<BookingDetails />} />
+                <Route path="clientes" element={<OptimizedClients />} />
+                <Route path="meus-chales" element={<Properties />} />
+                <Route path="chale/:id/dashboard" element={<PropertyDashboard />} />
+                <Route path="historico-reservas" element={<HistoricalBookings />} />
+                <Route path="configuracoes" element={<Settings />} />
+              </Route>
             </Routes>
           </BrowserRouter>
         </BookingProvider>
