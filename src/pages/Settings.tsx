@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, CreditCard, Save, Camera, Bell, Globe, Shield, Crown, Zap, Star } from 'lucide-react';
+import { User, CreditCard, Save, Camera, Globe, Shield, Crown, Zap, Star, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,24 +11,26 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { ChangePasswordDialog } from '@/components/dialogs/ChangePasswordDialog';
+import { ChangeEmailDialog } from '@/components/dialogs/ChangeEmailDialog';
+import { SessionsDialog } from '@/components/dialogs/SessionsDialog';
 
 const Settings = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
+  // Dialog states
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [showSessionsDialog, setShowSessionsDialog] = useState(false);
+  
   // General settings state
   const [generalSettings, setGeneralSettings] = useState({
     displayName: user?.user_metadata?.display_name || '',
-    email: user?.email || '',
     phone: '',
     timezone: 'America/Sao_Paulo',
     language: 'pt-BR',
-    notifications: {
-      email: true,
-      push: true,
-      marketing: false,
-    }
   });
 
   // Subscription state (mock data - will be connected to Stripe)
@@ -218,15 +220,25 @@ const Settings = () => {
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={generalSettings.email}
-                    disabled
-                    className="bg-muted"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="email"
+                      type="email"
+                      value={user?.email || ''}
+                      disabled
+                      className="bg-muted flex-1"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowEmailDialog(true)}
+                      className="shrink-0"
+                    >
+                      <Edit2 size={14} />
+                    </Button>
+                  </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Para alterar o email, entre em contato com o suporte
+                    Clique no botão para alterar seu email
                   </p>
                 </div>
               </div>
@@ -286,70 +298,6 @@ const Settings = () => {
             </CardContent>
           </Card>
 
-          {/* Notifications Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell size={20} />
-                Notificações
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Notificações por Email</p>
-                  <p className="text-sm text-muted-foreground">
-                    Receba atualizações importantes por email
-                  </p>
-                </div>
-                <Switch
-                  checked={generalSettings.notifications.email}
-                  onCheckedChange={(checked) => 
-                    setGeneralSettings(prev => ({
-                      ...prev,
-                      notifications: { ...prev.notifications, email: checked }
-                    }))
-                  }
-                />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Notificações Push</p>
-                  <p className="text-sm text-muted-foreground">
-                    Receba notificações no navegador
-                  </p>
-                </div>
-                <Switch
-                  checked={generalSettings.notifications.push}
-                  onCheckedChange={(checked) => 
-                    setGeneralSettings(prev => ({
-                      ...prev,
-                      notifications: { ...prev.notifications, push: checked }
-                    }))
-                  }
-                />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Emails de Marketing</p>
-                  <p className="text-sm text-muted-foreground">
-                    Receba novidades e dicas sobre o produto
-                  </p>
-                </div>
-                <Switch
-                  checked={generalSettings.notifications.marketing}
-                  onCheckedChange={(checked) => 
-                    setGeneralSettings(prev => ({
-                      ...prev,
-                      notifications: { ...prev.notifications, marketing: checked }
-                    }))
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Security Section */}
           <Card>
@@ -367,7 +315,11 @@ const Settings = () => {
                     Mantenha sua conta segura com uma senha forte
                   </p>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowPasswordDialog(true)}
+                >
                   Alterar Senha
                 </Button>
               </div>
@@ -379,7 +331,11 @@ const Settings = () => {
                     Gerencie dispositivos conectados à sua conta
                   </p>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowSessionsDialog(true)}
+                >
                   Ver Sessões
                 </Button>
               </div>
@@ -529,6 +485,23 @@ const Settings = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialogs */}
+      <ChangePasswordDialog
+        open={showPasswordDialog}
+        onOpenChange={setShowPasswordDialog}
+      />
+      
+      <ChangeEmailDialog
+        open={showEmailDialog}
+        onOpenChange={setShowEmailDialog}
+        currentEmail={user?.email || ''}
+      />
+      
+      <SessionsDialog
+        open={showSessionsDialog}
+        onOpenChange={setShowSessionsDialog}
+      />
     </div>
   );
 };
