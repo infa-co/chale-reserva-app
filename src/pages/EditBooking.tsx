@@ -72,7 +72,11 @@ const EditBooking = () => {
       }
 
       const nights = calculateNights();
-
+      
+      // Garantir que o status enviado respeita as restrições do banco
+      const allowedStatuses = new Set(['pending', 'confirmed', 'cancelled']);
+      const safeStatus = allowedStatuses.has(formData.status) ? formData.status : 'confirmed';
+      
       await updateBooking(booking.id, {
         guest_name: formData.guestName,
         phone: formData.phone,
@@ -85,7 +89,7 @@ const EditBooking = () => {
         nights,
         total_value: parseFloat(formData.totalValue),
         payment_method: formData.paymentMethod,
-        status: formData.status,
+        status: safeStatus as any,
         notes: formData.notes || undefined
       });
 

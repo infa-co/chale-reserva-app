@@ -59,13 +59,8 @@ export const PaymentForm = ({ formData, onInputChange }: PaymentFormProps) => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="requested">Solicitada</SelectItem>
             <SelectItem value="pending">Aguardando Pagamento</SelectItem>
             <SelectItem value="confirmed">Confirmada</SelectItem>
-            <SelectItem value="checked_in">Check-in Realizado</SelectItem>
-            <SelectItem value="active">Estadia Ativa</SelectItem>
-            <SelectItem value="checked_out">Check-out Realizado</SelectItem>
-            <SelectItem value="completed">Finalizada</SelectItem>
             <SelectItem value="cancelled">Cancelada</SelectItem>
           </SelectContent>
         </Select>
