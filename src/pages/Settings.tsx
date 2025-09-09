@@ -66,55 +66,59 @@ const Settings = () => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
   const [subscription] = useState({
-    currentPlan: 'free',
-    planName: 'Plano Gratuito',
-    price: 0,
-    features: ['Até 10 reservas por mês', 'Suporte por email'],
+    currentPlan: 'basic',
+    planName: 'Plano Básico',
+    price: 29,
+    features: ['Até 5 reservas', 'Cadastro de clientes', 'Dashboard básico'],
     nextBilling: null,
     isActive: true
   });
 
   const plans = [
     {
-      id: 'free',
-      name: 'Gratuito',
-      price: 0,
-      period: 'para sempre',
+      id: 'basic',
+      name: 'Básico',
+      price: 29,
+      period: 'por mês',
       icon: Star,
       features: [
-        'Até 10 reservas por mês',
-        'Suporte por email',
-        'Relatórios básicos'
+        'Até 5 reservas',
+        'Cadastro de clientes',
+        'Dashboard básico'
       ],
       popular: false
     },
     {
-      id: 'premium',
-      name: 'Premium',
-      price: 29.90,
+      id: 'pro',
+      name: 'Pro',
+      price: 69,
       period: 'por mês',
       icon: Crown,
       features: [
-        'Reservas ilimitadas',
-        'Suporte prioritário',
-        'Relatórios avançados',
-        'Integrações com calendários',
-        'Automação de emails'
+        'Até 15 reservas',
+        'Cadastro de clientes',
+        'Acesso rápido ao WhatsApp',
+        'Dashboard financeiro',
+        'Integração com Airbnb (Airbnb → Ordomo)'
       ],
       popular: true
     },
     {
-      id: 'enterprise',
-      name: 'Enterprise',
-      price: 79.90,
+      id: 'premium',
+      name: 'Premium',
+      price: 149,
       period: 'por mês',
       icon: Zap,
       features: [
-        'Tudo do Premium',
-        'Múltiplas propriedades',
-        'API personalizada',
-        'Suporte dedicado',
-        'Customizações'
+        'Reservas ilimitadas',
+        'Cadastro de clientes',
+        'Acesso rápido ao WhatsApp',
+        'Dashboard financeiro',
+        'Exportação de relatórios',
+        'Integração com Airbnb (bidirecional)',
+        'Link iCal de exportação',
+        'Multi-chalé',
+        'Suporte prioritário'
       ],
       popular: false
     }
@@ -141,10 +145,10 @@ const Settings = () => {
   };
 
   const handleSubscribe = async (planId: string) => {
-    if (planId === 'free') {
+    if (planId === 'basic') {
       toast({
         title: "Plano Atual",
-        description: "Você já está no plano gratuito.",
+        description: "Você já está no plano básico.",
       });
       return;
     }
@@ -408,7 +412,7 @@ const Settings = () => {
                   <div>
                     <h3 className="font-semibold">{subscription.planName}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {subscription.price === 0 ? 'Gratuito' : `R$ ${subscription.price}/mês`}
+                      R$ {subscription.price}/mês
                     </p>
                   </div>
                 </div>
@@ -434,7 +438,7 @@ const Settings = () => {
                 </ul>
               </div>
 
-              {subscription.currentPlan !== 'free' && (
+              {subscription.currentPlan !== 'basic' && (
                 <div className="mt-4 flex gap-2">
                   <Button variant="outline" onClick={handleManageSubscription} disabled={isLoading}>
                     Gerenciar Assinatura
