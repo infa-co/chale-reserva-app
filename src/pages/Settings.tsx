@@ -457,7 +457,7 @@ const Settings = () => {
               </p>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {plans.map((plan) => {
                   const Icon = plan.icon;
                   const isCurrent = plan.id === subscription.currentPlan;
@@ -465,48 +465,117 @@ const Settings = () => {
                   return (
                     <div
                       key={plan.id}
-                      className={`relative border rounded-lg p-4 ${
-                        plan.popular ? 'border-primary shadow-md' : ''
-                      } ${isCurrent ? 'bg-muted/50' : ''}`}
+                      className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg ${
+                        plan.popular 
+                          ? 'border-primary shadow-lg ring-2 ring-primary/20' 
+                          : 'border-border hover:border-primary/30'
+                      } ${isCurrent ? 'bg-muted/30' : 'bg-card'}`}
                     >
                       {plan.popular && (
-                        <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                          Mais Popular
-                        </Badge>
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                          <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
+                            MAIS POPULAR
+                          </Badge>
+                        </div>
                       )}
                       
-                      <div className="text-center mb-4">
-                        <div className="p-3 rounded-full bg-primary/10 w-fit mx-auto mb-3">
-                          <Icon size={24} className="text-primary" />
+                      {/* Header with icon and plan name */}
+                      <div className="mb-6">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Icon size={20} className="text-primary" />
+                          </div>
+                          <h3 className="font-semibold text-lg text-foreground">{plan.name}</h3>
                         </div>
-                        <h3 className="font-semibold text-lg">{plan.name}</h3>
-                        <div className="mt-2">
-                          <span className="text-2xl font-bold">
+                        
+                        {/* Price section */}
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl font-bold text-foreground">
                             R$ {plan.price}
                           </span>
-                          <span className="text-muted-foreground text-sm">
+                          <span className="text-muted-foreground text-sm font-medium">
                             /{plan.period}
                           </span>
                         </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          R$ {(plan.price * 12 * 0.85).toFixed(0)} renovável anualmente
+                        </p>
                       </div>
 
-                      <ul className="space-y-2 mb-6">
-                        {plan.features.map((feature, index) => (
-                          <li key={index} className="flex items-center gap-2 text-sm">
-                            <div className="w-1 h-1 rounded-full bg-primary" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
+                      {/* Action button */}
+                      <div className="mb-6">
+                        <Button
+                          className={`w-full h-11 font-medium ${
+                            plan.popular 
+                              ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                              : ''
+                          }`}
+                          variant={
+                            isCurrent 
+                              ? 'secondary' 
+                              : plan.popular 
+                                ? 'default' 
+                                : 'outline'
+                          }
+                          disabled={isCurrent || isLoading}
+                          onClick={() => handleSubscribe(plan.id)}
+                        >
+                          {isCurrent ? 'Plano Atual' : 'Começar'}
+                        </Button>
+                      </div>
 
-                      <Button
-                        className="w-full"
-                        variant={isCurrent ? 'secondary' : plan.popular ? 'default' : 'outline'}
-                        disabled={isCurrent || isLoading}
-                        onClick={() => handleSubscribe(plan.id)}
-                      >
-                        {isCurrent ? 'Plano Atual' : 'Assinar'}
-                      </Button>
+                      {/* Features list */}
+                      <div className="space-y-3">
+                        {/* All available features for comparison */}
+                        {[
+                          'Reservas ilimitadas',
+                          'Cadastro de clientes', 
+                          'Acesso rápido ao WhatsApp',
+                          'Dashboard financeiro',
+                          'Exportação de relatórios',
+                          'Integração com Airbnb (Airbnb → Ordomo)',
+                          'Link iCal de exportação (Ordomo → Airbnb)',
+                          'Multi-chalé',
+                          'Suporte prioritário'
+                        ].map((feature, index) => {
+                          const isIncluded = plan.features.includes(feature) || 
+                            (feature === 'Reservas ilimitadas' && plan.features.includes('Até 15 reservas')) ||
+                            (feature === 'Reservas ilimitadas' && plan.features.includes('Até 5 reservas'));
+                          
+                          const featureText = feature === 'Reservas ilimitadas' && plan.features.includes('Até 5 reservas') 
+                            ? 'Até 5 reservas'
+                            : feature === 'Reservas ilimitadas' && plan.features.includes('Até 15 reservas')
+                            ? 'Até 15 reservas'
+                            : feature;
+                          
+                          return (
+                            <div key={index} className="flex items-center gap-3 text-sm">
+                              <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+                                isIncluded 
+                                  ? 'bg-green-100 text-green-600' 
+                                  : 'bg-muted text-muted-foreground'
+                              }`}>
+                                {isIncluded ? (
+                                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                ) : (
+                                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  </svg>
+                                )}
+                              </div>
+                              <span className={`${
+                                isIncluded 
+                                  ? 'text-foreground' 
+                                  : 'text-muted-foreground line-through'
+                              }`}>
+                                {featureText}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })}
