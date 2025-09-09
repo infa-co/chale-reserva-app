@@ -115,8 +115,8 @@ const Settings = () => {
         'Acesso rápido ao WhatsApp',
         'Dashboard financeiro',
         'Exportação de relatórios',
-        'Integração com Airbnb (bidirecional)',
-        'Link iCal de exportação',
+        'Integração com Airbnb (Airbnb → Ordomo)',
+        'Link iCal de exportação (Ordomo → Airbnb)',
         'Multi-chalé',
         'Suporte prioritário'
       ],
