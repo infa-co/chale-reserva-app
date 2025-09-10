@@ -22,7 +22,7 @@ const PropertyStatsCard = ({ stats, loading }: PropertyStatsCardProps) => {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {[1, 2, 3, 4].map((i) => (
           <Card key={i}>
             <CardContent className="p-4">
@@ -38,7 +38,7 @@ const PropertyStatsCard = ({ stats, loading }: PropertyStatsCardProps) => {
   }
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 gap-4">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
