@@ -88,7 +88,7 @@ const PropertyDashboard = () => {
         <CardHeader>
           <CardTitle className="text-base">Informações da Propriedade</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <CardContent className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Capacidade</p>
             <p className="font-medium">{property.capacity} hóspedes</p>
