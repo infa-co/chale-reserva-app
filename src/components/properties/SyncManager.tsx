@@ -71,19 +71,20 @@ const SyncManager = ({ properties, selectedPropertyId }: SyncManagerProps) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-base md:text-lg font-semibold">
             {selectedPropertyId ? 'Sincronizações da Propriedade' : 'Todas as Sincronizações'}
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs md:text-sm text-muted-foreground">
             Gerencie sincronizações com calendários externos
           </p>
         </div>
-        <Button onClick={() => setShowAddForm(true)} size="sm">
+        <Button onClick={() => setShowAddForm(true)} size="sm" className="self-start sm:self-auto">
           <Plus className="mr-2 h-4 w-4" />
-          Adicionar
+          <span className="hidden sm:inline">Adicionar</span>
+          <span className="sm:hidden">Novo</span>
         </Button>
       </div>
 
@@ -103,43 +104,45 @@ const SyncManager = ({ properties, selectedPropertyId }: SyncManagerProps) => {
               Adicione um calendário iCal de uma plataforma externa
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="property">Propriedade</Label>
-              <Select 
-                value={newSync.property_id} 
-                onValueChange={(value) => setNewSync(prev => ({ ...prev, property_id: value }))}
-                disabled={!!selectedPropertyId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma propriedade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {properties.filter(p => p.is_active).map((property) => (
-                    <SelectItem key={property.id} value={property.id}>
-                      {property.name} - {property.location}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <CardContent className="space-y-4 p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="property">Propriedade</Label>
+                <Select 
+                  value={newSync.property_id} 
+                  onValueChange={(value) => setNewSync(prev => ({ ...prev, property_id: value }))}
+                  disabled={!!selectedPropertyId}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma propriedade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {properties.filter(p => p.is_active).map((property) => (
+                      <SelectItem key={property.id} value={property.id}>
+                        {property.name} - {property.location}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="platform">Plataforma</Label>
-              <Select 
-                value={newSync.platform_name} 
-                onValueChange={(value) => setNewSync(prev => ({ ...prev, platform_name: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Airbnb">Airbnb</SelectItem>
-                  <SelectItem value="Booking.com">Booking.com</SelectItem>
-                  <SelectItem value="VRBO">VRBO</SelectItem>
-                  <SelectItem value="Outros">Outros</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Label htmlFor="platform">Plataforma</Label>
+                <Select 
+                  value={newSync.platform_name} 
+                  onValueChange={(value) => setNewSync(prev => ({ ...prev, platform_name: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Airbnb">Airbnb</SelectItem>
+                    <SelectItem value="Booking.com">Booking.com</SelectItem>
+                    <SelectItem value="VRBO">VRBO</SelectItem>
+                    <SelectItem value="Outros">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -149,6 +152,7 @@ const SyncManager = ({ properties, selectedPropertyId }: SyncManagerProps) => {
                 placeholder="https://calendar.airbnb.com/calendar/ics/..."
                 value={newSync.ical_url}
                 onChange={(e) => setNewSync(prev => ({ ...prev, ical_url: e.target.value }))}
+                className="text-sm"
               />
             </div>
 
@@ -171,9 +175,9 @@ const SyncManager = ({ properties, selectedPropertyId }: SyncManagerProps) => {
               </Select>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={handleAddSync}>Adicionar</Button>
-              <Button variant="outline" onClick={() => setShowAddForm(false)}>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button onClick={handleAddSync} className="flex-1">Adicionar</Button>
+              <Button variant="outline" onClick={() => setShowAddForm(false)} className="flex-1">
                 Cancelar
               </Button>
             </div>
@@ -186,18 +190,18 @@ const SyncManager = ({ properties, selectedPropertyId }: SyncManagerProps) => {
           const syncProperty = properties.find(p => p.id === sync.property_id);
           return (
             <Card key={sync.id}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span className="font-medium">{sync.platform_name}</span>
-                      <Badge variant={sync.is_active ? "default" : "secondary"}>
+              <CardContent className="p-3 md:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Calendar className="h-4 w-4 flex-shrink-0" />
+                      <span className="font-medium text-sm md:text-base">{sync.platform_name}</span>
+                      <Badge variant={sync.is_active ? "default" : "secondary"} className="text-xs">
                         {sync.is_active ? "Ativa" : "Inativa"}
                       </Badge>
                     </div>
                     {!selectedPropertyId && syncProperty && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs md:text-sm text-muted-foreground truncate">
                         {syncProperty.name} - {syncProperty.location}
                       </p>
                     )}
@@ -209,32 +213,37 @@ const SyncManager = ({ properties, selectedPropertyId }: SyncManagerProps) => {
                     </p>
                   </div>
                   
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <Switch
                       checked={sync.is_active}
                       onCheckedChange={(checked) => updateSync(sync.id, { is_active: checked })}
                     />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => manualSync(sync.id)}
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => window.open(sync.ical_url, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => deleteSync(sync.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => manualSync(sync.id)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(sync.ical_url, '_blank')}
+                        className="h-8 w-8 p-0"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => deleteSync(sync.id)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>

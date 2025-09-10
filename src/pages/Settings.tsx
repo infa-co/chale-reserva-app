@@ -404,20 +404,20 @@ const Settings = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Star size={20} className="text-primary" />
+                  <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                    <Star size={16} className="text-primary md:w-5 md:h-5" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold">{subscription.planName}</h3>
-                    <p className="text-sm text-muted-foreground">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-sm md:text-base">{subscription.planName}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       R$ {subscription.price}/mês
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <Badge variant="secondary">Ativo</Badge>
+                <div className="text-left sm:text-right flex-shrink-0">
+                  <Badge variant="secondary" className="text-xs">Ativo</Badge>
                   {subscription.nextBilling && (
                     <p className="text-xs text-muted-foreground mt-1">
                       Próxima cobrança: {subscription.nextBilling}
@@ -426,21 +426,21 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="mt-4">
-                <p className="text-sm font-medium mb-2">Recursos inclusos:</p>
-                <ul className="text-sm text-muted-foreground space-y-1">
+              <div className="mt-3 md:mt-4">
+                <p className="text-xs md:text-sm font-medium mb-2">Recursos inclusos:</p>
+                <ul className="text-xs md:text-sm text-muted-foreground space-y-1">
                   {subscription.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-2">
-                      <div className="w-1 h-1 rounded-full bg-primary" />
-                      {feature}
+                      <div className="w-1 h-1 rounded-full bg-primary flex-shrink-0" />
+                      <span className="leading-tight">{feature}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               {subscription.currentPlan !== 'basic' && (
-                <div className="mt-4 flex gap-2">
-                  <Button variant="outline" onClick={handleManageSubscription} disabled={isLoading}>
+                <div className="mt-3 md:mt-4 flex gap-2">
+                  <Button variant="outline" onClick={handleManageSubscription} disabled={isLoading} className="text-xs md:text-sm h-8 md:h-9">
                     Gerenciar Assinatura
                   </Button>
                 </div>
@@ -457,7 +457,7 @@ const Settings = () => {
               </p>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                 {plans.map((plan) => {
                   const Icon = plan.icon;
                   const isCurrent = plan.id === subscription.currentPlan;
@@ -465,35 +465,35 @@ const Settings = () => {
                   return (
                     <div
                       key={plan.id}
-                      className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg ${
+                      className={`relative border rounded-xl p-4 md:p-6 transition-all duration-200 hover:shadow-lg ${
                         plan.popular 
-                          ? 'border-primary shadow-lg ring-2 ring-primary/20' 
+                          ? 'border-primary shadow-lg ring-2 ring-primary/20 md:scale-105' 
                           : 'border-border hover:border-primary/30'
                       } ${isCurrent ? 'bg-muted/30' : 'bg-card'}`}
                     >
                       {plan.popular && (
                         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                          <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
+                          <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium whitespace-nowrap">
                             MAIS POPULAR
                           </Badge>
                         </div>
                       )}
                       
                       {/* Header with icon and plan name */}
-                      <div className="mb-6">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="p-2 rounded-lg bg-primary/10">
-                            <Icon size={20} className="text-primary" />
+                      <div className="mb-4 md:mb-6">
+                        <div className="flex items-center gap-2 md:gap-3 mb-2">
+                          <div className="p-1.5 md:p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                            <Icon size={16} className="text-primary md:w-5 md:h-5" />
                           </div>
-                          <h3 className="font-semibold text-lg text-foreground">{plan.name}</h3>
+                          <h3 className="font-semibold text-base md:text-lg text-foreground">{plan.name}</h3>
                         </div>
                         
                         {/* Price section */}
                         <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-bold text-foreground">
+                          <span className="text-2xl md:text-3xl font-bold text-foreground">
                             R$ {plan.price}
                           </span>
-                          <span className="text-muted-foreground text-sm font-medium">
+                          <span className="text-muted-foreground text-xs md:text-sm font-medium">
                             /{plan.period}
                           </span>
                         </div>
@@ -503,9 +503,9 @@ const Settings = () => {
                       </div>
 
                       {/* Action button */}
-                      <div className="mb-6">
+                      <div className="mb-4 md:mb-6">
                         <Button
-                          className={`w-full h-11 font-medium ${
+                          className={`w-full h-9 md:h-11 font-medium text-sm md:text-base ${
                             plan.popular 
                               ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
                               : ''
@@ -549,23 +549,23 @@ const Settings = () => {
                             : feature;
                           
                           return (
-                            <div key={index} className="flex items-center gap-3 text-sm">
-                              <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+                            <div key={index} className="flex items-center gap-2 md:gap-3 text-xs md:text-sm">
+                              <div className={`flex-shrink-0 w-3 h-3 md:w-4 md:h-4 rounded-full flex items-center justify-center ${
                                 isIncluded 
                                   ? 'bg-green-100 text-green-600' 
                                   : 'bg-muted text-muted-foreground'
                               }`}>
                                 {isIncluded ? (
-                                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                                  <svg className="w-2 h-2 md:w-3 md:h-3" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                   </svg>
                                 ) : (
-                                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                                  <svg className="w-2 h-2 md:w-3 md:h-3" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                                   </svg>
                                 )}
                               </div>
-                              <span className={`${
+                              <span className={`leading-tight ${
                                 isIncluded 
                                   ? 'text-foreground' 
                                   : 'text-muted-foreground line-through'

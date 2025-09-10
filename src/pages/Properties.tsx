@@ -64,41 +64,44 @@ const Properties = () => {
   }
 
   return (
-    <div className="p-4 space-y-6 pb-32">
+    <div className="p-3 md:p-4 space-y-4 md:space-y-6 pb-32">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Home className="h-6 w-6 text-sage-600" />
-          <h1 className="text-2xl font-bold text-sage-800">Meus Chalés</h1>
+          <Home className="h-5 md:h-6 w-5 md:w-6 text-sage-600" />
+          <h1 className="text-xl md:text-2xl font-bold text-sage-800">Meus Chalés</h1>
         </div>
-        <Button onClick={handleAddProperty} className="bg-sage-600 hover:bg-sage-700">
+        <Button onClick={handleAddProperty} className="bg-sage-600 hover:bg-sage-700 self-start sm:self-auto">
           <Plus className="h-4 w-4 mr-2" />
-          Adicionar Chalé
+          <span className="hidden sm:inline">Adicionar Chalé</span>
+          <span className="sm:hidden">Novo Chalé</span>
         </Button>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="properties" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="properties" className="flex items-center gap-2">
-            <Home className="h-4 w-4" />
-            Propriedades
+          <TabsTrigger value="properties" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
+            <Home className="h-3 md:h-4 w-3 md:w-4" />
+            <span className="hidden sm:inline">Propriedades</span>
+            <span className="sm:hidden">Chalés</span>
           </TabsTrigger>
-          <TabsTrigger value="sync" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Sincronização
+          <TabsTrigger value="sync" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
+            <Calendar className="h-3 md:h-4 w-3 md:w-4" />
+            <span className="hidden sm:inline">Sincronização</span>
+            <span className="sm:hidden">Sync</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="properties" className="space-y-6">
+        <TabsContent value="properties" className="space-y-4 md:space-y-6">
           {/* Conteúdo das Propriedades */}
           {properties.length === 0 ? (
-            <div className="text-center py-12">
-              <Home className="h-12 w-12 text-sage-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-sage-800 mb-2">
+            <div className="text-center py-8 md:py-12">
+              <Home className="h-10 md:h-12 w-10 md:w-12 text-sage-300 mx-auto mb-4" />
+              <h3 className="text-base md:text-lg font-medium text-sage-800 mb-2">
                 Nenhum chalé cadastrado
               </h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6 max-w-md mx-auto px-4">
                 Comece criando seu primeiro chalé para organizar suas reservas por propriedade.
               </p>
               <Button onClick={handleAddProperty} className="bg-sage-600 hover:bg-sage-700">
@@ -107,7 +110,7 @@ const Properties = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {properties.map((property) => (
                 <OptimizedPropertyCard
                   key={property.id}
@@ -127,9 +130,9 @@ const Properties = () => {
 
       {/* Dialog para criar/editar propriedade */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-base md:text-lg">
               {editingProperty ? 'Editar' : 'Adicionar'} Chalé
             </DialogTitle>
           </DialogHeader>

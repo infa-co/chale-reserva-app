@@ -44,7 +44,7 @@ const Dashboard = memo(() => {
   }
 
   return (
-    <div className="p-4 space-y-6 pb-32">
+    <div className="p-3 md:p-4 space-y-4 md:space-y-6 pb-32">
       <DashboardHeader />
       
       <OptimizedQuickStats bookings={bookings} allBookings={allBookings} selectedMonth={currentDate} />
@@ -65,9 +65,11 @@ const Dashboard = memo(() => {
 
       <Link
         to="/nova-reserva"
-        className="fixed bottom-28 right-4 bg-sage-600 text-white p-4 rounded-full shadow-lg hover:bg-sage-700 transition-colors"
+        className="fixed bottom-24 md:bottom-28 right-3 md:right-4 bg-sage-600 text-white p-3 md:p-4 rounded-full shadow-lg hover:bg-sage-700 transition-colors z-40 touch-manipulation"
+        style={{ minHeight: '44px', minWidth: '44px' }}
       >
-        <Plus size={24} />
+        <Plus size={20} className="md:hidden" />
+        <Plus size={24} className="hidden md:block" />
       </Link>
     </div>
   );

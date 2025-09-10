@@ -76,27 +76,29 @@ const BookingList = () => {
   };
 
   return (
-    <div className="p-4">
-      <header className="mb-6">
-        <h1 className="text-xl font-bold text-sage-800 mb-4">Reservas</h1>
+    <div className="p-3 md:p-4 pb-32">
+      <header className="mb-4 md:mb-6">
+        <h1 className="text-lg md:text-xl font-bold text-sage-800 mb-3 md:mb-4">Reservas</h1>
         
         {/* Month Navigation */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border mb-4">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-white rounded-xl p-3 md:p-4 shadow-sm border mb-3 md:mb-4">
+          <div className="flex items-center justify-between mb-2 md:mb-3">
             <button
               onClick={goToPreviousMonth}
-              className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+              className="p-2 hover:bg-sage-50 rounded-lg transition-colors touch-manipulation"
+              style={{ minHeight: '44px', minWidth: '44px' }}
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} className="md:hidden" />
+              <ChevronLeft size={20} className="hidden md:block" />
             </button>
             
-            <div className="text-center">
-              <h2 className="text-lg font-semibold text-sage-800">
+            <div className="text-center flex-1 px-2">
+              <h2 className="text-base md:text-lg font-semibold text-sage-800">
                 {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
               </h2>
               <button
                 onClick={resetToCurrentMonth}
-                className="text-sm text-sage-600 hover:text-sage-800 transition-colors"
+                className="text-xs md:text-sm text-sage-600 hover:text-sage-800 transition-colors mt-1"
               >
                 Voltar para hoje
               </button>
@@ -104,33 +106,37 @@ const BookingList = () => {
             
             <button
               onClick={goToNextMonth}
-              className="p-2 hover:bg-sage-50 rounded-lg transition-colors"
+              className="p-2 hover:bg-sage-50 rounded-lg transition-colors touch-manipulation"
+              style={{ minHeight: '44px', minWidth: '44px' }}
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={18} className="md:hidden" />
+              <ChevronRight size={20} className="hidden md:block" />
             </button>
           </div>
           
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-center text-xs md:text-sm text-muted-foreground">
             {filteredBookings.length} reserva{filteredBookings.length !== 1 ? 's' : ''} neste mês
           </div>
         </div>
         
         <div className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground md:hidden" size={16} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hidden md:block" size={18} />
             <Input
               placeholder="Buscar por nome do hóspede..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-9 md:pl-10 text-sm md:text-base h-10 md:h-10"
             />
           </div>
           
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="flex-1">
+              <SelectTrigger className="flex-1 h-10">
                 <div className="flex items-center gap-2">
-                  <Filter size={16} />
+                  <Filter size={14} className="md:hidden" />
+                  <Filter size={16} className="hidden md:block" />
                   <SelectValue placeholder="Filtrar por status" />
                 </div>
               </SelectTrigger>
@@ -144,10 +150,12 @@ const BookingList = () => {
             
             <button
               onClick={toggleSort}
-              className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-accent transition-colors"
+              className="flex items-center justify-center gap-2 px-3 py-2 border rounded-md hover:bg-accent transition-colors h-10 touch-manipulation"
+              style={{ minHeight: '44px' }}
             >
-              <ArrowUpDown size={16} />
-              <span className="text-sm">Data</span>
+              <ArrowUpDown size={14} className="md:hidden" />
+              <ArrowUpDown size={16} className="hidden md:block" />
+              <span className="text-xs md:text-sm">Data</span>
             </button>
           </div>
         </div>
@@ -159,40 +167,43 @@ const BookingList = () => {
             <Link
               key={booking.id}
               to={`/reserva/${booking.id}`}
-              className="block bg-white rounded-xl p-4 shadow-sm border hover:shadow-md transition-shadow"
+              className="block bg-white rounded-xl p-3 md:p-4 shadow-sm border hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-sage-800 mb-1">{booking.guest_name}</h3>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                    <Calendar size={14} />
-                    <span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sage-800 mb-1 text-sm md:text-base truncate">{booking.guest_name}</h3>
+                  <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm text-muted-foreground mb-2 flex-wrap">
+                    <Calendar size={12} className="md:hidden flex-shrink-0" />
+                    <Calendar size={14} className="hidden md:block flex-shrink-0" />
+                    <span className="whitespace-nowrap">
                       {format(parseISO(booking.check_in), "dd/MM", { locale: ptBR })} → {format(parseISO(booking.check_out), "dd/MM", { locale: ptBR })}
                     </span>
-                    <span className="text-xs">({booking.nights} noites)</span>
+                    <span className="text-xs whitespace-nowrap">({booking.nights} noites)</span>
                   </div>
                   {booking.city && (
-                    <p className="text-sm text-muted-foreground">{booking.city}, {booking.state}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">{booking.city}, {booking.state}</p>
                   )}
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
                   {booking.phone && (
                     <button
                       onClick={(e) => openWhatsApp(booking.phone, e)}
-                      className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+                      className="p-2 hover:bg-green-50 rounded-lg transition-colors touch-manipulation"
+                      style={{ minHeight: '44px', minWidth: '44px' }}
                     >
-                      <MessageCircle size={18} className="text-green-600" />
+                      <MessageCircle size={16} className="text-green-600 md:hidden" />
+                      <MessageCircle size={18} className="text-green-600 hidden md:block" />
                     </button>
                   )}
                 </div>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className={`status-badge ${getStatusColor(booking.status)}`}>
+                <span className={`status-badge ${getStatusColor(booking.status)} text-xs md:text-sm`}>
                   {getStatusText(booking.status)}
                 </span>
-                <span className="font-semibold text-sage-800">
+                <span className="font-semibold text-sage-800 text-sm md:text-base">
                   R$ {booking.total_value.toLocaleString('pt-BR')}
                 </span>
               </div>

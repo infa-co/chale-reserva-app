@@ -14,8 +14,8 @@ const MobileNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
-      <div className="flex justify-around items-center max-w-md mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 sm:px-4 py-2 z-50">
+      <div className="flex justify-around items-center max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.href;
           const IconComponent = item.icon;
@@ -24,19 +24,20 @@ const MobileNav = () => {
             <Link
               key={item.href}
               to={item.href}
-              className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+              className={`flex flex-col items-center p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation ${
                 item.isButton
-                  ? 'bg-sage-600 text-white'
+                  ? 'bg-sage-600 text-white min-h-[44px] min-w-[44px]'
                   : isActive
                   ? 'text-sage-600'
                   : 'text-gray-600'
               }`}
+              style={{ minHeight: '44px', minWidth: '44px' }}
             >
               <IconComponent 
-                size={item.isButton ? 20 : 18} 
-                className={item.isButton ? 'text-white' : ''} 
+                size={item.isButton ? 18 : 16} 
+                className={`${item.isButton ? 'text-white' : ''} sm:w-5 sm:h-5`} 
               />
-              <span className={`text-xs mt-1 ${item.isButton ? 'text-white' : ''}`}>
+              <span className={`text-xs mt-0.5 sm:mt-1 ${item.isButton ? 'text-white' : ''} leading-tight text-center`}>
                 {item.label}
               </span>
             </Link>
