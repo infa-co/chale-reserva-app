@@ -74,7 +74,7 @@ const EditBooking = () => {
       const nights = calculateNights();
       
       // Garantir que o status enviado respeita as restrições do banco
-      const allowedStatuses = new Set(['pending', 'confirmed', 'cancelled']);
+      const allowedStatuses = new Set(['requested','pending','confirmed','checked_in','active','checked_out','completed','cancelled']);
       const safeStatus = allowedStatuses.has(formData.status) ? formData.status : 'confirmed';
       
       await updateBooking(booking.id, {

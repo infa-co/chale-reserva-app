@@ -188,13 +188,13 @@ export const useOptimizedBookings = () => {
     // Actions
     addBooking: addBookingMutation.mutate,
     updateBooking: useCallback((id: string, bookingData: Partial<Booking>) => {
-      updateBookingMutation.mutate({ id, bookingData });
-    }, [updateBookingMutation.mutate]),
+      return updateBookingMutation.mutateAsync({ id, bookingData });
+    }, [updateBookingMutation.mutateAsync]),
     deleteBooking: deleteBookingMutation.mutate,
     addHistoricalBooking: addHistoricalBookingMutation.mutate,
     updateHistoricalBooking: useCallback((id: string, bookingData: Partial<Booking>) => {
-      updateBookingMutation.mutate({ id, bookingData });
-    }, [updateBookingMutation.mutate]),
+      return updateBookingMutation.mutateAsync({ id, bookingData });
+    }, [updateBookingMutation.mutateAsync]),
     deleteHistoricalBooking: deleteBookingMutation.mutate,
     
     // Utils
