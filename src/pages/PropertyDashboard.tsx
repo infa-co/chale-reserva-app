@@ -5,7 +5,6 @@ import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProperties } from '@/hooks/useProperties';
-import { usePropertyStats } from '@/hooks/usePropertyStats';
 import { useBookings } from '@/contexts/BookingContext';
 import PropertyStatsCard from '@/components/properties/PropertyStatsCard';
 import MonthlyBookings from '@/components/dashboard/MonthlyBookings';
@@ -13,13 +12,13 @@ import CalendarNavigation from '@/components/dashboard/CalendarNavigation';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { PropertyStats } from '@/types/property';
+import type { Booking } from '@/types/booking';
 
 const PropertyDashboard = () => {
   const { id } = useParams<{ id: string }>();
   const { getPropertyById, loading: propertiesLoading } = useProperties();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { stats, loading: statsLoading } = usePropertyStats(id, currentDate);
-  const { bookings } = useBookings();
+  const { bookings, allBookings, loading: bookingsLoading } = useBookings();
 
   const emptyStats: PropertyStats = {
     totalBookings: 0,
@@ -53,7 +52,59 @@ const PropertyDashboard = () => {
     });
   }, [bookings, id, currentDate]);
 
-  if (propertiesLoading) {
+  // Calcular estatísticas usando os mesmos dados da lista
+  const stats = useMemo(() => {
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    
+    // Todas as reservas desta propriedade (incluindo históricas)
+    const propertyBookings = allBookings.filter(booking => booking.property_id === id);
+    
+    // Reservas confirmadas (não canceladas)
+    const confirmedStatuses = new Set<Booking['status']>(['confirmed', 'checked_in', 'active', 'checked_out', 'completed']);
+    const confirmedBookings = propertyBookings.filter(b => confirmedStatuses.has(b.status));
+    
+    // Reservas do mês atual
+    const monthlyBookings = confirmedBookings.filter(booking => {
+      const checkIn = parseISO(booking.check_in);
+      const checkOut = parseISO(booking.check_out);
+      return checkIn <= monthEnd && checkOut >= monthStart;
+    });
+
+    const totalRevenue = confirmedBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
+    const monthlyRevenue = monthlyBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
+    
+    const totalNights = confirmedBookings.reduce((sum, booking) => sum + booking.nights, 0);
+    const averageDailyRate = totalNights > 0 ? totalRevenue / totalNights : 0;
+
+    const daysInMonth = monthEnd.getDate();
+    const occupiedNights = monthlyBookings.reduce((sum, booking) => {
+      const checkIn = parseISO(booking.check_in);
+      const checkOut = parseISO(booking.check_out);
+      
+      const overlapStart = checkIn < monthStart ? monthStart : checkIn;
+      const overlapEnd = checkOut > monthEnd ? monthEnd : checkOut;
+      
+      if (overlapStart < overlapEnd) {
+        const diffTime = overlapEnd.getTime() - overlapStart.getTime();
+        return sum + Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      }
+      return sum;
+    }, 0);
+
+    const occupancyRate = (occupiedNights / daysInMonth) * 100;
+
+    return {
+      totalBookings: confirmedBookings.length,
+      monthlyBookings: monthlyBookings.length,
+      totalRevenue,
+      monthlyRevenue,
+      occupancyRate: Math.min(occupancyRate, 100),
+      averageDailyRate
+    } as PropertyStats;
+  }, [allBookings, id, currentDate]);
+
+  if (propertiesLoading || bookingsLoading) {
     return (
       <div className="p-4">
         <div className="text-center">Carregando...</div>
@@ -150,14 +201,12 @@ const PropertyDashboard = () => {
       />
 
       {/* Estatísticas */}
-      {(stats || statsLoading) && (
-        <div>
-          <h2 className="text-lg font-semibold text-sage-800 mb-4">
-            Estatísticas - {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
-          </h2>
-          <PropertyStatsCard stats={stats ?? emptyStats} loading={statsLoading} />
-        </div>
-      )}
+      <div>
+        <h2 className="text-lg font-semibold text-sage-800 mb-4">
+          Estatísticas - {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
+        </h2>
+        <PropertyStatsCard stats={stats} loading={false} />
+      </div>
 
       {/* Reservas do mês */}
       <MonthlyBookings 
