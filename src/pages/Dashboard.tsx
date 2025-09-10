@@ -16,9 +16,13 @@ const Dashboard = memo(() => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const currentMonthBookings = useMemo(() => {
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    
     return bookings.filter(booking => {
-      const bookingDate = new Date(booking.booking_date);
-      return bookingDate >= startOfMonth(currentDate) && bookingDate <= endOfMonth(currentDate);
+      const checkIn = new Date(booking.check_in);
+      const checkOut = new Date(booking.check_out);
+      return checkIn <= monthEnd && checkOut >= monthStart;
     });
   }, [bookings, currentDate]);
 
