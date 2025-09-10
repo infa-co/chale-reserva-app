@@ -10,8 +10,9 @@ import { useBookings } from '@/contexts/BookingContext';
 import PropertyStatsCard from '@/components/properties/PropertyStatsCard';
 import MonthlyBookings from '@/components/dashboard/MonthlyBookings';
 import CalendarNavigation from '@/components/dashboard/CalendarNavigation';
-import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, addMonths, subMonths, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import type { PropertyStats } from '@/types/property';
 
 const PropertyDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,15 @@ const PropertyDashboard = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const { stats, loading: statsLoading } = usePropertyStats(id, currentDate);
   const { bookings } = useBookings();
+
+  const emptyStats: PropertyStats = {
+    totalBookings: 0,
+    monthlyBookings: 0,
+    totalRevenue: 0,
+    monthlyRevenue: 0,
+    occupancyRate: 0,
+    averageDailyRate: 0
+  };
 
   const property = id ? getPropertyById(id) : undefined;
 
@@ -31,12 +41,15 @@ const PropertyDashboard = () => {
     setCurrentDate(prev => addMonths(prev, 1));
   }, []);
 
-  // Filtrar reservas desta propriedade no mês selecionado
+  // Filtrar reservas desta propriedade que sobrepõem o mês selecionado (check-in/out)
   const currentMonthBookings = useMemo(() => {
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
     return bookings.filter(booking => {
       if (booking.property_id !== id) return false;
-      const bookingDate = new Date(booking.booking_date);
-      return bookingDate >= startOfMonth(currentDate) && bookingDate <= endOfMonth(currentDate);
+      const checkIn = parseISO(booking.check_in);
+      const checkOut = parseISO(booking.check_out);
+      return checkIn <= monthEnd && checkOut >= monthStart;
     });
   }, [bookings, id, currentDate]);
 
@@ -137,12 +150,12 @@ const PropertyDashboard = () => {
       />
 
       {/* Estatísticas */}
-      {stats && (
+      {(stats || statsLoading) && (
         <div>
           <h2 className="text-lg font-semibold text-sage-800 mb-4">
             Estatísticas - {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
           </h2>
-          <PropertyStatsCard stats={stats} loading={statsLoading} />
+          <PropertyStatsCard stats={stats ?? emptyStats} loading={statsLoading} />
         </div>
       )}
 
