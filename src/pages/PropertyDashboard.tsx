@@ -1,6 +1,7 @@
 
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Home } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProperties } from '@/hooks/useProperties';
@@ -8,24 +9,36 @@ import { usePropertyStats } from '@/hooks/usePropertyStats';
 import { useBookings } from '@/contexts/BookingContext';
 import PropertyStatsCard from '@/components/properties/PropertyStatsCard';
 import MonthlyBookings from '@/components/dashboard/MonthlyBookings';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import CalendarNavigation from '@/components/dashboard/CalendarNavigation';
+import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const PropertyDashboard = () => {
   const { id } = useParams<{ id: string }>();
   const { getPropertyById, loading: propertiesLoading } = useProperties();
-  const { stats, loading: statsLoading } = usePropertyStats(id);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const { stats, loading: statsLoading } = usePropertyStats(id, currentDate);
   const { bookings } = useBookings();
 
   const property = id ? getPropertyById(id) : undefined;
 
-  // Filtrar reservas desta propriedade no mês atual
-  const currentDate = new Date();
-  const currentMonthBookings = bookings.filter(booking => {
-    if (booking.property_id !== id) return false;
-    const bookingDate = new Date(booking.booking_date);
-    return bookingDate >= startOfMonth(currentDate) && bookingDate <= endOfMonth(currentDate);
-  });
+  // Navegação de mês
+  const previousMonth = useCallback(() => {
+    setCurrentDate(prev => subMonths(prev, 1));
+  }, []);
+
+  const nextMonth = useCallback(() => {
+    setCurrentDate(prev => addMonths(prev, 1));
+  }, []);
+
+  // Filtrar reservas desta propriedade no mês selecionado
+  const currentMonthBookings = useMemo(() => {
+    return bookings.filter(booking => {
+      if (booking.property_id !== id) return false;
+      const bookingDate = new Date(booking.booking_date);
+      return bookingDate >= startOfMonth(currentDate) && bookingDate <= endOfMonth(currentDate);
+    });
+  }, [bookings, id, currentDate]);
 
   if (propertiesLoading) {
     return (
@@ -116,10 +129,19 @@ const PropertyDashboard = () => {
         </Card>
       )}
 
+      {/* Navegação de mês */}
+      <CalendarNavigation
+        currentDate={currentDate}
+        onPreviousMonth={previousMonth}
+        onNextMonth={nextMonth}
+      />
+
       {/* Estatísticas */}
       {stats && (
         <div>
-          <h2 className="text-lg font-semibold text-sage-800 mb-4">Estatísticas</h2>
+          <h2 className="text-lg font-semibold text-sage-800 mb-4">
+            Estatísticas - {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
+          </h2>
           <PropertyStatsCard stats={stats} loading={statsLoading} />
         </div>
       )}
@@ -130,25 +152,6 @@ const PropertyDashboard = () => {
         month={currentDate}
         title={`Reservas - ${format(currentDate, 'MMMM yyyy', { locale: ptBR })}`}
       />
-
-      {/* Ações rápidas */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Link to="/nova-reserva" className="block">
-            <Button className="w-full bg-sage-600 hover:bg-sage-700">
-              Nova Reserva para {property.name}
-            </Button>
-          </Link>
-          <Link to={`/reservas?property=${property.id}`} className="block">
-            <Button variant="outline" className="w-full">
-              Ver Todas as Reservas
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
     </div>
   );
 };

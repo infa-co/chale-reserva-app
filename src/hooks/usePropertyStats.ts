@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PropertyStats } from '@/types/property';
 import { startOfMonth, endOfMonth } from 'date-fns';
 
-export const usePropertyStats = (propertyId?: string) => {
+export const usePropertyStats = (propertyId?: string, selectedMonth?: Date) => {
   const [stats, setStats] = useState<PropertyStats | null>(null);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -37,9 +37,9 @@ export const usePropertyStats = (propertyId?: string) => {
 
       if (!bookings) return;
 
-      const now = new Date();
-      const monthStart = startOfMonth(now);
-      const monthEnd = endOfMonth(now);
+      const targetMonth = selectedMonth || new Date();
+      const monthStart = startOfMonth(targetMonth);
+      const monthEnd = endOfMonth(targetMonth);
 
       const confirmedBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'completed' || b.status === 'checked_out');
       const monthlyBookings = confirmedBookings.filter(booking => {
@@ -85,7 +85,7 @@ export const usePropertyStats = (propertyId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [user, propertyId]);
+  }, [user, propertyId, selectedMonth]);
 
   useEffect(() => {
     fetchStats();
