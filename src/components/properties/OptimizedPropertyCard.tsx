@@ -111,41 +111,41 @@ const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onManage
 
         {/* Desktop Layout (XL and above) */}
         <div className="hidden xl:block">
-          <div className="flex items-start gap-6 mb-6 pr-32">
+          <div className="flex items-start gap-8 mb-8 pr-24">
             {/* Icon Section */}
-            <div className="flex-shrink-0 p-4 bg-primary/10 rounded-xl">
-              <Home className="h-8 w-8 text-primary" />
+            <div className="flex-shrink-0 p-5 bg-primary/10 rounded-2xl">
+              <Home className="h-10 w-10 text-primary" />
             </div>
             
             {/* Content Section */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-2xl font-semibold text-foreground leading-tight mb-3">
+              <h3 className="text-3xl font-bold text-foreground leading-tight mb-4">
                 {property.name}
               </h3>
-              <div className="flex items-center gap-2 text-base text-muted-foreground mb-4">
-                <MapPin className="h-5 w-5 flex-shrink-0" />
+              <div className="flex items-center gap-3 text-lg text-muted-foreground mb-6">
+                <MapPin className="h-6 w-6 flex-shrink-0" />
                 <span>{property.location}</span>
               </div>
               
               {/* Property Details - Horizontal Layout for Desktop */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg transition-colors">
-                  <div className="p-2.5 bg-primary/10 rounded-lg">
-                    <Users className="h-6 w-6 text-primary" />
+              <div className="grid grid-cols-2 gap-8">
+                <div className="flex items-center gap-5 p-6 bg-muted/30 rounded-xl transition-all hover:bg-muted/50">
+                  <div className="p-3 bg-primary/15 rounded-xl">
+                    <Users className="h-7 w-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Capacidade</p>
-                    <p className="text-lg font-semibold text-foreground">{property.capacity} hóspedes</p>
+                    <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Capacidade</p>
+                    <p className="text-xl font-bold text-foreground">{property.capacity} hóspedes</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg transition-colors">
-                  <div className="p-2.5 bg-primary/10 rounded-lg">
-                    <DollarSign className="h-6 w-6 text-primary" />
+                <div className="flex items-center gap-5 p-6 bg-muted/30 rounded-xl transition-all hover:bg-muted/50">
+                  <div className="p-3 bg-primary/15 rounded-xl">
+                    <DollarSign className="h-7 w-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Diária</p>
-                    <p className="text-lg font-semibold text-foreground">{formattedRate}</p>
+                    <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Diária</p>
+                    <p className="text-xl font-bold text-foreground">{formattedRate}</p>
                   </div>
                 </div>
               </div>
@@ -163,13 +163,13 @@ const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onManage
         )}
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row xl:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row xl:flex-row gap-3 xl:gap-4">
           <Link to={`/chale/${property.id}/dashboard`} className="flex-1">
             <Button 
               size="default" 
-              className="w-full h-12 font-medium transition-all duration-200 hover:scale-[1.02] text-base"
+              className="w-full h-12 xl:h-14 font-medium transition-all duration-200 hover:scale-[1.02] text-base xl:text-lg xl:font-semibold"
             >
-              <Eye className="h-5 w-5 mr-2" />
+              <Eye className="h-5 w-5 xl:h-6 xl:w-6 mr-2 xl:mr-3" />
               Ver Dashboard
             </Button>
           </Link>
@@ -179,25 +179,25 @@ const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onManage
               <Button 
                 variant="outline" 
                 size="default" 
-                className="h-12 px-6 transition-all duration-200 hover:bg-primary/10 hover:border-primary/20 text-base"
+                className="h-12 xl:h-14 px-6 xl:px-8 transition-all duration-200 hover:bg-primary/10 hover:border-primary/20 text-base xl:text-lg xl:font-semibold"
               >
-                <MoreVertical className="h-5 w-5 mr-2" />
+                <MoreVertical className="h-5 w-5 xl:h-6 xl:w-6 mr-2 xl:mr-3" />
                 Opções
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
-                <Edit className="h-4 w-4 mr-2" />
+            <DropdownMenuContent align="end" className="w-52 xl:w-56">
+              <DropdownMenuItem onClick={handleEdit} className="cursor-pointer xl:text-base xl:py-3">
+                <Edit className="h-4 w-4 xl:h-5 xl:w-5 mr-2" />
                 Editar Propriedade
               </DropdownMenuItem>
               {onManageSync && (
-                <DropdownMenuItem onClick={handleManageSync} className="cursor-pointer">
-                  <Calendar className="h-4 w-4 mr-2" />
+                <DropdownMenuItem onClick={handleManageSync} className="cursor-pointer xl:text-base xl:py-3">
+                  <Calendar className="h-4 w-4 xl:h-5 xl:w-5 mr-2" />
                   Gerenciar Sincronização
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem onClick={handleToggleActive} className="cursor-pointer">
-                <Archive className="h-4 w-4 mr-2" />
+              <DropdownMenuItem onClick={handleToggleActive} className="cursor-pointer xl:text-base xl:py-3">
+                <Archive className="h-4 w-4 xl:h-5 xl:w-5 mr-2" />
                 {property.is_active ? 'Desativar' : 'Ativar'}
               </DropdownMenuItem>
             </DropdownMenuContent>
