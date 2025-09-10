@@ -250,8 +250,10 @@ export const useBookingWorkflow = () => {
       await updateBooking(booking.id, { status: action.nextState });
       toast.success(`Status alterado para: ${getStateConfig(action.nextState)?.label}`);
       return true;
-    } catch (error) {
-      toast.error('Erro ao alterar status');
+    } catch (error: any) {
+      console.error('Error executing action:', error);
+      const errorMessage = error?.message || '';
+      toast.error(`Erro ao alterar status: ${errorMessage}`);
       return false;
     }
   };

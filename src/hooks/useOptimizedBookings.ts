@@ -105,9 +105,10 @@ export const useOptimizedBookings = () => {
       );
       toast.success('Reserva atualizada com sucesso!');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error updating booking:', error);
-      toast.error('Erro ao atualizar reserva');
+      const errorMessage = error?.message || 'Erro desconhecido';
+      toast.error(`Erro ao atualizar reserva: ${errorMessage}`);
     }
   });
 
