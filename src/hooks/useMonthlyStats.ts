@@ -1,34 +1,37 @@
 import { useMemo } from 'react';
 import { Booking } from '@/types/booking';
-import { startOfMonth, endOfMonth } from 'date-fns';
+import { startOfMonth, endOfMonth, parseISO } from 'date-fns';
 
 export const useMonthlyStats = (allBookings: Booking[], currentBookings: Booking[], selectedMonth: Date) => {
   return useMemo(() => {
     const monthStart = startOfMonth(selectedMonth);
     const monthEnd = endOfMonth(selectedMonth);
 
-    // Filter bookings for the selected month
-    const monthlyBookings = currentBookings.filter(booking => {
-      const bookingDate = new Date(booking.booking_date);
-      return bookingDate >= monthStart && bookingDate <= monthEnd;
-    });
+    // Determine if a booking overlaps the selected month (by check-in/check-out)
+    const overlapsMonth = (booking: Booking) => {
+      const checkIn = parseISO(booking.check_in);
+      const checkOut = parseISO(booking.check_out);
+      return checkIn <= monthEnd && checkOut >= monthStart;
+    };
 
-    // Filter all bookings (including historical) for total revenue calculation
-    const allMonthlyBookings = allBookings.filter(booking => {
-      const bookingDate = new Date(booking.booking_date);
-      return bookingDate >= monthStart && bookingDate <= monthEnd;
-    });
+    const monthlyBookings = currentBookings.filter(overlapsMonth);
+    const allMonthlyBookings = allBookings.filter(overlapsMonth);
 
-    const confirmedBookings = monthlyBookings.filter(booking => booking.status === 'confirmed');
-    const pendingBookings = monthlyBookings.filter(booking => booking.status === 'pending');
-    const historicalBookings = allMonthlyBookings.filter(booking => booking.is_historical);
-    const monthlyRevenue = allMonthlyBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
+    const confirmedStatuses = new Set<Booking['status']>(['confirmed','checked_in','active','checked_out','completed']);
+
+    const confirmedMonthly = monthlyBookings.filter(b => confirmedStatuses.has(b.status));
+    const pendingMonthly = monthlyBookings.filter(b => b.status === 'pending');
+    const historicalMonthly = allMonthlyBookings.filter(b => b.is_historical);
+
+    const monthlyRevenue = allMonthlyBookings
+      .filter(b => confirmedStatuses.has(b.status))
+      .reduce((sum, b) => sum + Number(b.total_value), 0);
 
     return {
-      totalBookings: monthlyBookings.length,
-      confirmedBookings: confirmedBookings.length,
-      pendingBookings: pendingBookings.length,
-      historicalBookings: historicalBookings.length,
+      totalBookings: confirmedMonthly.length,
+      confirmedBookings: confirmedMonthly.length,
+      pendingBookings: pendingMonthly.length,
+      historicalBookings: historicalMonthly.length,
       monthlyRevenue
     };
   }, [allBookings, currentBookings, selectedMonth]);

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PropertyStats } from '@/types/property';
-import { startOfMonth, endOfMonth } from 'date-fns';
+import { startOfMonth, endOfMonth, parseISO } from 'date-fns';
 
 export const usePropertyStats = (propertyId?: string, selectedMonth?: Date) => {
   const [stats, setStats] = useState<PropertyStats | null>(null);
@@ -41,10 +41,12 @@ export const usePropertyStats = (propertyId?: string, selectedMonth?: Date) => {
       const monthStart = startOfMonth(targetMonth);
       const monthEnd = endOfMonth(targetMonth);
 
-      const confirmedBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'completed' || b.status === 'checked_out');
+      const confirmedStatuses = new Set(['confirmed', 'checked_in', 'active', 'checked_out', 'completed']);
+      const confirmedBookings = bookings.filter(b => confirmedStatuses.has(b.status));
       const monthlyBookings = confirmedBookings.filter(booking => {
-        const checkIn = new Date(booking.check_in);
-        return checkIn >= monthStart && checkIn <= monthEnd;
+        const checkIn = parseISO(booking.check_in);
+        const checkOut = parseISO(booking.check_out);
+        return checkIn <= monthEnd && checkOut >= monthStart;
       });
 
       const totalRevenue = confirmedBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
@@ -55,8 +57,8 @@ export const usePropertyStats = (propertyId?: string, selectedMonth?: Date) => {
 
       const daysInMonth = monthEnd.getDate();
       const occupiedNights = monthlyBookings.reduce((sum, booking) => {
-        const checkIn = new Date(booking.check_in);
-        const checkOut = new Date(booking.check_out);
+        const checkIn = parseISO(booking.check_in);
+        const checkOut = parseISO(booking.check_out);
         
         const overlapStart = checkIn < monthStart ? monthStart : checkIn;
         const overlapEnd = checkOut > monthEnd ? monthEnd : checkOut;
