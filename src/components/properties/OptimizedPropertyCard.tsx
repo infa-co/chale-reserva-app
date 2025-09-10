@@ -83,25 +83,33 @@ const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onManage
           </div>
         </div>
 
-        {/* Property Details Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 xl:gap-6 mb-4 md:mb-6 xl:mb-8">
-          <div className="flex items-center gap-2.5 md:gap-3 xl:gap-4 p-3 md:p-4 xl:p-5 bg-muted/50 rounded-lg xl:rounded-xl transition-colors">
-            <div className="p-1.5 md:p-2 xl:p-2.5 bg-primary/10 rounded-lg">
+        {/* Property Details - Vertical Layout like Mobile */}
+        <div className="space-y-3 md:space-y-4 xl:space-y-5 mb-4 md:mb-6 xl:mb-8">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="p-2 md:p-2.5 xl:p-3 bg-primary/10 rounded-lg">
               <Users className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="text-xs xl:text-sm text-muted-foreground uppercase tracking-wide font-medium mb-0.5">Capacidade</p>
-              <p className="text-sm md:text-sm xl:text-lg font-semibold xl:font-bold text-foreground">{property.capacity} hóspedes</p>
+              <p className="text-xs md:text-sm xl:text-base text-muted-foreground uppercase tracking-wide font-medium mb-0.5 md:mb-1">
+                Capacidade
+              </p>
+              <p className="text-sm md:text-base xl:text-lg font-semibold text-foreground">
+                {property.capacity} hóspedes
+              </p>
             </div>
           </div>
           
-          <div className="flex items-center gap-2.5 md:gap-3 xl:gap-4 p-3 md:p-4 xl:p-5 bg-muted/50 rounded-lg xl:rounded-xl transition-colors">
-            <div className="p-1.5 md:p-2 xl:p-2.5 bg-primary/10 rounded-lg">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="p-2 md:p-2.5 xl:p-3 bg-primary/10 rounded-lg">
               <DollarSign className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="text-xs xl:text-sm text-muted-foreground uppercase tracking-wide font-medium mb-0.5">Diária</p>
-              <p className="text-sm md:text-sm xl:text-lg font-semibold xl:font-bold text-foreground">{formattedRate}</p>
+              <p className="text-xs md:text-sm xl:text-base text-muted-foreground uppercase tracking-wide font-medium mb-0.5 md:mb-1">
+                Diária
+              </p>
+              <p className="text-sm md:text-base xl:text-lg font-semibold text-foreground">
+                {formattedRate}
+              </p>
             </div>
           </div>
         </div>
