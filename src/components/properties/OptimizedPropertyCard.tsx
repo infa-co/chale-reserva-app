@@ -1,11 +1,12 @@
 import React, { memo, useMemo } from 'react';
-import { Home, MapPin, Users, DollarSign, MoreVertical, Eye, Edit, Archive, Calendar } from 'lucide-react';
+import { Home, MapPin, Users, DollarSign, MoreVertical, Eye, Edit, Archive, Calendar, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Property } from '@/types/property';
@@ -17,10 +18,11 @@ interface PropertyCardProps {
   property: Property;
   onEdit: (property: Property) => void;
   onToggleActive: (property: Property) => void;
+  onDelete: (property: Property) => void;
   onManageSync?: (property: Property) => void;
 }
 
-const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onManageSync }: PropertyCardProps) => {
+const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onDelete, onManageSync }: PropertyCardProps) => {
   const { getSyncsForProperty } = useOptimizedICalSyncs();
   
   const { propertySyncs, activeSyncs, formattedRate } = useMemo(() => {
@@ -38,6 +40,7 @@ const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onManage
 
   const handleEdit = () => onEdit(property);
   const handleToggleActive = () => onToggleActive(property);
+  const handleDelete = () => onDelete(property);
   const handleManageSync = () => onManageSync?.(property);
 
   return (
@@ -82,6 +85,11 @@ const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onManage
               <DropdownMenuItem onClick={handleToggleActive}>
                 <Archive className="h-4 w-4 mr-2" />
                 {property.is_active ? 'Desativar' : 'Ativar'}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

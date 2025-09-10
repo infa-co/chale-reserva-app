@@ -1,5 +1,15 @@
 
 import { useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Plus, Home, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,10 +26,12 @@ import ICalSyncSettings from '@/components/properties/ICalSyncSettings';
 import { Property } from '@/types/property';
 
 const Properties = () => {
-  const { properties, loading, addProperty, updateProperty } = useOptimizedProperties();
+  const { properties, loading, addProperty, updateProperty, deleteProperty } = useOptimizedProperties();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [propertyToDelete, setPropertyToDelete] = useState<Property | undefined>();
 
   const handleAddProperty = () => {
     setEditingProperty(undefined);
@@ -33,6 +45,19 @@ const Properties = () => {
 
   const handleToggleActive = async (property: Property) => {
     await updateProperty(property.id, { is_active: !property.is_active });
+  };
+
+  const handleDeleteProperty = (property: Property) => {
+    setPropertyToDelete(property);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!propertyToDelete) return;
+    
+    await deleteProperty(propertyToDelete.id);
+    setDeleteDialogOpen(false);
+    setPropertyToDelete(undefined);
   };
 
   const handleSubmit = async (data: Omit<Property, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
@@ -117,6 +142,7 @@ const Properties = () => {
                   property={property}
                   onEdit={handleEditProperty}
                   onToggleActive={handleToggleActive}
+                  onDelete={handleDeleteProperty}
                 />
               ))}
             </div>
@@ -144,6 +170,28 @@ const Properties = () => {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de confirmação de exclusão */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-md mx-4 sm:mx-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir a propriedade "{propertyToDelete?.name}"? 
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
