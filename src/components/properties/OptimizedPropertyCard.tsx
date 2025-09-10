@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
-import { Home, MapPin, Users, DollarSign, MoreVertical, Eye, Edit, Archive, Calendar } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Home, MapPin, Users, DollarSign, MoreVertical, Eye, Edit, Archive, Calendar, RefreshCw } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -41,95 +41,115 @@ const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onManage
   const handleManageSync = () => onManageSync?.(property);
 
   return (
-    <Card className={`transition-all duration-200 hover:shadow-md ${!property.is_active ? 'opacity-60' : ''}`}>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-sage-100 rounded-lg">
-              <Home className="h-5 w-5 text-sage-600" />
+    <Card className={`group relative transition-all duration-300 hover:shadow-lg hover:scale-[1.02] border-0 shadow-sm bg-background/50 backdrop-blur ${!property.is_active ? 'opacity-60 grayscale-[50%]' : ''}`}>
+      {/* Status Badge - Top Right */}
+      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1">
+        {!property.is_active && (
+          <Badge variant="destructive" className="text-xs font-medium px-2 py-1">
+            Inativo
+          </Badge>
+        )}
+        
+        {/* Sync Status Badge */}
+        {propertySyncs.length > 0 && (
+          <Badge 
+            variant={activeSyncs.length > 0 ? "default" : "secondary"} 
+            className="text-xs font-medium px-2 py-1 flex items-center gap-1"
+          >
+            <RefreshCw className="h-3 w-3" />
+            {activeSyncs.length > 0 
+              ? `${activeSyncs.length} ativa${activeSyncs.length > 1 ? 's' : ''}`
+              : `${propertySyncs.length} inativa${propertySyncs.length > 1 ? 's' : ''}`
+            }
+          </Badge>
+        )}
+      </div>
+
+      <CardHeader className="pb-3">
+        <div className="flex items-start gap-3 pr-24">
+          <div className="flex-shrink-0 p-2.5 bg-primary/10 rounded-xl">
+            <Home className="h-6 w-6 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold text-foreground leading-tight mb-1 truncate">
+              {property.name}
+            </h3>
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{property.location}</span>
             </div>
-            <div>
-              <h3 className="font-semibold text-sage-800">{property.name}</h3>
-              {!property.is_active && (
-                <span className="text-xs text-red-500 font-medium">Inativo</span>
-              )}
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="pt-0 space-y-4">
+        {/* Property Details */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg">
+            <Users className="h-4 w-4 text-primary flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">Capacidade</p>
+              <p className="text-sm font-medium truncate">{property.capacity} hóspedes</p>
             </div>
           </div>
           
+          <div className="flex items-center gap-2 p-2.5 bg-muted/50 rounded-lg">
+            <DollarSign className="h-4 w-4 text-primary flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">Diária</p>
+              <p className="text-sm font-medium truncate">{formattedRate}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Fixed Notes */}
+        {property.fixed_notes && (
+          <div className="p-3 bg-primary/5 border border-primary/10 rounded-lg">
+            <p className="text-sm text-foreground/80 leading-relaxed">
+              {property.fixed_notes}
+            </p>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-2 pt-2">
+          <Link to={`/chale/${property.id}/dashboard`} className="flex-1">
+            <Button 
+              size="sm" 
+              className="w-full h-9 font-medium transition-all duration-200 hover:scale-[1.02]"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Ver Dashboard
+            </Button>
+          </Link>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-9 w-9 p-0 transition-all duration-200 hover:bg-primary/10 hover:border-primary/20"
+              >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link to={`/chale/${property.id}/dashboard`}>
-                  <Eye className="h-4 w-4 mr-2" />
-                  Ver Dashboard
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleEdit}>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
                 <Edit className="h-4 w-4 mr-2" />
-                Editar
+                Editar Propriedade
               </DropdownMenuItem>
               {onManageSync && (
-                <DropdownMenuItem onClick={handleManageSync}>
+                <DropdownMenuItem onClick={handleManageSync} className="cursor-pointer">
                   <Calendar className="h-4 w-4 mr-2" />
                   Gerenciar Sincronização
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem onClick={handleToggleActive}>
+              <DropdownMenuItem onClick={handleToggleActive} className="cursor-pointer">
                 <Archive className="h-4 w-4 mr-2" />
                 {property.is_active ? 'Desativar' : 'Ativar'}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4" />
-            <span>{property.location}</span>
-          </div>
-          
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users className="h-4 w-4" />
-            <span>Até {property.capacity} hóspedes</span>
-          </div>
-          
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <DollarSign className="h-4 w-4" />
-            <span>{formattedRate} por diária</span>
-          </div>
-        </div>
-
-        {/* Sync Status */}
-        {propertySyncs.length > 0 && (
-          <div className="mt-4 flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <Badge variant={activeSyncs.length > 0 ? "default" : "secondary"} className="text-xs">
-              {activeSyncs.length > 0 
-                ? `${activeSyncs.length} sync${activeSyncs.length > 1 ? 's' : ''} ativa${activeSyncs.length > 1 ? 's' : ''}`
-                : `${propertySyncs.length} sync${propertySyncs.length > 1 ? 's' : ''} inativa${propertySyncs.length > 1 ? 's' : ''}`
-              }
-            </Badge>
-          </div>
-        )}
-
-        {property.fixed_notes && (
-          <div className="mt-4 p-3 bg-sage-50 rounded-lg">
-            <p className="text-sm text-sage-700">{property.fixed_notes}</p>
-          </div>
-        )}
-
-        <div className="mt-4 pt-4 border-t">
-          <Link to={`/chale/${property.id}/dashboard`}>
-            <Button variant="outline" className="w-full">
-              <Eye className="h-4 w-4 mr-2" />
-              Ver Dashboard
-            </Button>
-          </Link>
         </div>
       </CardContent>
     </Card>
