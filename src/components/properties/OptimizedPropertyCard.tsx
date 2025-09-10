@@ -65,90 +65,43 @@ const OptimizedPropertyCard = memo(({ property, onEdit, onToggleActive, onManage
         )}
       </div>
 
-      {/* Main Content - Responsive Layout */}
-      <div className="p-6">
-        {/* Mobile/Tablet Layout */}
-        <div className="xl:hidden">
-          {/* Header with Icon and Basic Info */}
-          <div className="flex items-start gap-4 mb-6 pr-20">
-            <div className="flex-shrink-0 p-3 bg-primary/10 rounded-xl">
-              <Home className="h-6 w-6 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-semibold text-foreground leading-tight mb-2 truncate">
-                {property.name}
-              </h3>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{property.location}</span>
-              </div>
-            </div>
+      {/* Unified Responsive Layout */}
+      <div className="p-4 md:p-6 xl:p-8">
+        {/* Header with Icon and Basic Info */}
+        <div className="flex items-start gap-3 md:gap-4 xl:gap-6 mb-4 md:mb-6 xl:mb-8 pr-16 md:pr-20 xl:pr-24">
+          <div className="flex-shrink-0 p-2.5 md:p-3 xl:p-4 bg-primary/10 rounded-lg xl:rounded-xl">
+            <Home className="h-5 w-5 md:h-6 md:w-6 xl:h-8 xl:w-8 text-primary" />
           </div>
-
-          {/* Property Details Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg transition-colors">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Users className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Capacidade</p>
-                <p className="text-sm font-semibold text-foreground">{property.capacity} hóspedes</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg transition-colors">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <DollarSign className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Diária</p>
-                <p className="text-sm font-semibold text-foreground">{formattedRate}</p>
-              </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg md:text-xl xl:text-2xl font-semibold xl:font-bold text-foreground leading-tight mb-1 md:mb-2 xl:mb-3 truncate">
+              {property.name}
+            </h3>
+            <div className="flex items-center gap-1.5 md:gap-2 xl:gap-3 text-xs md:text-sm xl:text-base text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 xl:h-5 xl:w-5 flex-shrink-0" />
+              <span className="truncate">{property.location}</span>
             </div>
           </div>
         </div>
 
-        {/* Desktop Layout (XL and above) */}
-        <div className="hidden xl:block">
-          <div className="flex items-start gap-8 mb-8 pr-24">
-            {/* Icon Section */}
-            <div className="flex-shrink-0 p-5 bg-primary/10 rounded-2xl">
-              <Home className="h-10 w-10 text-primary" />
+        {/* Property Details Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 xl:gap-6 mb-4 md:mb-6 xl:mb-8">
+          <div className="flex items-center gap-2.5 md:gap-3 xl:gap-4 p-3 md:p-4 xl:p-5 bg-muted/50 rounded-lg xl:rounded-xl transition-colors">
+            <div className="p-1.5 md:p-2 xl:p-2.5 bg-primary/10 rounded-lg">
+              <Users className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 text-primary" />
             </div>
-            
-            {/* Content Section */}
-            <div className="flex-1 min-w-0">
-              <h3 className="text-3xl font-bold text-foreground leading-tight mb-4">
-                {property.name}
-              </h3>
-              <div className="flex items-center gap-3 text-lg text-muted-foreground mb-6">
-                <MapPin className="h-6 w-6 flex-shrink-0" />
-                <span>{property.location}</span>
-              </div>
-              
-              {/* Property Details - Horizontal Layout for Desktop */}
-              <div className="grid grid-cols-2 gap-8">
-                <div className="flex items-center gap-5 p-6 bg-muted/30 rounded-xl transition-all hover:bg-muted/50">
-                  <div className="p-3 bg-primary/15 rounded-xl">
-                    <Users className="h-7 w-7 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Capacidade</p>
-                    <p className="text-xl font-bold text-foreground">{property.capacity} hóspedes</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-5 p-6 bg-muted/30 rounded-xl transition-all hover:bg-muted/50">
-                  <div className="p-3 bg-primary/15 rounded-xl">
-                    <DollarSign className="h-7 w-7 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Diária</p>
-                    <p className="text-xl font-bold text-foreground">{formattedRate}</p>
-                  </div>
-                </div>
-              </div>
+            <div className="flex-1">
+              <p className="text-xs xl:text-sm text-muted-foreground uppercase tracking-wide font-medium mb-0.5">Capacidade</p>
+              <p className="text-sm md:text-sm xl:text-lg font-semibold xl:font-bold text-foreground">{property.capacity} hóspedes</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2.5 md:gap-3 xl:gap-4 p-3 md:p-4 xl:p-5 bg-muted/50 rounded-lg xl:rounded-xl transition-colors">
+            <div className="p-1.5 md:p-2 xl:p-2.5 bg-primary/10 rounded-lg">
+              <DollarSign className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs xl:text-sm text-muted-foreground uppercase tracking-wide font-medium mb-0.5">Diária</p>
+              <p className="text-sm md:text-sm xl:text-lg font-semibold xl:font-bold text-foreground">{formattedRate}</p>
             </div>
           </div>
         </div>
