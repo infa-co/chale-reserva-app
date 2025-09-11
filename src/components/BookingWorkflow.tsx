@@ -66,35 +66,6 @@ export const BookingWorkflow = ({ booking }: BookingWorkflowProps) => {
         </span>
       </div>
 
-      {/* Transições Automáticas Disponíveis */}
-      {autoTransitions.length > 0 && (
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-center gap-2 mb-2">
-            <Clock size={16} className="text-blue-600" />
-            <span className="text-sm font-medium text-blue-800">
-              Transições Automáticas Disponíveis
-            </span>
-          </div>
-          
-          {autoTransitions.map(transition => (
-            <div key={transition.id} className="flex items-center justify-between">
-              <span className="text-sm text-blue-700">
-                {transition.description}
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleAutoTransitions}
-                disabled={isProcessing}
-                className="text-blue-600 border-blue-300 hover:bg-blue-50"
-              >
-                <Play size={14} className="mr-1" />
-                Executar
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Ações Disponíveis */}
       {availableActions.length > 0 && (
@@ -164,7 +135,7 @@ export const BookingWorkflow = ({ booking }: BookingWorkflowProps) => {
         </div>
       )}
 
-      {availableActions.length === 0 && autoTransitions.length === 0 && (
+      {availableActions.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-4">
           Nenhuma ação disponível no momento
         </p>
