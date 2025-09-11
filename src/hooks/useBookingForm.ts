@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { differenceInDays, parseISO } from 'date-fns';
 import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
-export const useBookingForm = () => {
+export const useBookingForm = (initialPropertyId?: string) => {
   const [formData, setFormData] = useState({
     guestName: '',
     phone: '',
@@ -16,7 +16,8 @@ export const useBookingForm = () => {
     totalValue: '',
     paymentMethod: '',
     status: 'confirmed' as const,
-    notes: ''
+    notes: '',
+    propertyId: initialPropertyId || ''
   });
 
   const handleInputChange = (field: string, value: string) => {

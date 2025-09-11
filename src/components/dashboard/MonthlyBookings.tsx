@@ -13,6 +13,8 @@ interface MonthlyBookingsProps {
 }
 
 const MonthlyBookings = memo(({ bookings, month, title }: MonthlyBookingsProps) => {
+  const monthKey = `${month.getFullYear()}-${month.getMonth()}`;
+  
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -43,7 +45,7 @@ const MonthlyBookings = memo(({ bookings, month, title }: MonthlyBookingsProps) 
   const displayedBookings = useMemo(() => bookings.slice(0, 3), [bookings]);
 
   return (
-    <Card>
+    <Card key={monthKey}>
       <CardHeader>
         <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>

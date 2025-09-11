@@ -43,18 +43,35 @@ const PropertyDashboard = () => {
   // Filtrar reservas desta propriedade que sobrepõem o mês selecionado (check-in/out)
   // Usando todas as reservas (incluindo históricas) e filtrando apenas não canceladas
   const currentMonthBookings = useMemo(() => {
+    if (!property || !allBookings) return [];
+    
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
     const nonCanceledStatuses = new Set<Booking['status']>(['requested', 'pending', 'confirmed', 'checked_in', 'active', 'checked_out', 'completed']);
     
-    return allBookings.filter(booking => {
+    const filteredBookings = allBookings.filter(booking => {
       if (booking.property_id !== id) return false;
       if (!nonCanceledStatuses.has(booking.status)) return false;
       const checkIn = parseISO(booking.check_in);
       const checkOut = parseISO(booking.check_out);
       return checkIn <= monthEnd && checkOut >= monthStart;
     });
-  }, [allBookings, id, currentDate]);
+    
+    // Debug telemetry
+    console.log('PropertyDashboard Debug:', {
+      propertyId: property.id,
+      propertyName: property.name,
+      totalBookings: allBookings.length,
+      monthlyBookings: filteredBookings.length,
+      monthStart: monthStart.toISOString(),
+      monthEnd: monthEnd.toISOString(),
+      unassignedBookings: allBookings.filter(b => !b.property_id).length,
+      currentDate,
+      bookingsForThisProperty: allBookings.filter(b => b.property_id === id).length
+    });
+    
+    return filteredBookings;
+  }, [property, allBookings, id, currentDate]);
 
   // Calcular estatísticas usando os mesmos dados da lista
   const stats = useMemo(() => {

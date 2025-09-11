@@ -23,6 +23,7 @@ export const useAllBookingsQuery = () => {
       const { data, error } = await supabase
         .from('bookings')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -37,6 +38,10 @@ export const useAllBookingsQuery = () => {
       })) as Booking[];
     },
     enabled: !!user,
+    staleTime: 1000 * 30, // 30 seconds
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 1000 * 60, // 1 minute
   });
 };
 
@@ -196,6 +201,10 @@ export const useOptimizedBookings = () => {
         (payload) => {
           console.log('Realtime booking change:', payload);
           
+          // Force refetch after real-time update
+          queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.allBookings, user.id] });
+          refetch();
+          
           if (payload.eventType === 'INSERT' && payload.new) {
             const newBooking = { 
               ...payload.new, 
@@ -230,7 +239,7 @@ export const useOptimizedBookings = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient]);
+  }, [user, queryClient, refetch]);
 
   return {
     // Data

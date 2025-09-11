@@ -1,5 +1,5 @@
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBookings } from '@/contexts/BookingContext';
@@ -10,16 +10,26 @@ import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
 import { BookingDatesFormWithValidation } from '@/components/forms/BookingDatesFormWithValidation';
 import { PaymentForm } from '@/components/forms/PaymentForm';
 import { NotesForm } from '@/components/forms/NotesForm';
+import { PropertySelector } from '@/components/forms/PropertySelector';
 
 const NewBooking = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const propertyIdFromUrl = searchParams.get('property_id');
+  
   const { addBooking } = useBookings();
-  const { formData, handleInputChange, calculateNights, openWhatsApp } = useBookingForm();
+  const { formData, handleInputChange, calculateNights, openWhatsApp } = useBookingForm(propertyIdFromUrl || undefined);
   const { checkDateConflict, validateBookingData } = useBookingValidation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validar property_id
+    if (!formData.propertyId) {
+      toast.error('Selecione uma propriedade');
+      return;
+    }
+
     // Validar dados básicos
     const validation = validateBookingData({
       guestName: formData.guestName,
@@ -44,6 +54,7 @@ const NewBooking = () => {
     const nights = calculateNights();
 
     await addBooking({
+      property_id: formData.propertyId,
       guest_name: formData.guestName,
       phone: formData.phone,
       email: formData.email || undefined,
@@ -77,6 +88,13 @@ const NewBooking = () => {
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <PropertySelector
+          value={formData.propertyId}
+          onChange={(value) => handleInputChange('propertyId', value)}
+          required={true}
+          autoSelectIfOne={true}
+        />
+
         <GuestInfoForm
           formData={{
             guestName: formData.guestName,
