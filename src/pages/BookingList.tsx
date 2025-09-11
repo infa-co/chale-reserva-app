@@ -1,20 +1,24 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Filter, MessageCircle, Calendar, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, MessageCircle, Calendar, ArrowUpDown, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { useBookings } from '@/contexts/BookingContext';
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
 const BookingList = () => {
-  const { bookings } = useBookings();
+  const { bookings, allBookings } = useBookings();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // Contar reservas sem chalé atribuído
+  const unassignedBookingsCount = allBookings.filter(booking => !booking.property_id).length;
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -78,7 +82,20 @@ const BookingList = () => {
   return (
     <div className="p-3 md:p-4 pb-32">
       <header className="mb-4 md:mb-6">
-        <h1 className="text-lg md:text-xl font-bold text-sage-800 mb-3 md:mb-4">Reservas</h1>
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <h1 className="text-lg md:text-xl font-bold text-sage-800">Reservas</h1>
+          {unassignedBookingsCount > 0 && (
+            <Link to="/atribuir-reservas">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <MapPin size={16} />
+                <span className="hidden sm:inline">Atribuir aos Chalés</span>
+                <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
+                  {unassignedBookingsCount}
+                </span>
+              </Button>
+            </Link>
+          )}
+        </div>
         
         {/* Month Navigation */}
         <div className="bg-white rounded-xl p-3 md:p-4 shadow-sm border mb-3 md:mb-4">

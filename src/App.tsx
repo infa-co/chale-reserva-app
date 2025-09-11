@@ -22,6 +22,7 @@ const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
 const HistoricalBookings = lazy(() => import("./pages/HistoricalBookings"));
 const Settings = lazy(() => import("./pages/Settings"));
+const AssignBookings = lazy(() => import("./pages/AssignBookings"));
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -64,6 +65,7 @@ function App() {
                 <Route path="chale/:id/dashboard" element={<PropertyDashboard />} />
                 <Route path="historico-reservas" element={<HistoricalBookings />} />
                 <Route path="configuracoes" element={<Settings />} />
+                <Route path="atribuir-reservas" element={<AssignBookings />} />
               </Route>
             </Routes>
           </BrowserRouter>
