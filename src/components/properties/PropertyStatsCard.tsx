@@ -46,8 +46,8 @@ const PropertyStatsCard = ({ stats, loading }: PropertyStatsCardProps) => {
             Reservas Este Mês
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-sage-800">{stats.monthlyBookings}</div>
+        <CardContent className="pt-0">
+          <div className="text-3xl font-bold text-sage-800 leading-tight">{stats.monthlyBookings}</div>
         </CardContent>
       </Card>
 
@@ -58,8 +58,8 @@ const PropertyStatsCard = ({ stats, loading }: PropertyStatsCardProps) => {
             Receita Este Mês
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-sage-800">
+        <CardContent className="pt-0">
+          <div className="text-xl font-bold text-sage-800 leading-tight break-words">
             {formatCurrency(stats.monthlyRevenue)}
           </div>
         </CardContent>
@@ -72,8 +72,8 @@ const PropertyStatsCard = ({ stats, loading }: PropertyStatsCardProps) => {
             Taxa de Ocupação
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-sage-800">
+        <CardContent className="pt-0">
+          <div className="text-3xl font-bold text-sage-800 leading-tight">
             {formatPercentage(stats.occupancyRate)}
           </div>
         </CardContent>
@@ -86,8 +86,8 @@ const PropertyStatsCard = ({ stats, loading }: PropertyStatsCardProps) => {
             Diária Média
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-sage-800">
+        <CardContent className="pt-0">
+          <div className="text-xl font-bold text-sage-800 leading-tight break-words">
             {formatCurrency(stats.averageDailyRate)}
           </div>
         </CardContent>
