@@ -16,10 +16,12 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          birth_date: string | null
           booking_date: string
           check_in: string
           check_out: string
           city: string | null
+          cpf: string | null
           created_at: string | null
           email: string | null
           guest_name: string
@@ -38,10 +40,12 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          birth_date?: string | null
           booking_date: string
           check_in: string
           check_out: string
           city?: string | null
+          cpf?: string | null
           created_at?: string | null
           email?: string | null
           guest_name: string
@@ -60,10 +64,12 @@ export type Database = {
           user_id: string
         }
         Update: {
+          birth_date?: string | null
           booking_date?: string
           check_in?: string
           check_out?: string
           city?: string | null
+          cpf?: string | null
           created_at?: string | null
           email?: string | null
           guest_name?: string

@@ -83,6 +83,8 @@ const EditBooking = () => {
         email: formData.email || undefined,
         city: formData.city || undefined,
         state: formData.state || undefined,
+        birth_date: formData.birthDate || undefined,
+        cpf: formData.cpf || undefined,
         booking_date: formData.bookingDate,
         check_in: formData.checkIn,
         check_out: formData.checkOut,
@@ -127,7 +129,9 @@ const EditBooking = () => {
             phone: formData.phone,
             email: formData.email,
             city: formData.city,
-            state: formData.state
+            state: formData.state,
+            birthDate: formData.birthDate,
+            cpf: formData.cpf
           }}
           onInputChange={handleInputChange}
           onOpenWhatsApp={openWhatsApp}

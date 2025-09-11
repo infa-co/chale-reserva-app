@@ -11,6 +11,8 @@ interface GuestInfoFormProps {
     email: string;
     city: string;
     state: string;
+    birthDate: string;
+    cpf: string;
   };
   onInputChange: (field: string, value: string) => void;
   onOpenWhatsApp: () => void;
@@ -88,6 +90,35 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
             placeholder="SP"
             className="mt-1"
             maxLength={2}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label htmlFor="birthDate">Data de Nascimento</Label>
+          <Input
+            id="birthDate"
+            type="date"
+            value={formData.birthDate}
+            onChange={(e) => onInputChange('birthDate', e.target.value)}
+            className="mt-1"
+            max={new Date().toISOString().split('T')[0]}
+          />
+        </div>
+        <div>
+          <Label htmlFor="cpf">CPF</Label>
+          <Input
+            id="cpf"
+            value={formData.cpf}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, '');
+              const maskedValue = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+              onInputChange('cpf', maskedValue);
+            }}
+            placeholder="000.000.000-00"
+            className="mt-1"
+            maxLength={14}
           />
         </div>
       </div>

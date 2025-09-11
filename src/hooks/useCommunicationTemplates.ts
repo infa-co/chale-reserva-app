@@ -1,7 +1,7 @@
 
 import { Booking } from '@/types/booking';
 import { Property } from '@/types/property';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
@@ -11,7 +11,7 @@ interface CommunicationTemplate {
   subject?: string;
   message: string;
   type: 'whatsapp' | 'email';
-  category: 'confirmation' | 'reminder' | 'checkin' | 'checkout' | 'payment' | 'cancellation';
+  category: 'confirmation' | 'reminder' | 'checkin' | 'checkout' | 'payment' | 'cancellation' | 'special';
 }
 
 export const useCommunicationTemplates = () => {
@@ -149,7 +149,28 @@ Sentimos muito pelo cancelamento e esperamos recebê-la(o) em uma próxima oport
 
 Se houver reembolso devido, será processado conforme nossa política de cancelamento.
 
-Atenciosamente,
+      Atenciosamente,
+{{property_name}}`
+    },
+    {
+      id: 'email_birthday',
+      name: 'Dia Especial - Aniversário',
+      type: 'email',
+      category: 'special',
+      subject: 'Parabéns pelo seu aniversário, {{guest_name}}! 🎉',
+      message: `Olá {{guest_name}}!
+
+🎉 PARABÉNS PELO SEU ANIVERSÁRIO! 🎉
+
+É com muita alegria que lembramos desta data especial! Esperamos que você tenha um dia repleto de felicidade, amor e momentos inesquecíveis.
+
+Como forma de carinho, gostaríamos de oferecer um desconto especial de 10% para sua próxima estadia conosco. Afinal, pessoas especiais merecem momentos especiais!
+
+Para usar o desconto, basta entrar em contato conosco mencionando "ANIVERSÁRIO{{guest_name}}" ao fazer sua próxima reserva.
+
+Mais uma vez, PARABÉNS! 🥳🎂
+
+Com carinho,
 {{property_name}}`
     }
   ];
@@ -208,12 +229,30 @@ Atenciosamente,
     return `mailto:${email}?subject=${encodedSubject}&body=${encodedMessage}`;
   };
 
+  const isBirthday = (birthDate: string) => {
+    if (!birthDate) return false;
+    
+    try {
+      const birth = parseISO(birthDate);
+      const today = new Date();
+      
+      // Comparar apenas mês e dia
+      return (
+        birth.getMonth() === today.getMonth() &&
+        birth.getDate() === today.getDate()
+      );
+    } catch {
+      return false;
+    }
+  };
+
   return {
     templates,
     getTemplatesByCategory,
     getTemplatesByType,
     generateMessage,
     openWhatsApp,
-    generateEmailLink
+    generateEmailLink,
+    isBirthday
   };
 };

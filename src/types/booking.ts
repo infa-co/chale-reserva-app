@@ -16,6 +16,8 @@ export interface Booking {
   payment_method: string;
   status: 'requested' | 'pending' | 'confirmed' | 'checked_in' | 'active' | 'checked_out' | 'completed' | 'cancelled';
   notes?: string;
+  birth_date?: string;
+  cpf?: string;
   created_at: string;
   updated_at?: string;
   is_historical?: boolean;

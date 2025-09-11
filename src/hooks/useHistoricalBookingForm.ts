@@ -9,6 +9,8 @@ export const useHistoricalBookingForm = () => {
     email: '',
     city: '',
     state: '',
+    birthDate: '',
+    cpf: '',
     bookingDate: '',
     checkIn: '',
     checkOut: '',

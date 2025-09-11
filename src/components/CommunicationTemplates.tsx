@@ -21,7 +21,8 @@ export const CommunicationTemplates = ({
     templates,
     getTemplatesByCategory,
     generateMessage,
-    generateEmailLink
+    generateEmailLink,
+    isBirthday
   } = useCommunicationTemplates();
   const {
     properties
@@ -61,6 +62,10 @@ export const CommunicationTemplates = ({
     key: 'cancellation',
     label: 'Cancelamento',
     color: 'bg-red-100 text-red-700'
+  }, {
+    key: 'special',
+    label: 'Dia Especial',
+    color: 'bg-pink-100 text-pink-700'
   }];
 
   // Calculate template counts for each category to ensure accuracy
@@ -122,6 +127,11 @@ export const CommunicationTemplates = ({
       {/* Categorias */}
       <div className="grid grid-cols-2 gap-2 mb-4">
         {categories.map(category => {
+        // Só mostrar "Dia Especial" se for aniversário do hóspede
+        if (category.key === 'special' && (!booking.birth_date || !isBirthday(booking.birth_date))) {
+          return null;
+        }
+        
         const categoryTemplates = getTemplatesByCategory(category.key as any);
         const count = templateCounts[category.key] || 0;
         return <Dialog key={category.key}>

@@ -10,6 +10,8 @@ export const useBookingForm = (initialPropertyId?: string) => {
     email: '',
     city: '',
     state: '',
+    birthDate: '',
+    cpf: '',
     bookingDate: new Date().toLocaleDateString('sv-SE'), // formato YYYY-MM-DD na timezone local
     checkIn: '',
     checkOut: '',

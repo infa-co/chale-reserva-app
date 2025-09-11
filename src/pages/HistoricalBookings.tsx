@@ -46,6 +46,8 @@ const HistoricalBookings = () => {
       email: formData.email,
       city: formData.city,
       state: formData.state,
+      birth_date: formData.birthDate || undefined,
+      cpf: formData.cpf || undefined,
       booking_date: formData.bookingDate,
       check_in: formData.checkIn,
       check_out: formData.checkOut,
