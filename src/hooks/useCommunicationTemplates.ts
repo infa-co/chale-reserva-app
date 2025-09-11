@@ -154,7 +154,7 @@ Se houver reembolso devido, será processado conforme nossa política de cancela
     },
     {
       id: 'email_birthday',
-      name: 'Dia Especial - Aniversário',
+      name: 'Dia Especial - Aniversário (Email)',
       type: 'email',
       category: 'special',
       subject: 'Parabéns pelo seu aniversário, {{guest_name}}! 🎉',
@@ -166,9 +166,29 @@ Se houver reembolso devido, será processado conforme nossa política de cancela
 
 Como forma de carinho, gostaríamos de oferecer um desconto especial de 10% para sua próxima estadia conosco. Afinal, pessoas especiais merecem momentos especiais!
 
-Para usar o desconto, basta entrar em contato conosco mencionando "ANIVERSÁRIO{{guest_name}}" ao fazer sua próxima reserva.
+Para usar o desconto, basta entrar em contato conosco mencionando "ANIVERSÁRIO {{guest_name}}" ao fazer sua próxima reserva.
 
 Mais uma vez, PARABÉNS! 🥳🎂
+
+Com carinho,
+{{property_name}}`
+    },
+    {
+      id: 'whatsapp_birthday',
+      name: 'Dia Especial - Aniversário (WhatsApp)',
+      type: 'whatsapp',
+      category: 'special',
+      message: `Olá {{guest_name}}!
+
+🎉 PARABÉNS PELO SEU ANIVERSÁRIO! 🎉
+
+É com muita alegria que lembramos desta data especial! Esperamos que você tenha um dia repleto de felicidade, amor e momentos inesquecíveis.
+
+Como forma de carinho, gostaríamos de oferecer um desconto especial de 10% para sua próxima estadia conosco. Afinal, pessoas especiais merecem momentos especiais!
+
+Para usar o desconto, basta entrar em contato conosco mencionando "ANIVERSÁRIO {{guest_name}}" ao fazer sua próxima reserva.
+
+Mais uma vez, PARABÉNS! 🎂
 
 Com carinho,
 {{property_name}}`
