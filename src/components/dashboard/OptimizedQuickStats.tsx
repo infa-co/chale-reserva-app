@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { Bed, TrendingUp, History } from 'lucide-react';
+import { Bed, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Booking } from '@/types/booking';
 import { useMonthlyStats } from '@/hooks/useMonthlyStats';
@@ -37,7 +37,7 @@ const OptimizedQuickStats = memo(({
   );
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 gap-4">{/* Removed md:grid-cols-3 to keep only 2 cards */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -70,20 +70,6 @@ const OptimizedQuickStats = memo(({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <History className="h-4 w-4 text-sage-600" />
-            Histórico
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-sage-800">{historicalBookings}</div>
-          <p className="text-xs text-muted-foreground">
-            histórico - {monthLabel}
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
 });
