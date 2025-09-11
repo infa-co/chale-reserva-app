@@ -46,6 +46,12 @@ export const sanitizeMessage = (message: string, options?: { asciiFallback?: boo
   // Normalize line breaks
   sanitized = sanitized.replace(/\r\n|\r/g, '\n');
 
+  // Remove any lone surrogate halves to prevent URI encoding errors
+  // - Low surrogates without a preceding high surrogate
+  sanitized = sanitized.replace(/[\uDC00-\uDFFF]/g, '');
+  // - High surrogates not followed by a low surrogate
+  sanitized = sanitized.replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/g, '');
+
   return sanitized;
 };
 
