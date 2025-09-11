@@ -1,5 +1,5 @@
 
-import { Bell, Clock, AlertTriangle, CheckCircle, X } from 'lucide-react';
+import { Bell, Clock, AlertTriangle, CheckCircle, X, Cake } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,13 @@ export const NotificationCenter = () => {
     }
   };
 
+  const getNotificationColor = (type: string, priority: string) => {
+    if (type === 'birthday') {
+      return 'bg-pink-500 text-white';
+    }
+    return getPriorityColor(priority);
+  };
+
   const getIcon = (type: string) => {
     switch (type) {
       case 'checkin_today':
@@ -36,6 +43,8 @@ export const NotificationCenter = () => {
         return <Clock size={16} />;
       case 'payment_pending':
         return <AlertTriangle size={16} />;
+      case 'birthday':
+        return <Cake size={16} />;
       default:
         return <Bell size={16} />;
     }
@@ -78,7 +87,7 @@ export const NotificationCenter = () => {
             key={notification.id}
             className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg"
           >
-            <div className={`p-1.5 rounded-full ${getPriorityColor(notification.priority)}`}>
+            <div className={`p-1.5 rounded-full ${getNotificationColor(notification.type, notification.priority)}`}>
               {getIcon(notification.type)}
             </div>
             
@@ -89,9 +98,9 @@ export const NotificationCenter = () => {
                 </p>
                 <Badge 
                   variant="outline" 
-                  className={`text-xs ${getPriorityColor(notification.priority)}`}
+                  className={`text-xs ${getNotificationColor(notification.type, notification.priority)}`}
                 >
-                  {notification.priority}
+                  {notification.type === 'birthday' ? 'aniversário' : notification.priority}
                 </Badge>
               </div>
               

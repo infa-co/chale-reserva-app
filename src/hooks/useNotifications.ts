@@ -6,7 +6,7 @@ import { Booking } from '@/types/booking';
 
 export interface Notification {
   id: string;
-  type: 'checkin_today' | 'checkin_tomorrow' | 'checkout_today' | 'checkout_overdue' | 'payment_pending' | 'confirmation_needed';
+  type: 'checkin_today' | 'checkin_tomorrow' | 'checkout_today' | 'checkout_overdue' | 'payment_pending' | 'confirmation_needed' | 'birthday';
   title: string;
   message: string;
   booking: Booking;
@@ -93,6 +93,31 @@ export const useNotifications = () => {
               priority: daysUntilCheckin <= 3 ? 'urgent' : 'high',
               actionRequired: true
             });
+          }
+        }
+
+        // Aniversário do hóspede
+        if (booking.birth_date && (booking.status === 'confirmed' || booking.status === 'checked_in' || booking.status === 'active')) {
+          const birthDate = parseISO(booking.birth_date);
+          const todayMonth = today.getMonth();
+          const todayDay = today.getDate();
+          const birthMonth = birthDate.getMonth();
+          const birthDay = birthDate.getDate();
+          
+          if (todayMonth === birthMonth && todayDay === birthDay) {
+            // Verificar se a reserva está ativa ou futura
+            const isCurrentOrFuture = !isPast(checkOutDate);
+            if (isCurrentOrFuture) {
+              newNotifications.push({
+                id: `birthday-${booking.id}`,
+                type: 'birthday',
+                title: '🎉 Aniversário do Hóspede',
+                message: `${booking.guest_name} faz aniversário hoje!`,
+                booking,
+                priority: 'medium',
+                actionRequired: true
+              });
+            }
           }
         }
       });
