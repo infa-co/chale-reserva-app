@@ -46,6 +46,12 @@ export const sanitizeMessage = (message: string, options?: { asciiFallback?: boo
   // Normalize line breaks
   sanitized = sanitized.replace(/\r\n|\r/g, '\n');
 
+  // Normalize special spaces and zero-width characters
+  sanitized = sanitized
+    .replace(/\u00A0/g, ' ') // non-breaking space
+    .replace(/[\u2000-\u200B\u202F\u205F\u3000]/g, ' ') // various thin/zero spaces
+    .replace(/[\u2060\uFEFF]/g, ''); // word joiner and BOM
+
   // Remove any lone surrogate halves to prevent URI encoding errors
   // - Low surrogates without a preceding high surrogate
   sanitized = sanitized.replace(/[\uDC00-\uDFFF]/g, '');
@@ -79,9 +85,21 @@ export const getWhatsAppUrl = ({
   const needsAsciiFallback = asciiFallback || message.includes('�') || problematicBullets.test(message);
   
   const sanitizedMessage = sanitizeMessage(message, { asciiFallback: needsAsciiFallback });
-  const encodedMessage = encodeURIComponent(sanitizedMessage);
+
+  // Safe encode with fallback to pure ASCII
+  let encodedMessage: string;
+  try {
+    encodedMessage = encodeURIComponent(sanitizedMessage);
+  } catch (e) {
+    const asciiOnly = sanitizeMessage(sanitizedMessage, { asciiFallback: true }).replace(/[^\x00-\x7F]/g, '');
+    try {
+      encodedMessage = encodeURIComponent(asciiOnly);
+    } catch {
+      encodedMessage = '';
+    }
+  }
   
-  return `https://wa.me/${normalizedPhone}${message ? `?text=${encodedMessage}` : ''}`;
+  return `https://wa.me/${normalizedPhone}${sanitizedMessage ? `?text=${encodedMessage}` : ''}`;
 };
 
 export const openWhatsApp = ({ 
