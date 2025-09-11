@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Copy, MessageCircle, Calendar, DollarSign, User, Phone, Mail, MapPin, FileText, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, Copy, MessageCircle, Calendar, DollarSign, User, Phone, Mail, MapPin, FileText, Trash2, CreditCard, Cake } from 'lucide-react';
 import { useDuplicateBooking } from '@/hooks/useDuplicateBooking';
 import { Button } from '@/components/ui/button';
 import { useBookings } from '@/contexts/BookingContext';
@@ -176,6 +176,20 @@ const BookingDetails = () => {
               <div className="flex items-center gap-3">
                 <MapPin size={16} className="text-muted-foreground" />
                 <span>{booking.city}, {booking.state}</span>
+              </div>
+            )}
+
+            {booking.birth_date && (
+              <div className="flex items-center gap-3">
+                <Cake size={16} className="text-muted-foreground" />
+                <span>Nascimento: {format(parseISO(booking.birth_date), "dd/MM/yyyy", { locale: ptBR })}</span>
+              </div>
+            )}
+
+            {booking.cpf && (
+              <div className="flex items-center gap-3">
+                <CreditCard size={16} className="text-muted-foreground" />
+                <span>CPF: {booking.cpf}</span>
               </div>
             )}
           </div>
