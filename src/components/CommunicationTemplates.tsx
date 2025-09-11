@@ -127,11 +127,6 @@ export const CommunicationTemplates = ({
       {/* Categorias */}
       <div className="grid grid-cols-2 gap-2 mb-4">
         {categories.map(category => {
-        // Só mostrar "Dia Especial" se for aniversário do hóspede
-        if (category.key === 'special' && (!booking.birth_date || !isBirthday(booking.birth_date))) {
-          return null;
-        }
-        
         const categoryTemplates = getTemplatesByCategory(category.key as any);
         const count = templateCounts[category.key] || 0;
         return <Dialog key={category.key}>
