@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useBookingValidation } from '@/hooks/useBookingValidation';
 import { useEffect, useState } from 'react';
+import { format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface BookingDatesFormWithValidationProps {
   formData: {
@@ -97,7 +99,7 @@ export const BookingDatesFormWithValidation = ({
               <div className="mt-2 space-y-1">
                 {validation.conflictingBookings.map((booking: any) => (
                   <div key={booking.id} className="text-xs p-2 bg-destructive/10 rounded">
-                    <strong>{booking.guest_name}</strong>: {booking.check_in} até {booking.check_out}
+                    <strong>{booking.guest_name}</strong>: {format(parseISO(booking.check_in), 'dd/MM/yyyy', { locale: ptBR })} até {format(parseISO(booking.check_out), 'dd/MM/yyyy', { locale: ptBR })}
                   </div>
                 ))}
               </div>
