@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -178,6 +178,59 @@ export const useOptimizedBookings = () => {
   const refetch = useCallback(() => {
     return allBookingsQuery.refetch();
   }, [allBookingsQuery.refetch]);
+
+  // Subscribe to realtime changes for bookings
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('bookings-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Realtime booking change:', payload);
+          
+          if (payload.eventType === 'INSERT' && payload.new) {
+            const newBooking = { 
+              ...payload.new, 
+              status: payload.new.status as Booking['status'] 
+            } as Booking;
+            
+            queryClient.setQueryData([QUERY_KEYS.allBookings, user.id], (old: Booking[] = []) => {
+              // Evitar duplicatas
+              if (old.some(b => b.id === newBooking.id)) return old;
+              return [newBooking, ...old];
+            });
+          } 
+          else if (payload.eventType === 'UPDATE' && payload.new) {
+            const updatedBooking = { 
+              ...payload.new, 
+              status: payload.new.status as Booking['status'] 
+            } as Booking;
+            
+            queryClient.setQueryData([QUERY_KEYS.allBookings, user.id], (old: Booking[] = []) =>
+              old.map(booking => booking.id === updatedBooking.id ? updatedBooking : booking)
+            );
+          } 
+          else if (payload.eventType === 'DELETE' && payload.old) {
+            queryClient.setQueryData([QUERY_KEYS.allBookings, user.id], (old: Booking[] = []) =>
+              old.filter(booking => booking.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
 
   return {
     // Data

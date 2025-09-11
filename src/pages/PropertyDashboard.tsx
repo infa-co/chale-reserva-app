@@ -41,16 +41,20 @@ const PropertyDashboard = () => {
   }, []);
 
   // Filtrar reservas desta propriedade que sobrepõem o mês selecionado (check-in/out)
+  // Usando todas as reservas (incluindo históricas) e filtrando apenas não canceladas
   const currentMonthBookings = useMemo(() => {
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
-    return bookings.filter(booking => {
+    const nonCanceledStatuses = new Set<Booking['status']>(['requested', 'pending', 'confirmed', 'checked_in', 'active', 'checked_out', 'completed']);
+    
+    return allBookings.filter(booking => {
       if (booking.property_id !== id) return false;
+      if (!nonCanceledStatuses.has(booking.status)) return false;
       const checkIn = parseISO(booking.check_in);
       const checkOut = parseISO(booking.check_out);
       return checkIn <= monthEnd && checkOut >= monthStart;
     });
-  }, [bookings, id, currentDate]);
+  }, [allBookings, id, currentDate]);
 
   // Calcular estatísticas usando os mesmos dados da lista
   const stats = useMemo(() => {
@@ -60,25 +64,35 @@ const PropertyDashboard = () => {
     // Todas as reservas desta propriedade (incluindo históricas)
     const propertyBookings = allBookings.filter(booking => booking.property_id === id);
     
-    // Reservas confirmadas (não canceladas)
+    // Definir status não cancelados (para contagem total) e confirmados (para receita)
+    const nonCanceledStatuses = new Set<Booking['status']>(['requested', 'pending', 'confirmed', 'checked_in', 'active', 'checked_out', 'completed']);
     const confirmedStatuses = new Set<Booking['status']>(['confirmed', 'checked_in', 'active', 'checked_out', 'completed']);
+    
+    const nonCanceledBookings = propertyBookings.filter(b => nonCanceledStatuses.has(b.status));
     const confirmedBookings = propertyBookings.filter(b => confirmedStatuses.has(b.status));
     
-    // Reservas do mês atual
-    const monthlyBookings = confirmedBookings.filter(booking => {
+    // Reservas do mês atual que se sobrepõem (mesma lógica da lista)
+    const monthlyNonCanceled = nonCanceledBookings.filter(booking => {
+      const checkIn = parseISO(booking.check_in);
+      const checkOut = parseISO(booking.check_out);
+      return checkIn <= monthEnd && checkOut >= monthStart;
+    });
+    
+    const monthlyConfirmed = confirmedBookings.filter(booking => {
       const checkIn = parseISO(booking.check_in);
       const checkOut = parseISO(booking.check_out);
       return checkIn <= monthEnd && checkOut >= monthStart;
     });
 
     const totalRevenue = confirmedBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
-    const monthlyRevenue = monthlyBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
+    const monthlyRevenue = monthlyConfirmed.reduce((sum, booking) => sum + Number(booking.total_value), 0);
     
     const totalNights = confirmedBookings.reduce((sum, booking) => sum + booking.nights, 0);
     const averageDailyRate = totalNights > 0 ? totalRevenue / totalNights : 0;
 
+    // Taxa de ocupação baseada nas noites sobrepostas de reservas não canceladas
     const daysInMonth = monthEnd.getDate();
-    const occupiedNights = monthlyBookings.reduce((sum, booking) => {
+    const occupiedNights = monthlyNonCanceled.reduce((sum, booking) => {
       const checkIn = parseISO(booking.check_in);
       const checkOut = parseISO(booking.check_out);
       
@@ -96,7 +110,7 @@ const PropertyDashboard = () => {
 
     return {
       totalBookings: confirmedBookings.length,
-      monthlyBookings: monthlyBookings.length,
+      monthlyBookings: monthlyNonCanceled.length, // Contagem total de não canceladas no mês
       totalRevenue,
       monthlyRevenue,
       occupancyRate: Math.min(occupancyRate, 100),
