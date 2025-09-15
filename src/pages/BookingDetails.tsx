@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Copy, MessageCircle, Calendar, DollarSign, User, Phone, Mail, MapPin, FileText, Trash2, CreditCard, Cake } from 'lucide-react';
+import { ArrowLeft, Edit, Copy, MessageCircle, Calendar, DollarSign, User, Phone, Mail, MapPin, FileText, Trash2, CreditCard, Cake, Home } from 'lucide-react';
 import { useDuplicateBooking } from '@/hooks/useDuplicateBooking';
 import { Button } from '@/components/ui/button';
 import { useBookings } from '@/contexts/BookingContext';
+import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -27,8 +28,10 @@ const BookingDetails = () => {
   const navigate = useNavigate();
   const { getBookingById, deleteBooking, updateBooking } = useBookings();
   const { duplicateWithSuggestedDates } = useDuplicateBooking();
+  const { getPropertyById } = useOptimizedProperties();
   
   const booking = id ? getBookingById(id) : undefined;
+  const property = booking?.property_id ? getPropertyById(booking.property_id) : null;
 
   if (!booking) {
     return (
@@ -133,6 +136,13 @@ const BookingDetails = () => {
               <User size={16} className="text-muted-foreground" />
               <span className="font-medium">{booking.guest_name}</span>
             </div>
+
+            {booking.property_id && (
+              <div className="flex items-center gap-3">
+                <Home size={16} className="text-muted-foreground" />
+                <span>Chalé: {property ? property.name : 'Propriedade não encontrada'}</span>
+              </div>
+            )}
             
             {booking.phone && (
               <div className="flex items-center gap-3">

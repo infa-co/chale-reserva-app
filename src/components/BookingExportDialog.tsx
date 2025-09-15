@@ -1,24 +1,46 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { FileDown, FileText, FileSpreadsheet, File, Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FileDown, FileText, FileSpreadsheet, File, Loader2, Home } from 'lucide-react';
 import { useBookingExport } from '@/hooks/useBookingExport';
 import { Booking } from '@/types/booking';
+import { Property } from '@/types/property';
 
 interface BookingExportDialogProps {
   activeBookings: Booking[];
   historicalBookings: Booking[];
   totalCount: number;
+  properties?: Property[];
 }
 
 type ExportFormat = 'csv' | 'json' | 'pdf';
 
-const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount }: BookingExportDialogProps) => {
+const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount, properties = [] }: BookingExportDialogProps) => {
   const [open, setOpen] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all');
   const { exportBookings, isExporting } = useBookingExport();
 
+  const filteredBookings = useMemo(() => {
+    if (selectedPropertyId === 'all') {
+      return { active: activeBookings, historical: historicalBookings };
+    }
+    
+    const propertyId = selectedPropertyId === 'none' ? null : selectedPropertyId;
+    
+    return {
+      active: activeBookings.filter(booking => booking.property_id === propertyId),
+      historical: historicalBookings.filter(booking => booking.property_id === propertyId)
+    };
+  }, [activeBookings, historicalBookings, selectedPropertyId]);
+
+  const selectedProperty = properties.find(p => p.id === selectedPropertyId);
+  const propertyName = selectedPropertyId === 'all' ? null : 
+                      selectedPropertyId === 'none' ? 'Sem Chalé' : 
+                      selectedProperty?.name || 'Propriedade não encontrada';
+
   const handleExport = async (format: ExportFormat) => {
-    await exportBookings(activeBookings, historicalBookings, format);
+    await exportBookings(filteredBookings.active, filteredBookings.historical, format, propertyName);
     setOpen(false);
   };
 
@@ -46,8 +68,9 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount }:
     }
   ];
 
-  const activeCount = activeBookings.length;
-  const historicalCount = historicalBookings.length;
+  const activeCount = filteredBookings.active.length;
+  const historicalCount = filteredBookings.historical.length;
+  const filteredTotalCount = activeCount + historicalCount;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -67,9 +90,36 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount }:
         </DialogHeader>
         
         <div className="space-y-3">
+          {/* Property Filter */}
+          {properties.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="font-medium text-sage-800 text-sm flex items-center gap-2">
+                <Home size={14} />
+                Filtrar por Chalé
+              </h4>
+              <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione um chalé" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Chalés</SelectItem>
+                  <SelectItem value="none">Sem Chalé Definido</SelectItem>
+                  {properties.map((property) => (
+                    <SelectItem key={property.id} value={property.id}>
+                      {property.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {/* Data Summary Card */}
           <div className="bg-sage-50 rounded-lg p-3 border border-sage-200">
-            <h4 className="font-medium text-sage-800 mb-2 text-sm">Resumo dos Dados</h4>
+            <h4 className="font-medium text-sage-800 mb-2 text-sm">
+              Resumo dos Dados
+              {propertyName && <span className="text-sage-600"> - {propertyName}</span>}
+            </h4>
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
                 <div className="text-xs text-sage-600">Ativas</div>
@@ -81,7 +131,7 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount }:
               </div>
               <div className="border-l border-sage-300 pl-2">
                 <div className="text-xs text-sage-600">Total</div>
-                <div className="text-lg font-bold text-sage-700">{totalCount}</div>
+                <div className="text-lg font-bold text-sage-700">{filteredTotalCount}</div>
               </div>
             </div>
           </div>

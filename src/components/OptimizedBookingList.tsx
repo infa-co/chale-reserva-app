@@ -8,6 +8,7 @@ import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths
 import { ptBR } from 'date-fns/locale';
 import BookingExportDialog from '@/components/BookingExportDialog';
 import { useBookings } from '@/contexts/BookingContext';
+import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 
 interface OptimizedBookingListProps {
@@ -102,6 +103,7 @@ BookingCard.displayName = 'BookingCard';
 
 const OptimizedBookingList = memo(({ bookings }: OptimizedBookingListProps) => {
   const { historicalBookings } = useBookings();
+  const { properties } = useOptimizedProperties();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -162,6 +164,7 @@ const OptimizedBookingList = memo(({ bookings }: OptimizedBookingListProps) => {
             activeBookings={bookings}
             historicalBookings={historicalBookings}
             totalCount={bookings.length + historicalBookings.length}
+            properties={properties}
           />
         </div>
         

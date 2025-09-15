@@ -4,6 +4,7 @@ import { useHistoricalBookings } from '@/hooks/useHistoricalBookings';
 import { useHistoricalBookingForm } from '@/hooks/useHistoricalBookingForm';
 import { useBookingValidation } from '@/hooks/useBookingValidation';
 import { useBookings } from '@/contexts/BookingContext';
+import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -18,6 +19,7 @@ import { ptBR } from 'date-fns/locale';
 const HistoricalBookings = () => {
   const { historicalBookings, loading, addHistoricalBooking } = useHistoricalBookings();
   const { bookings } = useBookings();
+  const { properties } = useOptimizedProperties();
   const { formData, handleInputChange, calculateNights, getMaxDate } = useHistoricalBookingForm();
   const { validateBookingData } = useBookingValidation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -91,6 +93,7 @@ const HistoricalBookings = () => {
             activeBookings={bookings}
             historicalBookings={historicalBookings}
             totalCount={bookings.length + historicalBookings.length}
+            properties={properties}
           />
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
