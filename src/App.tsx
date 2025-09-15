@@ -1,7 +1,6 @@
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BookingProvider } from "./contexts/BookingContext";
@@ -44,7 +43,7 @@ const ProtectedShell = () => (
 
 function App() {
   return (
-    <TooltipProvider>
+    <>
       <AuthProvider>
         <BookingProvider>
           <Toaster />
@@ -71,7 +70,7 @@ function App() {
           </BrowserRouter>
         </BookingProvider>
       </AuthProvider>
-    </TooltipProvider>
+    </>
   );
 }
 
