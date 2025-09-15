@@ -244,7 +244,8 @@ export const useBookingExport = () => {
     activeBookings: Booking[], 
     historicalBookings: Booking[], 
     exportFormat: ExportFormat,
-    propertyName?: string | null
+    propertyName?: string | null,
+    monthName?: string | null
   ) => {
     if (activeBookings.length === 0 && historicalBookings.length === 0) {
       toast.error('Nenhuma reserva disponível para exportar');
@@ -257,28 +258,34 @@ export const useBookingExport = () => {
       const processedBookings = processBookings(activeBookings, historicalBookings);
       const timestamp = format(new Date(), 'yyyy-MM-dd_HH-mm-ss', { locale: ptBR });
       
-      // Create filename suffix based on property filter
+      // Create filename suffix based on filters
       const propertySuffix = propertyName ? `_${propertyName.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
+      const monthSuffix = monthName ? `_${monthName.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
+      const combinedSuffix = `${propertySuffix}${monthSuffix}`;
+      
+      // Create filter description for toast messages
+      const filters = [propertyName, monthName].filter(Boolean);
+      const filterText = filters.length > 0 ? ` (${filters.join(' - ')})` : '';
       
       switch (exportFormat) {
         case 'csv': {
           const csvContent = exportToCSV(processedBookings);
-          downloadFile(csvContent, `reservas${propertySuffix}_${timestamp}.csv`, 'text/csv;charset=utf-8;');
-          toast.success(`${processedBookings.length} reservas exportadas para CSV${propertyName ? ` (${propertyName})` : ''}`);
+          downloadFile(csvContent, `reservas${combinedSuffix}_${timestamp}.csv`, 'text/csv;charset=utf-8;');
+          toast.success(`${processedBookings.length} reservas exportadas para CSV${filterText}`);
           break;
         }
         
         case 'json': {
           const jsonContent = exportToJSON(processedBookings);
-          downloadFile(jsonContent, `reservas${propertySuffix}_${timestamp}.json`, 'application/json;charset=utf-8;');
-          toast.success(`${processedBookings.length} reservas exportadas para JSON${propertyName ? ` (${propertyName})` : ''}`);
+          downloadFile(jsonContent, `reservas${combinedSuffix}_${timestamp}.json`, 'application/json;charset=utf-8;');
+          toast.success(`${processedBookings.length} reservas exportadas para JSON${filterText}`);
           break;
         }
         
         case 'pdf': {
           const pdf = exportToPDF(processedBookings);
-          pdf.save(`relatorio_reservas${propertySuffix}_${timestamp}.pdf`);
-          toast.success(`Relatório PDF gerado com ${processedBookings.length} reservas${propertyName ? ` (${propertyName})` : ''}`);
+          pdf.save(`relatorio_reservas${combinedSuffix}_${timestamp}.pdf`);
+          toast.success(`Relatório PDF gerado com ${processedBookings.length} reservas${filterText}`);
           break;
         }
         

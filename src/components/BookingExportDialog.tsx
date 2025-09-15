@@ -2,10 +2,12 @@ import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileDown, FileText, FileSpreadsheet, File, Loader2, Home } from 'lucide-react';
+import { FileDown, FileText, FileSpreadsheet, File, Loader2, Home, Calendar } from 'lucide-react';
 import { useBookingExport } from '@/hooks/useBookingExport';
 import { Booking } from '@/types/booking';
 import { Property } from '@/types/property';
+import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface BookingExportDialogProps {
   activeBookings: Booking[];
@@ -19,28 +21,89 @@ type ExportFormat = 'csv' | 'json' | 'pdf';
 const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount, properties = [] }: BookingExportDialogProps) => {
   const [open, setOpen] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all');
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const { exportBookings, isExporting } = useBookingExport();
 
+  const availableMonths = useMemo(() => {
+    const months = new Set<string>();
+    [...activeBookings, ...historicalBookings].forEach(booking => {
+      if (booking.check_in) {
+        try {
+          const date = parseISO(booking.check_in);
+          months.add(format(date, 'yyyy-MM'));
+        } catch (error) {
+          // Ignorar datas inválidas
+        }
+      }
+    });
+    
+    return Array.from(months)
+      .sort((a, b) => b.localeCompare(a)) // Mais recente primeiro
+      .map(monthKey => ({
+        value: monthKey,
+        label: format(parseISO(`${monthKey}-01`), 'MMMM yyyy', { locale: ptBR }),
+        count: [...activeBookings, ...historicalBookings].filter(booking => {
+          if (!booking.check_in) return false;
+          try {
+            return format(parseISO(booking.check_in), 'yyyy-MM') === monthKey;
+          } catch (error) {
+            return false;
+          }
+        }).length
+      }));
+  }, [activeBookings, historicalBookings]);
+
   const filteredBookings = useMemo(() => {
-    if (selectedPropertyId === 'all') {
-      return { active: activeBookings, historical: historicalBookings };
+    let filtered = { active: activeBookings, historical: historicalBookings };
+    
+    // Filtro por propriedade
+    if (selectedPropertyId !== 'all') {
+      const propertyId = selectedPropertyId === 'none' ? null : selectedPropertyId;
+      filtered = {
+        active: filtered.active.filter(booking => booking.property_id === propertyId),
+        historical: filtered.historical.filter(booking => booking.property_id === propertyId)
+      };
     }
     
-    const propertyId = selectedPropertyId === 'none' ? null : selectedPropertyId;
+    // Filtro por mês
+    if (selectedMonth !== 'all') {
+      const [year, month] = selectedMonth.split('-').map(Number);
+      const monthStart = startOfMonth(new Date(year, month - 1));
+      const monthEnd = endOfMonth(new Date(year, month - 1));
+      
+      filtered = {
+        active: filtered.active.filter(booking => {
+          if (!booking.check_in) return false;
+          try {
+            return isWithinInterval(parseISO(booking.check_in), { start: monthStart, end: monthEnd });
+          } catch (error) {
+            return false;
+          }
+        }),
+        historical: filtered.historical.filter(booking => {
+          if (!booking.check_in) return false;
+          try {
+            return isWithinInterval(parseISO(booking.check_in), { start: monthStart, end: monthEnd });
+          } catch (error) {
+            return false;
+          }
+        })
+      };
+    }
     
-    return {
-      active: activeBookings.filter(booking => booking.property_id === propertyId),
-      historical: historicalBookings.filter(booking => booking.property_id === propertyId)
-    };
-  }, [activeBookings, historicalBookings, selectedPropertyId]);
+    return filtered;
+  }, [activeBookings, historicalBookings, selectedPropertyId, selectedMonth]);
 
   const selectedProperty = properties.find(p => p.id === selectedPropertyId);
   const propertyName = selectedPropertyId === 'all' ? null : 
                       selectedPropertyId === 'none' ? 'Sem Chalé' : 
                       selectedProperty?.name || 'Propriedade não encontrada';
 
+  const selectedMonthData = availableMonths.find(m => m.value === selectedMonth);
+  const monthName = selectedMonth === 'all' ? null : selectedMonthData?.label;
+
   const handleExport = async (format: ExportFormat) => {
-    await exportBookings(filteredBookings.active, filteredBookings.historical, format, propertyName);
+    await exportBookings(filteredBookings.active, filteredBookings.historical, format, propertyName, monthName);
     setOpen(false);
   };
 
@@ -89,7 +152,7 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount, p
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-3">
+        <div className="space-y-4">
           {/* Property Filter */}
           {properties.length > 0 && (
             <div className="space-y-2">
@@ -114,11 +177,50 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount, p
             </div>
           )}
 
+          {/* Month Filter */}
+          {availableMonths.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="font-medium text-sage-800 text-sm flex items-center gap-2">
+                <Calendar size={14} />
+                Filtrar por Mês
+              </h4>
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione um mês" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Meses</SelectItem>
+                  {availableMonths.map((month) => (
+                    <SelectItem key={month.value} value={month.value}>
+                      {month.label} ({month.count} reservas)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Clear Filters Button */}
+          {(selectedPropertyId !== 'all' || selectedMonth !== 'all') && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                setSelectedPropertyId('all');
+                setSelectedMonth('all');
+              }}
+              className="w-full text-sage-600 border-sage-300 hover:bg-sage-50"
+            >
+              Limpar Filtros
+            </Button>
+          )}
+
           {/* Data Summary Card */}
           <div className="bg-sage-50 rounded-lg p-3 border border-sage-200">
             <h4 className="font-medium text-sage-800 mb-2 text-sm">
               Resumo dos Dados
               {propertyName && <span className="text-sage-600"> - {propertyName}</span>}
+              {monthName && <span className="text-sage-600"> - {monthName}</span>}
             </h4>
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
