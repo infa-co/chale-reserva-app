@@ -92,7 +92,8 @@ const Settings = () => {
         'Cadastro de clientes',
         'Dashboard básico'
       ],
-      popular: false
+      popular: false,
+      highlight: null
     },
     {
       id: 'pro',
@@ -107,7 +108,8 @@ const Settings = () => {
         'Dashboard financeiro',
         'Integração com Airbnb (Airbnb → Ordomo)'
       ],
-      popular: true
+      popular: false,
+      highlight: 'RECOMENDADO PARA VOCÊ'
     },
     {
       id: 'premium',
@@ -126,7 +128,8 @@ const Settings = () => {
         'Multi-chalé',
         'Suporte prioritário'
       ],
-      popular: false
+      popular: true,
+      highlight: 'MAIS POPULAR'
     }
   ];
 
@@ -477,7 +480,20 @@ const Settings = () => {
                           : 'border-border hover:border-primary/30'
                       } ${isCurrent ? 'bg-muted/30' : 'bg-card'}`}
                     >
-                      {plan.popular && (
+                      {plan.highlight && (
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                          <Badge 
+                            className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                              plan.highlight === 'MAIS POPULAR' 
+                                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent hover:from-purple-700 hover:to-blue-700' 
+                                : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
+                            }`}
+                          >
+                            {plan.highlight}
+                          </Badge>
+                        </div>
+                      )}
+                      {plan.popular && !plan.highlight && (
                         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                           <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium whitespace-nowrap">
                             MAIS POPULAR
