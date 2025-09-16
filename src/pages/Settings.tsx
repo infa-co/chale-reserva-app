@@ -519,9 +519,6 @@ const Settings = () => {
                             /{plan.period}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          R$ {(plan.price * 12 * 0.85).toFixed(0)} renovável anualmente
-                        </p>
                       </div>
 
                       {/* Action button */}
