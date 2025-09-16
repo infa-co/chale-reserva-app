@@ -457,7 +457,11 @@ const Settings = () => {
               </p>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 lg:!grid-cols-3 xl:!grid-cols-3 gap-4 lg:gap-6"
+                   style={{ 
+                     display: 'grid',
+                     gridTemplateColumns: window.innerWidth >= 1024 ? 'repeat(3, minmax(0, 1fr))' : 'repeat(1, minmax(0, 1fr))'
+                   }}>
                 {plans.map((plan) => {
                   const Icon = plan.icon;
                   const isCurrent = plan.id === subscription.currentPlan;
