@@ -466,7 +466,7 @@ const Settings = () => {
               </p>
             </CardHeader>
             <CardContent className="pt-8">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 items-stretch gap-6 lg:gap-8">
                 {plans.map((plan) => {
                   const Icon = plan.icon;
                   const isCurrent = plan.id === subscription.currentPlan;
@@ -479,11 +479,11 @@ const Settings = () => {
                           ? 'border-primary shadow-lg ring-2 ring-primary/20' 
                           : 'border-border hover:border-primary/30'
                       } ${isCurrent ? 'bg-muted/30' : 'bg-card'} ${
-                        plan.highlight ? 'pt-8' : ''
+                        plan.highlight ? 'pt-12' : ''
                       }`}
                     >
                       {plan.highlight && (
-                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
                           <Badge 
                             className={`text-xs font-semibold px-3 py-1 rounded-full ${
                               plan.highlight === 'MAIS POPULAR' 
@@ -496,7 +496,7 @@ const Settings = () => {
                         </div>
                       )}
                       {plan.popular && !plan.highlight && (
-                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
                           <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium whitespace-nowrap">
                             MAIS POPULAR
                           </Badge>
@@ -548,8 +548,8 @@ const Settings = () => {
                             : feature;
                           
                           return (
-                            <div key={index} className="flex items-center gap-3 text-sm">
-                              <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+                            <div key={index} className="grid grid-cols-[20px,1fr] items-start gap-3 text-sm">
+                              <div className={`flex-none w-5 h-5 rounded-full flex items-center justify-center ${
                                 isIncluded 
                                   ? 'bg-green-100 text-green-600' 
                                   : 'bg-muted text-muted-foreground'
@@ -564,7 +564,7 @@ const Settings = () => {
                                   </svg>
                                 )}
                               </div>
-                              <span className={`leading-tight ${
+                              <span className={`break-words leading-relaxed sm:leading-normal ${
                                 isIncluded 
                                   ? 'text-foreground' 
                                   : 'text-muted-foreground line-through'
