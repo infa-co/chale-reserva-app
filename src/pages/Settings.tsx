@@ -465,8 +465,8 @@ const Settings = () => {
                 Escolha o plano que melhor se adapta às suas necessidades
               </p>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+            <CardContent className="pt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 {plans.map((plan) => {
                   const Icon = plan.icon;
                   const isCurrent = plan.id === subscription.currentPlan;
@@ -474,14 +474,16 @@ const Settings = () => {
                   return (
                     <div
                       key={plan.id}
-                      className={`relative border rounded-xl p-4 md:p-6 transition-all duration-200 hover:shadow-lg ${
+                      className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg h-full flex flex-col min-h-[500px] ${
                         plan.popular 
-                          ? 'border-primary shadow-lg ring-2 ring-primary/20 md:scale-105' 
+                          ? 'border-primary shadow-lg ring-2 ring-primary/20' 
                           : 'border-border hover:border-primary/30'
-                      } ${isCurrent ? 'bg-muted/30' : 'bg-card'}`}
+                      } ${isCurrent ? 'bg-muted/30' : 'bg-card'} ${
+                        plan.highlight ? 'pt-8' : ''
+                      }`}
                     >
                       {plan.highlight && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
                           <Badge 
                             className={`text-xs font-semibold px-3 py-1 rounded-full ${
                               plan.highlight === 'MAIS POPULAR' 
@@ -494,7 +496,7 @@ const Settings = () => {
                         </div>
                       )}
                       {plan.popular && !plan.highlight && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
                           <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium whitespace-nowrap">
                             MAIS POPULAR
                           </Badge>
@@ -502,49 +504,27 @@ const Settings = () => {
                       )}
                       
                       {/* Header with icon and plan name */}
-                      <div className="mb-4 md:mb-6">
-                        <div className="flex items-center gap-2 md:gap-3 mb-2">
-                          <div className="p-1.5 md:p-2 rounded-lg bg-primary/10 flex-shrink-0">
-                            <Icon size={16} className="text-primary md:w-5 md:h-5" />
+                      <div className="mb-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                            <Icon size={20} className="text-primary" />
                           </div>
-                          <h3 className="font-semibold text-base md:text-lg text-foreground">{plan.name}</h3>
+                          <h3 className="font-bold text-xl text-foreground">{plan.name}</h3>
                         </div>
                         
                         {/* Price section */}
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl md:text-3xl font-bold text-foreground">
+                          <span className="text-3xl font-bold text-foreground">
                             R$ {plan.price}
                           </span>
-                          <span className="text-muted-foreground text-xs md:text-sm font-medium">
+                          <span className="text-muted-foreground text-sm font-medium">
                             /{plan.period}
                           </span>
                         </div>
                       </div>
 
-                      {/* Action button */}
-                      <div className="mb-4 md:mb-6">
-                        <Button
-                          className={`w-full h-9 md:h-11 font-medium text-sm md:text-base ${
-                            plan.popular 
-                              ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
-                              : ''
-                          }`}
-                          variant={
-                            isCurrent 
-                              ? 'secondary' 
-                              : plan.popular 
-                                ? 'default' 
-                                : 'outline'
-                          }
-                          disabled={isCurrent || isLoading}
-                          onClick={() => handleSubscribe(plan.id)}
-                        >
-                          {isCurrent ? 'Plano Atual' : 'Começar'}
-                        </Button>
-                      </div>
-
-                      {/* Features list */}
-                      <div className="space-y-3">
+                      {/* Features list - flex-grow to push button to bottom */}
+                      <div className="space-y-3 flex-grow">
                         {/* All available features for comparison */}
                         {[
                           'Reservas ilimitadas',
@@ -568,18 +548,18 @@ const Settings = () => {
                             : feature;
                           
                           return (
-                            <div key={index} className="flex items-center gap-2 md:gap-3 text-xs md:text-sm">
-                              <div className={`flex-shrink-0 w-3 h-3 md:w-4 md:h-4 rounded-full flex items-center justify-center ${
+                            <div key={index} className="flex items-center gap-3 text-sm">
+                              <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
                                 isIncluded 
                                   ? 'bg-green-100 text-green-600' 
                                   : 'bg-muted text-muted-foreground'
                               }`}>
                                 {isIncluded ? (
-                                  <svg className="w-2 h-2 md:w-3 md:h-3" viewBox="0 0 20 20" fill="currentColor">
+                                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                   </svg>
                                 ) : (
-                                  <svg className="w-2 h-2 md:w-3 md:h-3" viewBox="0 0 20 20" fill="currentColor">
+                                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                                   </svg>
                                 )}
@@ -594,6 +574,28 @@ const Settings = () => {
                             </div>
                           );
                         })}
+                      </div>
+
+                      {/* Action button - positioned at bottom */}
+                      <div className="mt-6">
+                        <Button
+                          className={`w-full h-11 font-medium text-base ${
+                            plan.popular 
+                              ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                              : ''
+                          }`}
+                          variant={
+                            isCurrent 
+                              ? 'secondary' 
+                              : plan.popular 
+                                ? 'default' 
+                                : 'outline'
+                          }
+                          disabled={isCurrent || isLoading}
+                          onClick={() => handleSubscribe(plan.id)}
+                        >
+                          {isCurrent ? 'Plano Atual' : 'Começar'}
+                        </Button>
                       </div>
                     </div>
                   );
