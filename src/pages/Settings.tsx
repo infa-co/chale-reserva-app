@@ -465,7 +465,7 @@ const Settings = () => {
               </p>
             </CardHeader>
             <CardContent className="pt-8">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                 {plans.map((plan) => {
                   const Icon = plan.icon;
                   const isCurrent = plan.id === subscription.currentPlan;
@@ -473,13 +473,11 @@ const Settings = () => {
                   return (
                     <div
                       key={plan.id}
-                      className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg h-full flex flex-col min-h-[520px] ${
+                      className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg h-full flex flex-col min-h-[560px] pt-14 ${
                         plan.popular 
                           ? 'border-primary shadow-lg ring-2 ring-primary/20' 
                           : 'border-border hover:border-primary/30'
-                        } ${isCurrent ? 'bg-muted/30' : 'bg-card'} ${
-                        plan.highlight || plan.popular ? 'pt-14' : ''
-                      }`}
+                        } ${isCurrent ? 'bg-muted/30' : 'bg-card'}`}
                     >
                         {plan.highlight && (
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
