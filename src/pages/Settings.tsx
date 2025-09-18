@@ -465,7 +465,7 @@ const Settings = () => {
               </p>
             </CardHeader>
             <CardContent className="pt-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+              <div className="grid grid-cols-1 gap-6 items-stretch">
                 {plans.map((plan) => {
                   const Icon = plan.icon;
                   const isCurrent = plan.id === subscription.currentPlan;
