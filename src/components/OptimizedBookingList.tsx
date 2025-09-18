@@ -15,7 +15,7 @@ interface OptimizedBookingListProps {
   bookings: Booking[];
 }
 
-const BookingCard = memo(({ booking }: { booking: Booking }) => {
+const BookingCard = memo(({ booking, properties }: { booking: Booking; properties: any[] }) => {
   const openWhatsApp = useCallback((phone: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -30,6 +30,12 @@ const BookingCard = memo(({ booking }: { booking: Booking }) => {
       default: return 'status-pending';
     }
   }, []);
+
+  const propertyName = useMemo(() => {
+    if (!booking.property_id) return null;
+    const property = properties.find(p => p.id === booking.property_id);
+    return property?.name || null;
+  }, [booking.property_id, properties]);
 
   const getStatusText = useCallback((status: string) => {
     switch (status) {
@@ -62,6 +68,9 @@ const BookingCard = memo(({ booking }: { booking: Booking }) => {
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
+          {propertyName && (
+            <p className="text-xs font-medium text-sage-600 mb-1">{propertyName}</p>
+          )}
           <h3 className="font-semibold text-sage-800 mb-1">{booking.guest_name}</h3>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <Calendar size={14} />
@@ -244,7 +253,7 @@ const OptimizedBookingList = memo(({ bookings }: OptimizedBookingListProps) => {
       <div className="space-y-3">
         {filteredBookings.length > 0 ? (
           filteredBookings.map(booking => (
-            <BookingCard key={booking.id} booking={booking} />
+            <BookingCard key={booking.id} booking={booking} properties={properties} />
           ))
         ) : (
           <div className="text-center py-12">
