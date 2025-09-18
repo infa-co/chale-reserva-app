@@ -12,6 +12,7 @@ import MobileNav from "./components/MobileNav";
 
 // Import das páginas diretamente para resolver problemas de dynamic import
 import Dashboard from "./pages/Dashboard";
+import HistoricalBookings from "./pages/HistoricalBookings";
 const NewBooking = lazy(() => import("./pages/NewBooking"));
 const EditBooking = lazy(() => import("./pages/EditBooking"));
 const OptimizedBookingList = lazy(() => import("./pages/OptimizedBookingList"));
@@ -19,7 +20,6 @@ const BookingDetails = lazy(() => import("./pages/BookingDetails"));
 const OptimizedClients = lazy(() => import("./pages/OptimizedClients"));
 const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
-const HistoricalBookings = lazy(() => import("./pages/HistoricalBookings"));
 const Settings = lazy(() => import("./pages/Settings"));
 const AssignBookings = lazy(() => import("./pages/AssignBookings"));
 
