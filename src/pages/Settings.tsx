@@ -466,27 +466,26 @@ const Settings = () => {
               </p>
             </CardHeader>
             <CardContent className="pt-8">
-              <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-stretch">
-                  {plans.map((plan) => {
-                    const Icon = plan.icon;
-                    const isCurrent = plan.id === subscription.currentPlan;
-                    
-                    return (
-                      <div
-                        key={plan.id}
-                        className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg h-full flex flex-col min-h-[550px] w-full max-w-sm mx-auto lg:max-w-none ${
-                          plan.popular 
-                            ? 'border-primary shadow-lg ring-2 ring-primary/20' 
-                            : 'border-border hover:border-primary/30'
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch max-w-6xl mx-auto">
+                {plans.map((plan) => {
+                  const Icon = plan.icon;
+                  const isCurrent = plan.id === subscription.currentPlan;
+                  
+                  return (
+                    <div
+                      key={plan.id}
+                      className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg h-full flex flex-col min-h-[520px] ${
+                        plan.popular 
+                          ? 'border-primary shadow-lg ring-2 ring-primary/20' 
+                          : 'border-border hover:border-primary/30'
                         } ${isCurrent ? 'bg-muted/30' : 'bg-card'} ${
-                          plan.highlight || plan.popular ? 'mt-12' : 'mt-6'
-                        }`}
-                      >
+                        plan.highlight || plan.popular ? 'pt-12' : ''
+                      }`}
+                    >
                         {plan.highlight && (
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10">
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
                             <Badge 
-                              className={`text-xs font-semibold px-4 py-2 rounded-full shadow-md ${
+                              className={`text-xs font-semibold px-3 py-1 rounded-full ${
                                 plan.highlight === 'MAIS POPULAR' 
                                   ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent' 
                                   : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
@@ -497,8 +496,8 @@ const Settings = () => {
                           </div>
                         )}
                         {plan.popular && !plan.highlight && (
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10">
-                            <Badge className="bg-primary text-primary-foreground px-4 py-2 text-xs font-medium shadow-md">
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                            <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
                               MAIS POPULAR
                             </Badge>
                           </div>
@@ -601,7 +600,6 @@ const Settings = () => {
                     </div>
                   );
                 })}
-                </div>
               </div>
             </CardContent>
           </Card>
