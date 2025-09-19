@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, History, Calendar, DollarSign } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Plus, History, Calendar, DollarSign, ChevronDown, ChevronRight } from 'lucide-react';
 import { useHistoricalBookings } from '@/hooks/useHistoricalBookings';
 import { useHistoricalBookingForm } from '@/hooks/useHistoricalBookingForm';
 import { useBookingValidation } from '@/hooks/useBookingValidation';
@@ -8,13 +8,28 @@ import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
 import { HistoricalBookingForm } from '@/components/forms/HistoricalBookingForm';
 import { PaymentForm } from '@/components/forms/PaymentForm';
 import { NotesForm } from '@/components/forms/NotesForm';
 import BookingExportDialog from '@/components/BookingExportDialog';
-import { format } from 'date-fns';
+import { format, parseISO, getYear, getMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Booking } from '@/types/booking';
+
+interface BookingWithType extends Booking {
+  type: 'historical' | 'confirmed';
+}
+
+interface MonthGroup {
+  year: number;
+  month: number;
+  monthName: string;
+  bookings: BookingWithType[];
+  totalRevenue: number;
+  totalBookings: number;
+}
 
 const HistoricalBookings = () => {
   const { historicalBookings, loading, addHistoricalBooking } = useHistoricalBookings();
@@ -23,6 +38,57 @@ const HistoricalBookings = () => {
   const { formData, handleInputChange, calculateNights, getMaxDate } = useHistoricalBookingForm();
   const { validateBookingData } = useBookingValidation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [expandedMonths, setExpandedMonths] = useState<string[]>([]);
+
+  // Organize bookings by month and year
+  const organizedBookings = useMemo(() => {
+    // Combine historical bookings and confirmed current bookings
+    const allBookings: BookingWithType[] = [
+      ...historicalBookings.map(booking => ({ ...booking, type: 'historical' as const })),
+      ...bookings
+        .filter(booking => booking.status === 'confirmed')
+        .map(booking => ({ ...booking, type: 'confirmed' as const }))
+    ];
+
+    // Group by year and month
+    const groups: { [key: string]: MonthGroup } = {};
+
+    allBookings.forEach(booking => {
+      const checkInDate = parseISO(booking.check_in);
+      const year = getYear(checkInDate);
+      const month = getMonth(checkInDate); // 0-indexed
+      const key = `${year}-${month}`;
+
+      if (!groups[key]) {
+        groups[key] = {
+          year,
+          month,
+          monthName: format(checkInDate, 'MMMM yyyy', { locale: ptBR }),
+          bookings: [],
+          totalRevenue: 0,
+          totalBookings: 0
+        };
+      }
+
+      groups[key].bookings.push(booking);
+      groups[key].totalRevenue += Number(booking.total_value);
+      groups[key].totalBookings += 1;
+    });
+
+    // Sort by year and month (newest first)
+    return Object.values(groups).sort((a, b) => {
+      if (a.year !== b.year) return b.year - a.year;
+      return b.month - a.month;
+    });
+  }, [historicalBookings, bookings]);
+
+  const toggleMonth = (monthKey: string) => {
+    setExpandedMonths(prev => 
+      prev.includes(monthKey) 
+        ? prev.filter(key => key !== monthKey)
+        : [...prev, monthKey]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +137,8 @@ const HistoricalBookings = () => {
     );
   }
 
-  const totalRevenue = historicalBookings.reduce((sum, booking) => sum + Number(booking.total_value), 0);
+  const totalRevenue = organizedBookings.reduce((sum, month) => sum + month.totalRevenue, 0);
+  const totalBookingsCount = organizedBookings.reduce((sum, month) => sum + month.totalBookings, 0);
 
   return (
     <div className="p-2 sm:p-4 space-y-4 sm:space-y-6 pb-32">
@@ -164,7 +231,7 @@ const HistoricalBookings = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-sage-800">{historicalBookings.length}</div>
+            <div className="text-2xl font-bold text-sage-800">{totalBookingsCount}</div>
           </CardContent>
         </Card>
 
@@ -191,77 +258,150 @@ const HistoricalBookings = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-sage-800">
-              {historicalBookings.reduce((sum, booking) => sum + booking.nights, 0)}
+              {organizedBookings.reduce((sum, month) => 
+                sum + month.bookings.reduce((monthSum, booking) => monthSum + booking.nights, 0), 0
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Historical Bookings List */}
+      {/* Monthly Organized Bookings */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Reservas Registradas</h2>
+        <h2 className="text-lg font-semibold">Reservas por Mês</h2>
         
-        {historicalBookings.length === 0 ? (
+        {organizedBookings.length === 0 ? (
           <Card>
             <CardContent className="text-center py-8">
               <History className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">Nenhuma reserva histórica encontrada</h3>
+              <h3 className="text-lg font-medium mb-2">Nenhuma reserva encontrada</h3>
               <p className="text-muted-foreground mb-4">
-                Comece registrando suas reservas passadas para ter um histórico completo.
+                Comece registrando suas reservas passadas ou confirme novas reservas.
               </p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-3 sm:gap-4">
-            {historicalBookings.map((booking) => (
-              <Card key={booking.id} className="border-l-4 border-l-amber-500">
-                <CardContent className="pt-3 sm:pt-4">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 sm:mb-2 space-y-2 sm:space-y-0">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-base sm:text-lg">{booking.guest_name}</h3>
-                      <p className="text-sm text-muted-foreground">{booking.phone}</p>
-                    </div>
-                    <div className="sm:text-right">
-                      <div className="font-semibold text-base sm:text-lg text-sage-600">
-                        R$ {Number(booking.total_value).toLocaleString('pt-BR')}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {booking.nights} noite{booking.nights !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Check-in:</span>
-                      <div className="font-medium">
-                        {format(new Date(booking.check_in), 'dd/MM/yyyy', { locale: ptBR })}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Check-out:</span>
-                      <div className="font-medium">
-                        {format(new Date(booking.check_out), 'dd/MM/yyyy', { locale: ptBR })}
-                      </div>
-                    </div>
-                  </div>
+          <div className="space-y-3">
+            {organizedBookings.map((monthGroup) => {
+              const monthKey = `${monthGroup.year}-${monthGroup.month}`;
+              const isExpanded = expandedMonths.includes(monthKey);
+              
+              return (
+                <Card key={monthKey} className="overflow-hidden">
+                  <Collapsible>
+                    <CollapsibleTrigger 
+                      onClick={() => toggleMonth(monthKey)}
+                      className="w-full"
+                    >
+                      <CardHeader className="hover:bg-muted/50 transition-colors cursor-pointer">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {isExpanded ? (
+                              <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                            ) : (
+                              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                            )}
+                            <div className="text-left">
+                              <CardTitle className="text-lg capitalize">
+                                {monthGroup.monthName}
+                              </CardTitle>
+                              <p className="text-sm text-muted-foreground">
+                                {monthGroup.totalBookings} reserva{monthGroup.totalBookings !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold text-lg text-sage-600">
+                              R$ {monthGroup.totalRevenue.toLocaleString('pt-BR')}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Receita do mês
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent>
+                      <CardContent className="pt-0">
+                        <div className="space-y-3">
+                          {monthGroup.bookings
+                            .sort((a, b) => new Date(a.check_in).getTime() - new Date(b.check_in).getTime())
+                            .map((booking) => (
+                            <div 
+                              key={booking.id} 
+                              className={`p-4 rounded-lg border-l-4 ${
+                                booking.type === 'historical' 
+                                  ? 'border-l-amber-500 bg-amber-50/50' 
+                                  : 'border-l-green-500 bg-green-50/50'
+                              }`}
+                            >
+                              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 space-y-2 sm:space-y-0">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="font-semibold text-base">{booking.guest_name}</h3>
+                                    <span className={`text-xs px-2 py-1 rounded-full ${
+                                      booking.type === 'historical' 
+                                        ? 'bg-amber-100 text-amber-700' 
+                                        : 'bg-green-100 text-green-700'
+                                    }`}>
+                                      {booking.type === 'historical' ? 'Histórica' : 'Confirmada'}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">{booking.phone}</p>
+                                  {booking.city && booking.state && (
+                                    <p className="text-sm text-muted-foreground">
+                                      {booking.city}, {booking.state}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="sm:text-right">
+                                  <div className="font-semibold text-base text-sage-600">
+                                    R$ {Number(booking.total_value).toLocaleString('pt-BR')}
+                                  </div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {booking.nights} noite{booking.nights !== 1 ? 's' : ''}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                                <div>
+                                  <span className="text-muted-foreground">Check-in:</span>
+                                  <div className="font-medium">
+                                    {format(new Date(booking.check_in), 'dd/MM/yyyy', { locale: ptBR })}
+                                  </div>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Check-out:</span>
+                                  <div className="font-medium">
+                                    {format(new Date(booking.check_out), 'dd/MM/yyyy', { locale: ptBR })}
+                                  </div>
+                                </div>
+                              </div>
 
-                  {booking.notes && (
-                    <div className="mt-3 p-3 bg-muted rounded-md">
-                      <p className="text-sm">{booking.notes}</p>
-                    </div>
-                  )}
+                              {booking.notes && (
+                                <div className="mt-3 p-3 bg-muted rounded-md">
+                                  <p className="text-sm">{booking.notes}</p>
+                                </div>
+                              )}
 
-                  <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                    <History className="h-3 w-3" />
-                    Reserva histórica registrada em{' '}
-                    {booking.historical_registration_date && 
-                      format(new Date(booking.historical_registration_date), 'dd/MM/yyyy', { locale: ptBR })
-                    }
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                              {booking.type === 'historical' && booking.historical_registration_date && (
+                                <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                                  <History className="h-3 w-3" />
+                                  Registrada em{' '}
+                                  {format(new Date(booking.historical_registration_date), 'dd/MM/yyyy', { locale: ptBR })}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
