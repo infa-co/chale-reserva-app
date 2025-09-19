@@ -20,7 +20,7 @@ const BookingDetails = lazy(() => import("./pages/BookingDetails"));
 const OptimizedClients = lazy(() => import("./pages/OptimizedClients"));
 const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
-const Settings = lazy(() => import("./pages/Settings"));
+import Settings from "./pages/Settings";
 const AssignBookings = lazy(() => import("./pages/AssignBookings"));
 
 const LoadingSpinner = () => (
