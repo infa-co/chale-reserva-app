@@ -84,13 +84,19 @@ const Settings = () => {
     {
       id: 'basic',
       name: 'Básico',
-      price: 29,
+      price: 39,
       period: 'por mês',
       icon: Star,
+      subtitle: '👉 Para quem está começando agora',
+      description: 'Ideal para chalés e hospedagens que estão dando os primeiros passos no aluguel por temporada.',
+      bookingLimit: '15 reservas por mês',
       features: [
-        'Até 5 reservas',
+        'Até 15 reservas por mês',
         'Cadastro de clientes',
-        'Dashboard básico'
+        'Dashboard básico',
+        'Gestão de hóspedes',
+        'Controle financeiro básico',
+        'Calendário básico'
       ],
       popular: false,
       highlight: null
@@ -98,15 +104,21 @@ const Settings = () => {
     {
       id: 'pro',
       name: 'Pro',
-      price: 69,
+      price: 89,
       period: 'por mês',
       icon: Crown,
+      subtitle: '👉 Para quem já está consolidado e quer profissionalizar a gestão',
+      description: 'Ideal para quem já domina o básico e quer dar o próximo passo rumo à automação.',
+      bookingLimit: '35 reservas por mês',
       features: [
-        'Até 15 reservas',
+        'Até 35 reservas por mês',
         'Cadastro de clientes',
         'Acesso rápido ao WhatsApp',
         'Dashboard financeiro',
-        'Integração com Airbnb (Airbnb → Ordomo)'
+        'Integração com Airbnb (Airbnb → Ordomo)',
+        'Templates de comunicação',
+        'Calendário avançado',
+        'Exportação de dados'
       ],
       popular: false,
       highlight: 'RECOMENDADO PARA VOCÊ'
@@ -114,9 +126,12 @@ const Settings = () => {
     {
       id: 'premium',
       name: 'Premium',
-      price: 149,
+      price: 179,
       period: 'por mês',
       icon: Zap,
+      subtitle: '👉 Para quem vive de hospedagem e não pode perder nenhuma oportunidade',
+      description: 'Feito para pousadas e gestores que precisam de controle total, sem limites e com segurança máxima na operação.',
+      bookingLimit: 'Reservas ilimitadas',
       features: [
         'Reservas ilimitadas',
         'Cadastro de clientes',
@@ -126,7 +141,10 @@ const Settings = () => {
         'Integração com Airbnb (Airbnb → Ordomo)',
         'Link iCal de exportação (Ordomo → Airbnb)',
         'Multi-chalé',
-        'Suporte prioritário'
+        'Suporte prioritário',
+        'API personalizada',
+        'Backup automático',
+        'Prioridade em novas funcionalidades'
       ],
       popular: true,
       highlight: 'MAIS POPULAR'
@@ -502,15 +520,22 @@ const Settings = () => {
                       
                       {/* Header with icon and plan name */}
                       <div className="mb-6">
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3 mb-2">
                           <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
                             <Icon size={20} className="text-primary" />
                           </div>
                           <h3 className="font-bold text-xl text-foreground">{plan.name}</h3>
                         </div>
                         
+                        {/* Subtitle */}
+                        {plan.subtitle && (
+                          <p className="text-sm text-primary font-medium mb-3">
+                            {plan.subtitle}
+                          </p>
+                        )}
+                        
                         {/* Price section */}
-                        <div className="flex items-baseline gap-1">
+                        <div className="flex items-baseline gap-1 mb-3">
                           <span className="text-3xl font-bold text-foreground">
                             R$ {plan.price}
                           </span>
@@ -518,6 +543,20 @@ const Settings = () => {
                             /{plan.period}
                           </span>
                         </div>
+                        
+                        {/* Booking limit highlight */}
+                        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4">
+                          <p className="text-sm font-semibold text-primary">
+                            {plan.bookingLimit}
+                          </p>
+                        </div>
+                        
+                        {/* Description */}
+                        {plan.description && (
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {plan.description}
+                          </p>
+                        )}
                       </div>
 
                       {/* Features list - flex-grow to push button to bottom */}
