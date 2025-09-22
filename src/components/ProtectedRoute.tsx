@@ -27,7 +27,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // Depois verifica se tem assinatura ativa
   if (!hasActiveSubscription) {
-    return <Navigate to="/assinatura" replace />;
+    return <Navigate to="/configuracoes" replace />;
   }
 
   return <>{children}</>;

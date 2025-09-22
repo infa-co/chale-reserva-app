@@ -23,7 +23,6 @@ const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
 import Settings from "./pages/Settings";
 const AssignBookings = lazy(() => import("./pages/AssignBookings"));
-const Subscription = lazy(() => import("./pages/Subscription"));
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -61,11 +60,6 @@ function App() {
                 <AuthOnlyRoute>
                   <ResetPassword />
                 </AuthOnlyRoute>
-              } />
-              <Route path="/assinatura" element={
-                <Suspense fallback={<LoadingSpinner />}>
-                  <Subscription />
-                </Suspense>
               } />
 
               <Route element={<ProtectedShell />}>
