@@ -18,7 +18,7 @@ import { FeatureRestriction } from '@/components/FeatureRestriction';
 const Dashboard = memo(() => {
   const { bookings, allBookings, loading } = useBookings();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { checkBookingLimit, getPaymentMonth, currentPlan, limits } = usePlanRestrictions();
+  const { checkBookingLimit, getBillingPeriod, currentPlan, limits } = usePlanRestrictions();
 
   const currentMonthBookings = useMemo(() => {
     const monthStart = startOfMonth(currentDate);
@@ -31,15 +31,16 @@ const Dashboard = memo(() => {
     });
   }, [bookings, currentDate]);
 
-  // Verificar limite de reservas do mês do pagamento
+  // Verificar limite de reservas feitas no período de faturamento
   const currentMonthBookingCount = useMemo(() => {
-    const paymentMonth = getPaymentMonth();
-    
-    return bookings.filter(booking => {
-      return booking.check_in?.startsWith(paymentMonth) || 
-             booking.check_out?.startsWith(paymentMonth);
+    const { start: billingStart, end: billingEnd } = getBillingPeriod();
+    return bookings.filter((booking) => {
+      const dateStr = booking.booking_date || booking.created_at?.slice(0, 10);
+      if (!dateStr) return false;
+      const d = new Date(dateStr);
+      return d >= billingStart && d < billingEnd;
     }).length;
-  }, [bookings, getPaymentMonth]);
+  }, [bookings, getBillingPeriod]);
 
   const canCreateNewBooking = checkBookingLimit(currentMonthBookingCount);
   const isNearLimit = limits.maxBookingsPerMonth && currentMonthBookingCount >= limits.maxBookingsPerMonth * 0.8;
@@ -73,7 +74,7 @@ const Dashboard = memo(() => {
         {isNearLimit && canCreateNewBooking && (
           <PlanUpgradePrompt 
             feature="mais reservas"
-            description={`Você já tem ${currentMonthBookingCount} de ${limits.maxBookingsPerMonth} reservas no mês do pagamento`}
+            description={`Você já tem ${currentMonthBookingCount} de ${limits.maxBookingsPerMonth} reservas no período de faturamento`}
             compact
           />
         )}

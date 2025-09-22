@@ -110,6 +110,21 @@ export const usePlanRestrictions = () => {
     return endDate.toISOString().slice(0, 7);
   };
 
+  // Período de faturamento [start, end) baseado no subscription_end
+  const getBillingPeriod = (): { start: Date; end: Date } => {
+    if (subscriptionData.subscription_end) {
+      const end = new Date(subscriptionData.subscription_end);
+      const start = new Date(end);
+      start.setMonth(start.getMonth() - 1);
+      return { start, end };
+    }
+    // Fallback: mês calendário atual
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return { start, end };
+  };
+
   const checkPropertyLimit = (currentPropertiesCount: number): boolean => {
     if (limits.maxProperties === null) return true; // unlimited
     return currentPropertiesCount < limits.maxProperties;
@@ -146,6 +161,7 @@ export const usePlanRestrictions = () => {
     getUpgradeMessage,
     getNextPlanId,
     getPaymentMonth,
+    getBillingPeriod,
     isFeatureEnabled: checkFeatureAccess
   };
 };

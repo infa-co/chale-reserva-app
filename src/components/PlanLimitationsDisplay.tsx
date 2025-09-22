@@ -7,15 +7,18 @@ import { useOptimizedProperties } from "@/hooks/useOptimizedProperties";
 import { CheckCircle, XCircle, Clock, Users, Building, Calendar } from "lucide-react";
 
 export const PlanLimitationsDisplay = () => {
-  const { currentPlan, limits, checkBookingLimit, checkPropertyLimit, getPaymentMonth } = usePlanRestrictions();
+  const { currentPlan, limits, checkBookingLimit, checkPropertyLimit, getBillingPeriod } = usePlanRestrictions();
   const { bookings } = useOptimizedBookings();
   const { properties } = useOptimizedProperties();
 
-  // Calcular estatísticas atuais usando o mês do pagamento
-  const paymentMonth = getPaymentMonth();
-  const bookingsThisMonth = bookings.filter(booking => 
-    booking.check_in?.startsWith(paymentMonth)
-  ).length;
+  // Calcular estatísticas atuais usando o período de faturamento
+  const { start: billingStart, end: billingEnd } = getBillingPeriod();
+  const bookingsThisMonth = bookings.filter(booking => {
+    const dateStr = booking.booking_date || booking.created_at?.slice(0, 10);
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return d >= billingStart && d < billingEnd;
+  }).length;
 
   const bookingLimitOk = checkBookingLimit(bookingsThisMonth);
   const propertyLimitOk = checkPropertyLimit(properties.length);
@@ -65,7 +68,7 @@ export const PlanLimitationsDisplay = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              <span className="font-medium">Reservas (mês do pagamento)</span>
+              <span className="font-medium">Reservas (período de faturamento)</span>
             </div>
             <div className="flex items-center gap-2">
               {bookingLimitOk ? (
