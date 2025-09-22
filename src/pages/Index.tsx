@@ -144,7 +144,12 @@ const Index = () => {
       {/* Fixed Header */}
       <header className="fixed top-0 w-full bg-primary/95 backdrop-blur-sm z-50 border-b border-primary/20">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="text-2xl font-montserrat font-bold text-white">
+          <div className="flex items-center gap-3 text-2xl font-montserrat font-bold text-white">
+            <img 
+              src="/src/assets/ordomo-logo-small.png" 
+              alt="Ordomo Logo"
+              className="h-8 w-8"
+            />
             ORDOMO
           </div>
           <div className="flex items-center gap-4">
