@@ -37,7 +37,7 @@ const Settings = () => {
     planName: currentTier?.name || 'Básico',
     price: currentTier?.price || 39.90,
     currentPlan: subscriptionData.subscribed ? (currentTier?.name === 'Básico' ? 'basic' : currentTier?.name === 'Pro' ? 'pro' : 'premium') : 'basic',
-    features: subscriptionData.subscribed ? getFeaturesByTier(currentTier?.name || '') : ['50 reservas/mês', '1 propriedade', 'Calendário básico'],
+    features: subscriptionData.subscribed ? getFeaturesByTier(currentTier?.name || '') : ['15 reservas/mês', '1 propriedade', 'Cadastro de clientes'],
     nextBilling: subscriptionData.subscription_end ? new Date(subscriptionData.subscription_end).toLocaleDateString('pt-BR') : null
   };
 

@@ -261,7 +261,7 @@ const Auth = () => {
             <div className="bg-white rounded-lg p-4 border border-blue-100">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium text-blue-900">Plano Básico</span>
-                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">50 reservas/mês</span>
+                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">15 reservas/mês</span>
               </div>
               <div className="text-blue-700">
                 <p><strong>Email:</strong> usuario.basico@teste.com</p>
@@ -272,7 +272,7 @@ const Auth = () => {
             <div className="bg-white rounded-lg p-4 border border-blue-100">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium text-blue-900">Plano Pro</span>
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">200 reservas/mês</span>
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">35 reservas/mês</span>
               </div>
               <div className="text-blue-700">
                 <p><strong>Email:</strong> usuario.pro@teste.com</p>

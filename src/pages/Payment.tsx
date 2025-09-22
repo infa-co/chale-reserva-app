@@ -21,7 +21,7 @@ const Payment = () => {
       badge: null,
       priceId: "price_1SAAe12cr9j2Q543DqSvOX1K",
       features: [
-        "✅ Até 50 reservas/mês",
+        "✅ Até 15 reservas/mês",
         "✅ Cadastro de clientes",
         "❌ Acesso rápido ao WhatsApp",
         "❌ Dashboard financeiro",
@@ -35,12 +35,12 @@ const Payment = () => {
     {
       id: "pro",
       name: "Pro",
-      price: "89", 
+      price: "89",
       badge: "MAIS POPULAR",
       badgeColor: "bg-primary",
       priceId: "price_1SAAeT2cr9j2Q5434hjEsJY7",
       features: [
-        "✅ Até 200 reservas/mês",
+        "✅ Até 35 reservas/mês",
         "✅ Cadastro de clientes",
         "✅ Acesso rápido ao WhatsApp",
         "✅ Dashboard financeiro",

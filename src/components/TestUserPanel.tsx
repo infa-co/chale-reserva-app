@@ -21,14 +21,14 @@ const TEST_USERS: TestUser[] = [
     password: "teste123",
     plan: 'basic',
     name: "Usuário Básico",
-    description: "50 reservas/mês, 1 propriedade"
+    description: "15 reservas/mês, 1 propriedade"
   },
   {
     email: "usuario.pro@teste.com",
     password: "teste123", 
     plan: 'pro',
     name: "Usuário Pro",
-    description: "200 reservas/mês, 3 propriedades, WhatsApp, Dashboard"
+    description: "35 reservas/mês, 1 propriedade, WhatsApp, Dashboard"
   },
   {
     email: "usuario.premium@teste.com",

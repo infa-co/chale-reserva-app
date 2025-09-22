@@ -16,7 +16,7 @@ export interface PlanLimits {
 
 const PLAN_LIMITS: Record<string, PlanLimits> = {
   basic: {
-    maxBookingsPerMonth: 50,
+    maxBookingsPerMonth: 15,
     maxProperties: 1,
     hasWhatsAppIntegration: false,
     hasFinancialDashboard: false,
@@ -28,16 +28,16 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     airbnbSyncType: 'none'
   },
   pro: {
-    maxBookingsPerMonth: 200,
-    maxProperties: 3,
+    maxBookingsPerMonth: 35,
+    maxProperties: 1,
     hasWhatsAppIntegration: true,
     hasFinancialDashboard: true,
     hasReportsExport: false,
-    hasAirbnbSync: true,
+    hasAirbnbSync: false,
     hasICalExport: true,
     hasMultiProperty: false,
     hasPrioritySupport: false,
-    airbnbSyncType: 'export-only'
+    airbnbSyncType: 'none'
   },
   premium: {
     maxBookingsPerMonth: null, // unlimited
