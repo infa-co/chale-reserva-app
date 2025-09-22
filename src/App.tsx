@@ -62,8 +62,9 @@ function App() {
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/test-users" element={<TestUsers />} />
               
-              {/* Redirect root to dashboard */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              {/* Landing page */}
+              <Route path="/" element={<Navigate to="/site" replace />} />
+              <Route path="/site" element={<Index />} />
 
               <Route element={<ProtectedShell />}>
                 <Route path="/dashboard" element={<Dashboard />} />
