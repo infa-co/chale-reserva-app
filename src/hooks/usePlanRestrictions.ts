@@ -1,4 +1,5 @@
 import { useSubscription } from './useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface PlanLimits {
   maxBookingsPerMonth: number | null; // null = unlimited
@@ -66,8 +67,17 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
 
 export const usePlanRestrictions = () => {
   const { subscriptionData, getCurrentTier } = useSubscription();
+  const { user } = useAuth();
   
   const getCurrentPlan = (): string => {
+    // Durante desenvolvimento, verificar se há plano simulado
+    if (user && typeof window !== 'undefined') {
+      const simulatedPlan = localStorage.getItem(`test_plan_${user.id}`);
+      if (simulatedPlan && ['free', 'basic', 'pro', 'premium'].includes(simulatedPlan)) {
+        return simulatedPlan;
+      }
+    }
+    
     if (!subscriptionData.subscribed) return 'free';
     
     const tier = getCurrentTier();

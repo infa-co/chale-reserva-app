@@ -25,6 +25,7 @@ import Settings from "./pages/Settings";
 import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
+import TestUsers from "./pages/TestUsers";
 const AssignBookings = lazy(() => import("./pages/AssignBookings"));
 
 const LoadingSpinner = () => (
@@ -59,6 +60,7 @@ function App() {
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/payment-canceled" element={<PaymentCanceled />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/test-users" element={<TestUsers />} />
               
               {/* Redirect root to dashboard */}
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
