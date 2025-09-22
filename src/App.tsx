@@ -7,7 +7,6 @@ import { BookingProvider } from "./contexts/BookingContext";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AuthOnlyRoute from "./components/AuthOnlyRoute";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import MobileNav from "./components/MobileNav";
 
@@ -23,6 +22,7 @@ const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
 import Settings from "./pages/Settings";
 const AssignBookings = lazy(() => import("./pages/AssignBookings"));
+const Subscription = lazy(() => import("./pages/Subscription"));
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -51,15 +51,12 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/auth" element={
-                <AuthOnlyRoute>
-                  <Auth />
-                </AuthOnlyRoute>
-              } />
-              <Route path="/reset-password" element={
-                <AuthOnlyRoute>
-                  <ResetPassword />
-                </AuthOnlyRoute>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/assinatura" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Subscription />
+                </Suspense>
               } />
 
               <Route element={<ProtectedShell />}>

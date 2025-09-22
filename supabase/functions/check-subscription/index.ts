@@ -69,28 +69,11 @@ serve(async (req) => {
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
-      logStep("Active subscription found", { subscriptionId: subscription.id });
-      
-      // Safely convert timestamp
-      try {
-        if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
-          subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-          logStep("Subscription end date calculated", { endDate: subscriptionEnd });
-        } else {
-          logStep("Invalid or missing current_period_end", { current_period_end: subscription.current_period_end });
-        }
-      } catch (error) {
-        logStep("Error converting subscription end date", { error: error.message, current_period_end: subscription.current_period_end });
-        subscriptionEnd = null;
-      }
-      
+      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       // Subscription tier is the product ID
-      if (subscription.items?.data?.[0]?.price?.product) {
-        productId = subscription.items.data[0].price.product;
-        logStep("Determined subscription tier", { productId });
-      } else {
-        logStep("Unable to determine product ID", { items: subscription.items });
-      }
+      productId = subscription.items.data[0].price.product;
+      logStep("Determined subscription tier", { productId });
     } else {
       logStep("No active subscription found");
     }

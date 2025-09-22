@@ -17,7 +17,6 @@ import { ChangeEmailDialog } from '@/components/dialogs/ChangeEmailDialog';
 import { SessionsDialog } from '@/components/dialogs/SessionsDialog';
 import { ProfilePhotoDialog } from '@/components/dialogs/ProfilePhotoDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import SubscriptionSection from '@/components/SubscriptionSection';
 
 const Settings = () => {
   const { toast } = useToast();
@@ -72,6 +71,85 @@ const Settings = () => {
     const name = user?.user_metadata?.name || user?.email || '';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
+  const [subscription] = useState({
+    currentPlan: 'basic',
+    planName: 'Plano Básico',
+    price: 29,
+    features: ['Até 5 reservas', 'Cadastro de clientes', 'Dashboard básico'],
+    nextBilling: null,
+    isActive: true
+  });
+
+  const plans = [
+    {
+      id: 'basic',
+      name: 'Básico',
+      price: 39,
+      period: 'por mês',
+      icon: Star,
+      subtitle: '👉 Para quem está começando agora',
+      description: 'Ideal para chalés e hospedagens que estão dando os primeiros passos no aluguel por temporada.',
+      bookingLimit: '15 reservas por mês',
+      features: [
+        'Até 15 reservas por mês',
+        'Cadastro de clientes',
+        'Dashboard básico',
+        'Gestão de hóspedes',
+        'Controle financeiro básico',
+        'Calendário básico'
+      ],
+      popular: false,
+      highlight: null
+    },
+    {
+      id: 'pro',
+      name: 'Pro',
+      price: 89,
+      period: 'por mês',
+      icon: Crown,
+      subtitle: '👉 Para quem já está consolidado e quer profissionalizar a gestão',
+      description: 'Ideal para quem já domina o básico e quer dar o próximo passo rumo à automação.',
+      bookingLimit: '35 reservas por mês',
+      features: [
+        'Até 35 reservas por mês',
+        'Cadastro de clientes',
+        'Acesso rápido ao WhatsApp',
+        'Dashboard financeiro',
+        'Integração com Airbnb (Airbnb → Ordomo)',
+        'Templates de comunicação',
+        'Calendário avançado',
+        'Exportação de dados'
+      ],
+      popular: false,
+      highlight: 'RECOMENDADO PARA VOCÊ'
+    },
+    {
+      id: 'premium',
+      name: 'Premium',
+      price: 179,
+      period: 'por mês',
+      icon: Zap,
+      subtitle: '👉 Para quem vive de hospedagem e não pode perder nenhuma oportunidade',
+      description: 'Feito para pousadas e gestores que precisam de controle total, sem limites e com segurança máxima na operação.',
+      bookingLimit: 'Reservas ilimitadas',
+      features: [
+        'Reservas ilimitadas',
+        'Cadastro de clientes',
+        'Acesso rápido ao WhatsApp',
+        'Dashboard financeiro',
+        'Exportação de relatórios',
+        'Integração com Airbnb (Airbnb → Ordomo)',
+        'Link iCal de exportação (Ordomo → Airbnb)',
+        'Multi-chalé',
+        'Suporte prioritário',
+        'API personalizada',
+        'Backup automático',
+        'Prioridade em novas funcionalidades'
+      ],
+      popular: true,
+      highlight: 'MAIS POPULAR'
+    }
+  ];
 
   const handleSaveGeneral = async () => {
     setIsLoading(true);
@@ -93,6 +171,53 @@ const Settings = () => {
     }
   };
 
+  const handleSubscribe = async (planId: string) => {
+    if (planId === 'basic') {
+      toast({
+        title: "Plano Atual",
+        description: "Você já está no plano básico.",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // TODO: Implement Stripe checkout
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock checkout
+      toast({
+        title: "Redirecionando...",
+        description: "Você será redirecionado para o checkout do Stripe.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao processar assinatura.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setIsLoading(true);
+    try {
+      // TODO: Implement Stripe customer portal
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock portal
+      toast({
+        title: "Redirecionando...",
+        description: "Você será redirecionado para o portal de assinatura.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao acessar portal de assinatura.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto py-6 px-4 max-w-5xl">
@@ -296,9 +421,222 @@ const Settings = () => {
         </TabsContent>
 
         <TabsContent value="billing" className="space-y-6">
-          <SubscriptionSection />
+          {/* Current Plan */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard size={20} />
+                Plano Atual
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border rounded-lg gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                    <Star size={16} className="text-primary md:w-5 md:h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-sm md:text-base">{subscription.planName}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground">
+                      R$ {subscription.price}/mês
+                    </p>
+                  </div>
+                </div>
+                <div className="text-left sm:text-right flex-shrink-0">
+                  <Badge variant="secondary" className="text-xs">Ativo</Badge>
+                  {subscription.nextBilling && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Próxima cobrança: {subscription.nextBilling}
+                    </p>
+                  )}
+                </div>
+              </div>
 
+              <div className="mt-3 md:mt-4">
+                <p className="text-xs md:text-sm font-medium mb-2">Recursos inclusos:</p>
+                <ul className="text-xs md:text-sm text-muted-foreground space-y-1">
+                  {subscription.features.map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-primary flex-shrink-0" />
+                      <span className="leading-tight">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
+              {subscription.currentPlan !== 'basic' && (
+                <div className="mt-3 md:mt-4 flex gap-2">
+                  <Button variant="outline" onClick={handleManageSubscription} disabled={isLoading} className="text-xs md:text-sm h-8 md:h-9">
+                    Gerenciar Assinatura
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Available Plans */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Planos Disponíveis</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Escolha o plano que melhor se adapta às suas necessidades
+              </p>
+            </CardHeader>
+            <CardContent className="pt-8">
+              <div className="grid grid-cols-1 gap-6 items-stretch">
+                {plans.map((plan) => {
+                  const Icon = plan.icon;
+                  const isCurrent = plan.id === subscription.currentPlan;
+                  
+                  return (
+                    <div
+                      key={plan.id}
+                      className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg h-full flex flex-col min-h-[560px] pt-14 ${
+                        plan.popular 
+                          ? 'border-primary shadow-lg ring-2 ring-primary/20' 
+                          : 'border-border hover:border-primary/30'
+                        } ${isCurrent ? 'bg-muted/30' : 'bg-card'}`}
+                    >
+                        {plan.highlight && (
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                            <Badge 
+                              className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                                plan.highlight === 'MAIS POPULAR' 
+                                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent' 
+                                  : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
+                              }`}
+                            >
+                              {plan.highlight}
+                            </Badge>
+                          </div>
+                        )}
+                        {plan.popular && !plan.highlight && (
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                            <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
+                              MAIS POPULAR
+                            </Badge>
+                          </div>
+                        )}
+                      
+                      {/* Header with icon and plan name */}
+                      <div className="mb-6">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                            <Icon size={20} className="text-primary" />
+                          </div>
+                          <h3 className="font-bold text-xl text-foreground">{plan.name}</h3>
+                        </div>
+                        
+                        {/* Subtitle */}
+                        {plan.subtitle && (
+                          <p className="text-sm text-primary font-medium mb-3">
+                            {plan.subtitle}
+                          </p>
+                        )}
+                        
+                        {/* Price section */}
+                        <div className="flex items-baseline gap-1 mb-3">
+                          <span className="text-3xl font-bold text-foreground">
+                            R$ {plan.price}
+                          </span>
+                          <span className="text-muted-foreground text-sm font-medium">
+                            /{plan.period}
+                          </span>
+                        </div>
+                        
+                        {/* Booking limit highlight */}
+                        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4">
+                          <p className="text-sm font-semibold text-primary">
+                            {plan.bookingLimit}
+                          </p>
+                        </div>
+                        
+                        {/* Description */}
+                        {plan.description && (
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {plan.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Features list - flex-grow to push button to bottom */}
+                      <div className="space-y-3 flex-grow">
+                        {/* All available features for comparison */}
+                        {[
+                          plan.id === 'basic' ? 'Até 15 reservas/mês' : plan.id === 'pro' ? 'Até 35 reservas/mês' : 'Reservas ilimitadas',
+                          'Cadastro de clientes', 
+                          'Acesso rápido ao WhatsApp',
+                          'Dashboard financeiro',
+                          'Exportação de relatórios',
+                          'Integração com Airbnb (Airbnb → Ordomo)',
+                          'Link iCal de exportação (Ordomo → Airbnb)',
+                          'Multi-chalé',
+                          'Suporte prioritário'
+                        ].map((feature, index) => {
+                          const isIncluded = plan.features.some(f => 
+                            f.includes(feature) || 
+                            (feature.includes('reservas') && (f.includes('reservas') || f.includes('Reservas')))
+                          ) || (index === 1); // Cadastro de clientes sempre incluído
+                          
+                          return (
+                            <div key={index} className="flex items-start gap-3 text-sm">
+                              <span className="text-base mt-0.5 flex-none">
+                                {isIncluded ? '✅' : '❌'}
+                              </span>
+                              <span className={`${
+                                isIncluded 
+                                  ? 'text-foreground' 
+                                  : 'text-muted-foreground'
+                              } whitespace-normal break-normal leading-relaxed`}
+                              >
+                                {feature}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Action button - positioned at bottom */}
+                      <div className="mt-6">
+                        <Button
+                          className={`w-full h-11 font-medium text-base ${
+                            plan.popular 
+                              ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                              : ''
+                          }`}
+                          variant={
+                            isCurrent 
+                              ? 'secondary' 
+                              : plan.popular 
+                                ? 'default' 
+                                : 'outline'
+                          }
+                          disabled={isCurrent || isLoading}
+                          onClick={() => handleSubscribe(plan.id)}
+                        >
+                          {isCurrent ? 'Plano Atual' : 'Começar'}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Billing History (placeholder) */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Histórico de Pagamentos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <CreditCard size={48} className="mx-auto mb-4 opacity-50" />
+                <p>Nenhum pagamento encontrado</p>
+                <p className="text-sm">Seus pagamentos aparecerão aqui após a primeira cobrança</p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 

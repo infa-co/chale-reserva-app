@@ -20,14 +20,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Primeiro verifica se o usuário está logado
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Depois verifica se tem assinatura ativa
   if (!hasActiveSubscription) {
-    return <Navigate to="/configuracoes" replace />;
+    return <Navigate to="/assinatura" replace />;
   }
 
   return <>{children}</>;

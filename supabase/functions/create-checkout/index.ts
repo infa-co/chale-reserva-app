@@ -44,8 +44,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/assinatura?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/assinatura?canceled=true`,
+      success_url: `${req.headers.get("origin")}/`,
+      cancel_url: `${req.headers.get("origin")}/`,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
