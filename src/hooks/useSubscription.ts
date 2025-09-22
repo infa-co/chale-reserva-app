@@ -177,12 +177,50 @@ export const useSubscription = () => {
     return () => clearInterval(interval);
   }, [user, checkSubscription]);
 
+  const refreshSubscription = () => {
+    checkSubscription();
+  };
+
+  const cancelSubscription = async () => {
+    if (!session) {
+      toast.error('Usuário não autenticado');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('cancel-subscription', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Error canceling subscription:', error);
+        toast.error('Erro ao cancelar assinatura');
+        return false;
+      }
+
+      toast.success('Assinatura cancelada com sucesso');
+      checkSubscription(); // Refresh subscription status
+      return true;
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      toast.error('Erro ao cancelar assinatura');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     subscriptionData,
     loading,
     checkSubscription,
+    refreshSubscription,
     createCheckout,
     openCustomerPortal,
+    cancelSubscription,
     getCurrentTier,
     subscriptionTiers,
   };

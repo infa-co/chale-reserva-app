@@ -12,6 +12,7 @@ import { ChangePasswordDialog } from '@/components/dialogs/ChangePasswordDialog'
 import { ChangeEmailDialog } from '@/components/dialogs/ChangeEmailDialog';
 import { ProfilePhotoDialog } from '@/components/dialogs/ProfilePhotoDialog';
 import { SessionsDialog } from '@/components/dialogs/SessionsDialog';
+import SubscriptionManager from '@/components/SubscriptionManager';
 
 const Settings = () => {
   const { toast } = useToast();
@@ -191,14 +192,18 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <User size={16} />
             Configurações Gerais
           </TabsTrigger>
+          <TabsTrigger value="subscription" className="flex items-center gap-2">
+            <CreditCard size={16} />
+            Assinatura
+          </TabsTrigger>
           <TabsTrigger value="billing" className="flex items-center gap-2">
             <CreditCard size={16} />
-            Plano e Pagamento
+            Planos
           </TabsTrigger>
         </TabsList>
 
@@ -282,6 +287,10 @@ const Settings = () => {
               {isLoading ? 'Salvando...' : 'Salvar Configurações'}
             </Button>
           </div>
+        </TabsContent>
+
+        <TabsContent value="subscription" className="space-y-6">
+          <SubscriptionManager />
         </TabsContent>
 
         <TabsContent value="billing" className="space-y-6">

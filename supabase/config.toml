@@ -36,6 +36,18 @@ enable_signup = true
 [edge_functions]
 enabled = true
 
+[functions.check-subscription]
+verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.customer-portal]
+verify_jwt = false
+
+[functions.cancel-subscription]
+verify_jwt = false
+
 [functions.sync-ical]
 verify_jwt = false
 
