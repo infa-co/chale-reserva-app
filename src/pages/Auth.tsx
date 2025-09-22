@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -16,7 +17,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
-  const { signIn, signUp, resetPassword, signInAsTestUser } = useAuth();
+  const { signIn, signUp, resetPassword, signInAsTestUser, user } = useAuth();
   const navigate = useNavigate();
 
   // Check if should show signup form based on URL parameters
@@ -254,124 +255,37 @@ const Auth = () => {
           )}
         </div>
 
-        {/* Usuários de Teste */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="font-semibold text-blue-900 mb-4 text-center">🧪 Usuários de Teste</h3>
-          <div className="space-y-4 text-sm">
-            <div className="bg-white rounded-lg p-4 border border-blue-100">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-blue-900">Plano Básico</span>
-                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">15 reservas/mês</span>
-              </div>
-              <div className="text-blue-700">
-                <p><strong>Email:</strong> usuario.basico@teste.com</p>
-                <p><strong>Senha:</strong> teste123</p>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-lg p-4 border border-blue-100">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-blue-900">Plano Pro</span>
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">35 reservas/mês</span>
-              </div>
-              <div className="text-blue-700">
-                <p><strong>Email:</strong> usuario.pro@teste.com</p>
-                <p><strong>Senha:</strong> teste123</p>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-lg p-4 border border-blue-100">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-blue-900">Plano Premium</span>
-                <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Ilimitado</span>
-              </div>
-              <div className="text-blue-700">
-                <p><strong>Email:</strong> usuario.premium@teste.com</p>
-                <p><strong>Senha:</strong> teste123</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-4 text-center">
+        {/* Admin setup - temporário */}
+        {user && (
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h3 className="font-semibold text-green-900 mb-2">Configuração de Admin</h3>
+            <p className="text-sm text-green-700 mb-3">
+              Use este botão para se tornar admin e ter acesso total:
+            </p>
             <Button
-              onClick={() => navigate('/test-users')}
+              onClick={async () => {
+                try {
+                  const { data, error } = await supabase.rpc('assign_admin_role', {
+                    _user_id: user.id
+                  });
+                  
+                  if (error) {
+                    toast.error('Erro ao atribuir role de admin: ' + error.message);
+                  } else {
+                    toast.success('Role de admin atribuída com sucesso! Recarregue a página.');
+                  }
+                } catch (e) {
+                  toast.error('Erro inesperado');
+                }
+              }}
               variant="outline"
               size="sm"
-              className="text-blue-600 border-blue-300 hover:bg-blue-50"
+              className="text-green-700 border-green-300 hover:bg-green-100"
             >
-              Criar/Gerenciar Usuários de Teste
+              Tornar-se Admin
             </Button>
           </div>
-          
-          <div className="mt-4 space-y-2">
-            <p className="text-xs text-blue-600 font-medium text-center">Login Rápido:</p>
-            <div className="grid grid-cols-1 gap-2">
-              <Button
-                onClick={async () => {
-                  try {
-                    const { error } = await signInAsTestUser('usuario.basico@teste.com', 'teste123', 'basic');
-                    if (error) {
-                      toast.error('Erro no login básico: ' + error.message);
-                    } else {
-                      toast.success('Logado como usuário básico!');
-                      navigate('/dashboard');
-                    }
-                  } catch (e) {
-                    toast.error('Erro inesperado');
-                  }
-                }}
-                variant="outline"
-                size="sm"
-                className="text-xs h-8"
-                disabled={loading}
-              >
-                Login Básico
-              </Button>
-              <Button
-                onClick={async () => {
-                  try {
-                    const { error } = await signInAsTestUser('usuario.pro@teste.com', 'teste123', 'pro');
-                    if (error) {
-                      toast.error('Erro no login pro: ' + error.message);
-                    } else {
-                      toast.success('Logado como usuário pro!');
-                      navigate('/dashboard');
-                    }
-                  } catch (e) {
-                    toast.error('Erro inesperado');
-                  }
-                }}
-                variant="outline"
-                size="sm"
-                className="text-xs h-8"
-                disabled={loading}
-              >
-                Login Pro
-              </Button>
-              <Button
-                onClick={async () => {
-                  try {
-                    const { error } = await signInAsTestUser('usuario.premium@teste.com', 'teste123', 'premium');
-                    if (error) {
-                      toast.error('Erro no login premium: ' + error.message);
-                    } else {
-                      toast.success('Logado como usuário premium!');
-                      navigate('/dashboard');
-                    }
-                  } catch (e) {
-                    toast.error('Erro inesperado');
-                  }
-                }}
-                variant="outline"
-                size="sm"
-                className="text-xs h-8"
-                disabled={loading}
-              >
-                Login Premium
-              </Button>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
