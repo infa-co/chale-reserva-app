@@ -192,20 +192,28 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="general" className="flex items-center gap-2">
-            <User size={16} />
-            Configurações Gerais
-          </TabsTrigger>
-          <TabsTrigger value="subscription" className="flex items-center gap-2">
-            <CreditCard size={16} />
-            Assinatura
-          </TabsTrigger>
-          <TabsTrigger value="billing" className="flex items-center gap-2">
-            <CreditCard size={16} />
-            Planos
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex justify-center">
+          <TabsList className="grid w-full max-w-md grid-cols-3 bg-muted p-1 rounded-lg">
+            <TabsTrigger 
+              value="general"
+              className="text-sm font-medium rounded-md px-3 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            >
+              Geral
+            </TabsTrigger>
+            <TabsTrigger 
+              value="subscription"
+              className="text-sm font-medium rounded-md px-3 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            >
+              Assinatura
+            </TabsTrigger>
+            <TabsTrigger 
+              value="billing"
+              className="text-sm font-medium rounded-md px-3 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            >
+              Planos
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="general" className="space-y-6">
           {/* Profile Section */}

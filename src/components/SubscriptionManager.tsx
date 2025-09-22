@@ -142,30 +142,6 @@ const SubscriptionManager = () => {
           <CardTitle>Gerenciar Assinatura</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button 
-              variant="outline" 
-              onClick={openCustomerPortal}
-              disabled={loading}
-              className="flex items-center gap-2"
-            >
-              <Settings size={16} />
-              Portal do Cliente
-            </Button>
-
-            <Button 
-              variant="outline" 
-              onClick={refreshSubscription}
-              disabled={loading}
-              className="flex items-center gap-2"
-            >
-              <RefreshCw size={16} />
-              Atualizar Status
-            </Button>
-          </div>
-
-          <Separator />
-
           <div className="space-y-3">
             <h4 className="font-medium">Opções de Plano</h4>
             
@@ -255,17 +231,10 @@ const SubscriptionManager = () => {
         <CardContent>
           <div className="text-center py-6 text-muted-foreground">
             <CreditCard size={48} className="mx-auto mb-4 opacity-50" />
-            <p className="mb-2">Gerencie métodos de pagamento</p>
-            <p className="text-sm mb-4">
-              Use o Portal do Cliente para atualizar cartões, visualizar faturas e histórico de pagamentos.
+            <p className="mb-2">Informações de Cobrança</p>
+            <p className="text-sm">
+              Para gerenciar métodos de pagamento, visualizar faturas e histórico, entre em contato com o suporte.
             </p>
-            <Button 
-              variant="outline" 
-              onClick={openCustomerPortal}
-              disabled={loading}
-            >
-              Abrir Portal de Cobrança
-            </Button>
           </div>
         </CardContent>
       </Card>
