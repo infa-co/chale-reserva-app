@@ -1,11 +1,11 @@
 
-const CACHE_NAME = 'ordomo-v2';
-const STATIC_CACHE = 'ordomo-static-v2';
+const CACHE_NAME = 'ordomo-v2024092201';
+const STATIC_CACHE = 'ordomo-static-v2024092201';
 
 // Static assets to cache (excluding root to prevent navigation caching)
 const urlsToCache = [
   '/manifest.json',
-  '/lovable-uploads/8e9102a6-6888-4805-8ebf-893a0a3ad83e.png'
+  '/lovable-uploads/ordomo-logo-pwa.png'
 ];
 
 // Install event - cache essential assets and take control immediately
