@@ -146,7 +146,7 @@ const Index = () => {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-2xl font-montserrat font-bold text-white">
             <img 
-              src="/src/assets/ordomo-logo-small.png" 
+              src="/ordomo-logo-small.png" 
               alt="Ordomo Logo"
               className="h-7 w-7 object-contain"
             />
@@ -406,7 +406,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <img 
-                src="/src/assets/ordomo-footer-logo.png" 
+                src="/ordomo-footer-logo.png" 
                 alt="Ordomo"
                 className="h-10 w-auto object-contain mb-4"
               />
