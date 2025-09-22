@@ -436,7 +436,7 @@ const Index = () => {
               <img 
                 src="/ordomo-footer-logo.png" 
                 alt="Ordomo"
-                className="h-10 w-auto object-contain mb-4"
+                className="h-16 w-auto object-contain mb-4"
               />
               <p className="text-white/70">Feito por Infa & Co.</p>
             </div>
