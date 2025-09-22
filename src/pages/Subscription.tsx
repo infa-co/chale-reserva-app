@@ -25,34 +25,26 @@ const Subscription = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check for payment success URL parameter and refresh subscription
+  // Check for payment success URL parameter and redirect to login
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
     const sessionId = urlParams.get('session_id');
     
     if (success === 'true' || sessionId) {
-      toast.success('Pagamento realizado com sucesso! Verificando assinatura...');
+      toast.success('Pagamento realizado com sucesso! Redirecionando para login...');
       
-      // Force refresh subscription status after payment with multiple attempts
-      const refreshSubscription = async () => {
-        // Wait 2 seconds first to allow Stripe to process
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Try multiple times with delays
-        for (let i = 0; i < 5; i++) {
-          console.log(`Tentativa ${i + 1} de verificar assinatura`);
-          await checkSubscription();
-          await new Promise(resolve => setTimeout(resolve, 3000));
-        }
-      };
-      
-      refreshSubscription();
-      
-      // Clean URL
+      // Clean URL first
       window.history.replaceState({}, '', '/assinatura');
+      
+      // Redirect to login after a short delay
+      setTimeout(() => {
+        window.location.href = '/auth';
+      }, 2000);
+      
+      return; // Don't execute other logic if redirecting
     }
-  }, [checkSubscription]);
+  }, []);
 
   // Debug: Log current subscription state
   useEffect(() => {
