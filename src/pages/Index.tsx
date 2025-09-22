@@ -83,39 +83,52 @@ const Index = () => {
   const plans = [
     {
       name: "Básico",
-      price: "39,90",
+      price: "39",
       badge: null,
       features: [
-        "Até 50 reservas/mês",
-        "1 propriedade",
-        "Calendário básico",
-        "Suporte por email"
+        "Até 15 reservas/mês",
+        "Cadastro de clientes",
+        "Acesso rápido ao WhatsApp",
+        "Dashboard financeiro",
+        "Exportação de relatórios",
+        "Integração Airbnb",
+        "Link iCal de exportação",
+        "Multi-chalé",
+        "Suporte prioritário"
       ]
     },
     {
       name: "Pro",
-      price: "79,90", 
-      badge: "INDICADO PARA VOCÊ",
+      price: "89", 
+      badge: "MAIS POPULAR",
       badgeColor: "bg-primary",
       features: [
-        "Até 200 reservas/mês",
-        "Até 3 propriedades",
-        "Sincronização Airbnb",
+        "Até 35 reservas/mês",
+        "Cadastro de clientes",
+        "Acesso rápido ao WhatsApp",
         "Dashboard financeiro",
+        "Exportação de relatórios",
+        "Integração Airbnb",
+        "Link iCal de exportação",
+        "Multi-chalé",
         "Suporte prioritário"
       ]
     },
     {
       name: "Premium",
-      price: "149,90",
-      badge: "MAIS POPULAR",
+      price: "179",
+      badge: "COMPLETO",
       badgeColor: "bg-accent",
       features: [
         "Reservas ilimitadas",
-        "Propriedades ilimitadas",
-        "Todas as integrações",
-        "Analytics avançado",
-        "Suporte 24/7"
+        "Cadastro de clientes",
+        "Acesso rápido ao WhatsApp",
+        "Dashboard financeiro",
+        "Exportação de relatórios",
+        "Integração completa com Airbnb",
+        "Link iCal de exportação",
+        "Multi-chalé",
+        "Suporte prioritário"
       ]
     }
   ];
