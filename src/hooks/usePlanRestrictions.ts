@@ -11,6 +11,7 @@ export interface PlanLimits {
   hasICalExport: boolean;
   hasMultiProperty: boolean;
   hasPrioritySupport: boolean;
+  hasHistoricalBookings: boolean;
   airbnbSyncType: 'none' | 'export-only' | 'bidirectional';
 }
 
@@ -25,6 +26,7 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     hasICalExport: false,
     hasMultiProperty: false,
     hasPrioritySupport: false,
+    hasHistoricalBookings: true,
     airbnbSyncType: 'none'
   },
   pro: {
@@ -37,6 +39,7 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     hasICalExport: true,
     hasMultiProperty: false,
     hasPrioritySupport: false,
+    hasHistoricalBookings: true,
     airbnbSyncType: 'none'
   },
   premium: {
@@ -49,6 +52,7 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     hasICalExport: true,
     hasMultiProperty: true,
     hasPrioritySupport: true,
+    hasHistoricalBookings: true,
     airbnbSyncType: 'bidirectional'
   }
 };

@@ -90,7 +90,7 @@ const NewBooking = () => {
       notes: formData.notes || undefined
     });
 
-    navigate('/');
+    navigate('/dashboard');
   };
 
   return (
