@@ -1,13 +1,12 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
-interface ProtectedRouteProps {
+interface AuthOnlyRouteProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading, hasActiveSubscription } = useAuth();
+const AuthOnlyRoute = ({ children }: AuthOnlyRouteProps) => {
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -20,17 +19,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Primeiro verifica se o usuário está logado
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  // Depois verifica se tem assinatura ativa
-  if (!hasActiveSubscription) {
+  // Se o usuário já está logado, redireciona para verificar assinatura
+  if (user) {
     return <Navigate to="/assinatura" replace />;
   }
 
   return <>{children}</>;
 };
 
-export default ProtectedRoute;
+export default AuthOnlyRoute;

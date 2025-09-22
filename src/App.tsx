@@ -7,6 +7,7 @@ import { BookingProvider } from "./contexts/BookingContext";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AuthOnlyRoute from "./components/AuthOnlyRoute";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import MobileNav from "./components/MobileNav";
 
@@ -51,8 +52,16 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/auth" element={
+                <AuthOnlyRoute>
+                  <Auth />
+                </AuthOnlyRoute>
+              } />
+              <Route path="/reset-password" element={
+                <AuthOnlyRoute>
+                  <ResetPassword />
+                </AuthOnlyRoute>
+              } />
               <Route path="/assinatura" element={
                 <Suspense fallback={<LoadingSpinner />}>
                   <Subscription />
