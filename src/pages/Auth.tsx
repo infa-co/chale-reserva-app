@@ -254,38 +254,6 @@ const Auth = () => {
             </div>
           )}
         </div>
-
-        {/* Admin setup - temporário */}
-        {user && (
-          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h3 className="font-semibold text-green-900 mb-2">Configuração de Admin</h3>
-            <p className="text-sm text-green-700 mb-3">
-              Use este botão para se tornar admin e ter acesso total:
-            </p>
-            <Button
-              onClick={async () => {
-                try {
-                  const { data, error } = await supabase.rpc('assign_admin_role', {
-                    _user_id: user.id
-                  });
-                  
-                  if (error) {
-                    toast.error('Erro ao atribuir role de admin: ' + error.message);
-                  } else {
-                    toast.success('Role de admin atribuída com sucesso! Recarregue a página.');
-                  }
-                } catch (e) {
-                  toast.error('Erro inesperado');
-                }
-              }}
-              variant="outline"
-              size="sm"
-              className="text-green-700 border-green-300 hover:bg-green-100"
-            >
-              Tornar-se Admin
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
