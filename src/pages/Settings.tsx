@@ -90,8 +90,8 @@ const Settings = () => {
       price: 89.90,
       priceId: 'price_1SA8ZNKF8m13UKNcVbmfzjsA',
       icon: Zap,
-      popular: true,
-      highlight: 'MAIS POPULAR',
+      popular: false,
+      highlight: 'INDICADO PARA VOCÊ',
       features: [
         "Até 35 reservas/mês",
         "Cadastro de clientes",
@@ -106,7 +106,8 @@ const Settings = () => {
       price: 179.90,
       priceId: 'price_1SA8ZxKF8m13UKNciiWekPOI',
       icon: Crown,
-      popular: false,
+      popular: true,
+      highlight: 'MAIS POPULAR',
       features: [
         "Reservas ilimitadas",
         "Cadastro de clientes",
