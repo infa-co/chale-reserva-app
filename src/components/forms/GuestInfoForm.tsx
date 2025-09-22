@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { FeatureRestriction } from '@/components/FeatureRestriction';
+import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
+import { toast } from 'sonner';
 
 interface GuestInfoFormProps {
   formData: {
@@ -20,6 +22,18 @@ interface GuestInfoFormProps {
 }
 
 export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: GuestInfoFormProps) => {
+  const { checkFeatureAccess } = usePlanRestrictions();
+  
+  const hasWhatsAppAccess = checkFeatureAccess('hasWhatsAppIntegration');
+  
+  const handleWhatsAppClick = () => {
+    if (hasWhatsAppAccess) {
+      onOpenWhatsApp();
+    } else {
+      toast.error("Mude para o plano Pro para liberar essa função");
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border space-y-4">
       <h3 className="font-semibold text-sage-800 flex items-center gap-2">
@@ -48,31 +62,15 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
             className="mt-1"
           />
         </div>
-        <FeatureRestriction
-          feature="hasWhatsAppIntegration"
-          featureName="acesso rápido ao WhatsApp"
-          description="Envie mensagens diretamente do formulário"
-          fallback={
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-6 px-3 opacity-50 cursor-not-allowed"
-              disabled
-            >
-              <MessageCircle size={18} className="text-gray-400" />
-            </Button>
-          }
+        <Button
+          type="button"
+          variant="outline"
+          className={`mt-6 px-3 ${!hasWhatsAppAccess ? 'opacity-75' : ''}`}
+          onClick={handleWhatsAppClick}
+          disabled={!formData.phone}
         >
-          <Button
-            type="button"
-            variant="outline"
-            className="mt-6 px-3"
-            onClick={onOpenWhatsApp}
-            disabled={!formData.phone}
-          >
-            <MessageCircle size={18} className="text-green-600" />
-          </Button>
-        </FeatureRestriction>
+          <MessageCircle size={18} className={hasWhatsAppAccess ? "text-green-600" : "text-gray-400"} />
+        </Button>
       </div>
 
       <div>

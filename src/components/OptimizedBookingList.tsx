@@ -11,17 +11,27 @@ import { useBookings } from '@/contexts/BookingContext';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
 import { FeatureRestriction } from '@/components/FeatureRestriction';
+import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
+import { toast } from 'sonner';
 
 interface OptimizedBookingListProps {
   bookings: Booking[];
 }
 
 const BookingCard = memo(({ booking, properties }: { booking: Booking; properties: any[] }) => {
+  const { checkFeatureAccess } = usePlanRestrictions();
+  
   const openWhatsApp = useCallback((phone: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    openWhatsAppUtil({ phone });
-  }, []);
+    
+    const hasWhatsAppAccess = checkFeatureAccess('hasWhatsAppIntegration');
+    if (hasWhatsAppAccess) {
+      openWhatsAppUtil({ phone });
+    } else {
+      toast.error("Mude para o plano Pro para liberar essa função");
+    }
+  }, [checkFeatureAccess]);
 
   const getStatusColor = useCallback((status: string) => {
     switch (status) {
@@ -87,26 +97,20 @@ const BookingCard = memo(({ booking, properties }: { booking: Booking; propertie
         
         <div className="flex items-center gap-2">
           {booking.phone && (
-            <FeatureRestriction
-              feature="hasWhatsAppIntegration"
-              featureName="acesso rápido ao WhatsApp"
-              description="Envie mensagens diretamente da lista de reservas"
-              fallback={
-                <button
-                  className="p-2 rounded-lg transition-colors opacity-50 cursor-not-allowed"
-                  disabled
-                >
-                  <MessageCircle size={18} className="text-gray-400" />
-                </button>
-              }
+            <button
+              onClick={(e) => openWhatsApp(booking.phone, e)}
+              className={`p-2 rounded-lg transition-colors ${
+                checkFeatureAccess('hasWhatsAppIntegration') 
+                  ? 'hover:bg-green-50' 
+                  : 'opacity-75'
+              }`}
             >
-              <button
-                onClick={(e) => openWhatsApp(booking.phone, e)}
-                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
-              >
-                <MessageCircle size={18} className="text-green-600" />
-              </button>
-            </FeatureRestriction>
+              <MessageCircle size={18} className={
+                checkFeatureAccess('hasWhatsAppIntegration') 
+                  ? "text-green-600" 
+                  : "text-gray-400"
+              } />
+            </button>
           )}
         </div>
       </div>
