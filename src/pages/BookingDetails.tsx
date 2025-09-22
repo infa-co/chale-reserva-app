@@ -251,9 +251,21 @@ const BookingDetails = () => {
             </div>
           </div>
           
-          <div className="text-center mt-4 p-3 bg-sage-50 rounded-lg">
-            <p className="text-sm text-muted-foreground">Total de noites</p>
-            <p className="text-2xl font-bold text-sage-800">{booking.nights}</p>
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="text-center p-3 bg-sage-50 rounded-lg">
+              <p className="text-sm text-muted-foreground">Total de noites</p>
+              <p className="text-2xl font-bold text-sage-800">{booking.nights}</p>
+            </div>
+            
+            <div className="text-center p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-muted-foreground">Data da reserva</p>
+              <p className="font-semibold text-sage-800">
+                {format(parseISO(booking.booking_date), "dd/MM/yyyy", { locale: ptBR })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {format(parseISO(booking.booking_date), "EEEE", { locale: ptBR })}
+              </p>
+            </div>
           </div>
         </div>
 
