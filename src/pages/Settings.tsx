@@ -76,8 +76,8 @@ const Settings = () => {
     {
       id: 'basic',
       name: 'Básico',
-      price: 39.90,
-      priceId: 'price_1SA8YlKF8m13UKNcHcc17kqM',
+      price: 39.00,
+      priceId: 'price_1SAAe12cr9j2Q543DqSvOX1K',
       icon: Star,
       popular: false,
       features: [
@@ -88,8 +88,8 @@ const Settings = () => {
     {
       id: 'pro', 
       name: 'Pro',
-      price: 89.90,
-      priceId: 'price_1SA8ZNKF8m13UKNcVbmfzjsA',
+      price: 89.00,
+      priceId: 'price_1SAAeT2cr9j2Q5434hjEsJY7',
       icon: Zap,
       popular: false,
       highlight: 'INDICADO PARA VOCÊ',
@@ -104,8 +104,8 @@ const Settings = () => {
     {
       id: 'premium',
       name: 'Premium', 
-      price: 179.90,
-      priceId: 'price_1SA8ZxKF8m13UKNciiWekPOI',
+      price: 179.00,
+      priceId: 'price_1SAAep2cr9j2Q5438bA7nlEV',
       icon: Crown,
       popular: true,
       highlight: 'MAIS POPULAR',
