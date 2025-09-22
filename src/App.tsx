@@ -6,6 +6,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { BookingProvider } from "./contexts/BookingContext";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import Index from "./pages/Index";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import MobileNav from "./components/MobileNav";
@@ -50,22 +51,23 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <Routes>
+              <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/assinatura" element={<Navigate to="/configuracoes" replace />} />
 
               <Route element={<ProtectedShell />}>
-                <Route index element={<Dashboard />} />
-                <Route path="nova-reserva" element={<NewBooking />} />
-                <Route path="editar-reserva/:id" element={<EditBooking />} />
-                <Route path="reservas" element={<OptimizedBookingList />} />
-                <Route path="reserva/:id" element={<BookingDetails />} />
-                <Route path="clientes" element={<OptimizedClients />} />
-                <Route path="meus-chales" element={<Properties />} />
-                <Route path="chale/:id/dashboard" element={<PropertyDashboard />} />
-                <Route path="historico-reservas" element={<HistoricalBookings />} />
-                <Route path="configuracoes" element={<Settings />} />
-                <Route path="atribuir-reservas" element={<AssignBookings />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/nova-reserva" element={<NewBooking />} />
+                <Route path="/editar-reserva/:id" element={<EditBooking />} />
+                <Route path="/reservas" element={<OptimizedBookingList />} />
+                <Route path="/reserva/:id" element={<BookingDetails />} />
+                <Route path="/clientes" element={<OptimizedClients />} />
+                <Route path="/meus-chales" element={<Properties />} />
+                <Route path="/chale/:id/dashboard" element={<PropertyDashboard />} />
+                <Route path="/historico-reservas" element={<HistoricalBookings />} />
+                <Route path="/configuracoes" element={<Settings />} />
+                <Route path="/atribuir-reservas" element={<AssignBookings />} />
               </Route>
             </Routes>
           </BrowserRouter>
