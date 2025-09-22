@@ -34,13 +34,17 @@ const Subscription = () => {
     if (success === 'true' || sessionId) {
       toast.success('Pagamento realizado com sucesso! Verificando assinatura...');
       
-      // Force refresh subscription status after payment
+      // Force refresh subscription status after payment with multiple attempts
       const refreshSubscription = async () => {
-        await checkSubscription();
-        // Check again after a short delay to ensure Stripe has processed
-        setTimeout(async () => {
+        // Wait 2 seconds first to allow Stripe to process
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Try multiple times with delays
+        for (let i = 0; i < 5; i++) {
+          console.log(`Tentativa ${i + 1} de verificar assinatura`);
           await checkSubscription();
-        }, 2000);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+        }
       };
       
       refreshSubscription();
@@ -50,8 +54,19 @@ const Subscription = () => {
     }
   }, [checkSubscription]);
 
+  // Debug: Log current subscription state
+  useEffect(() => {
+    console.log('Subscription state:', { 
+      subscriptionData, 
+      hasActiveSubscription, 
+      loading,
+      user: user?.email 
+    });
+  }, [subscriptionData, hasActiveSubscription, loading, user]);
+
   // Redirect to dashboard if user has active subscription
   if (hasActiveSubscription) {
+    console.log('Redirecting to dashboard - user has active subscription');
     return <Navigate to="/" replace />;
   }
 

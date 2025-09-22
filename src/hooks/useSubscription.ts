@@ -69,6 +69,7 @@ export const useSubscription = () => {
 
       // Validate response data
       if (data && typeof data.subscribed === 'boolean') {
+        console.log('Subscription data received:', data);
         setSubscriptionData(data);
       } else {
         console.error('Invalid subscription data received:', data);
