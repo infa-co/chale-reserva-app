@@ -85,8 +85,8 @@ const PWAInstallPrompt = () => {
         </div>
         <CardDescription>
           {isIOS 
-            ? "Adicione o Chalé Manager à sua tela inicial para uma melhor experiência"
-            : "Instale o Chalé Manager para acesso rápido e funcionamento offline"
+            ? "Adicione o Ordomo à sua tela inicial para uma melhor experiência"
+            : "Instale o Ordomo para acesso rápido e funcionamento offline"
           }
         </CardDescription>
       </CardHeader>

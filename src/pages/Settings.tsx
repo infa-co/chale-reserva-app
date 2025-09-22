@@ -290,6 +290,53 @@ const Settings = () => {
             </CardContent>
           </Card>
 
+          {/* PWA Installation Guide */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                📱 Instalação do App
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 border rounded-lg bg-muted/30">
+                <h3 className="font-medium mb-2">Para melhor experiência mobile:</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Recomendamos acessar o Ordomo pelo <strong>Safari (iOS)</strong> ou <strong>Chrome (Android)</strong> 
+                  para poder instalar como um app nativo em seu dispositivo.
+                </p>
+                
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="text-sm font-medium text-green-700 mb-1">📱 iOS (iPhone/iPad):</h4>
+                    <ol className="text-xs text-muted-foreground list-decimal list-inside space-y-1 ml-2">
+                      <li>Abra o Ordomo no <strong>Safari</strong></li>
+                      <li>Toque no botão "Compartilhar" (□↗)</li>
+                      <li>Role para baixo e toque em "Adicionar à Tela Inicial"</li>
+                      <li>Toque em "Adicionar" no canto superior direito</li>
+                    </ol>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-700 mb-1">🤖 Android:</h4>
+                    <ol className="text-xs text-muted-foreground list-decimal list-inside space-y-1 ml-2">
+                      <li>Abra o Ordomo no <strong>Chrome</strong></li>
+                      <li>Toque no menu (⋮) no canto superior direito</li>
+                      <li>Selecione "Instalar app" ou "Adicionar à tela inicial"</li>
+                      <li>Confirme a instalação</li>
+                    </ol>
+                  </div>
+                </div>
+                
+                <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-xs text-yellow-800">
+                    💡 <strong>Dica:</strong> Após instalar, o Ordomo funcionará como um app nativo, 
+                    com acesso offline e carregamento mais rápido!
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Plan Status Card */}
           <PlanLimitationsDisplay />
 
