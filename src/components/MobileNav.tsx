@@ -1,9 +1,32 @@
 
 import { Home, Plus, Calendar, Users, Building, History } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
+import { useOptimizedBookings } from '@/hooks/useOptimizedBookings';
+import { toast } from 'sonner';
 
 const MobileNav = () => {
   const location = useLocation();
+  const { checkBookingLimit, getBillingPeriod, limits } = usePlanRestrictions();
+  const { bookings } = useOptimizedBookings();
+
+  // Calcular reservas no período de faturamento
+  const { start: billingStart, end: billingEnd } = getBillingPeriod();
+  const bookingsThisMonth = bookings.filter(booking => {
+    const dateStr = booking.booking_date || booking.created_at?.slice(0, 10);
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return d >= billingStart && d < billingEnd;
+  }).length;
+
+  const canCreateBooking = checkBookingLimit(bookingsThisMonth);
+
+  const handleNewBookingClick = (e: React.MouseEvent) => {
+    if (!canCreateBooking) {
+      e.preventDefault();
+      toast.error(`Você atingiu o limite de ${limits.maxBookingsPerMonth} reservas no período de faturamento. Faça upgrade do seu plano!`);
+    }
+  };
 
   const navItems = [
     { href: '/dashboard', icon: Home, label: 'Início' },
@@ -24,9 +47,12 @@ const MobileNav = () => {
             <Link
               key={item.href}
               to={item.href}
+              onClick={item.isButton ? handleNewBookingClick : undefined}
               className={`flex flex-col items-center p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation ${
                 item.isButton
-                  ? 'bg-sage-600 text-white min-h-[44px] min-w-[44px]'
+                  ? canCreateBooking
+                    ? 'bg-sage-600 text-white min-h-[44px] min-w-[44px]'
+                    : 'bg-gray-400 text-white min-h-[44px] min-w-[44px] cursor-not-allowed opacity-75'
                   : isActive
                   ? 'text-sage-600'
                   : 'text-gray-600'

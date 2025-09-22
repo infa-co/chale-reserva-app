@@ -13,6 +13,7 @@ import { ChangeEmailDialog } from '@/components/dialogs/ChangeEmailDialog';
 import { ProfilePhotoDialog } from '@/components/dialogs/ProfilePhotoDialog';
 import { SessionsDialog } from '@/components/dialogs/SessionsDialog';
 import SubscriptionManager from '@/components/SubscriptionManager';
+import { PlanLimitationsDisplay } from '@/components/PlanLimitationsDisplay';
 
 const Settings = () => {
   const { toast } = useToast();
@@ -288,6 +289,9 @@ const Settings = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Plan Status Card */}
+          <PlanLimitationsDisplay />
 
           <div className="flex justify-end">
             <Button onClick={handleSaveGeneral} disabled={isLoading} className="flex items-center gap-2">

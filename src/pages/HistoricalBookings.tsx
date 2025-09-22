@@ -1,4 +1,7 @@
 import { useState, useMemo } from 'react';
+import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
+import { useOptimizedBookings } from '@/hooks/useOptimizedBookings';
+import { toast } from 'sonner';
 import { Plus, History, Calendar, DollarSign, ChevronDown, ChevronRight } from 'lucide-react';
 import { useHistoricalBookings } from '@/hooks/useHistoricalBookings';
 import { useHistoricalBookingForm } from '@/hooks/useHistoricalBookingForm';
@@ -35,10 +38,31 @@ const HistoricalBookings = () => {
   const { historicalBookings, loading, addHistoricalBooking } = useHistoricalBookings();
   const { bookings } = useBookings();
   const { properties } = useOptimizedProperties();
+  const { checkBookingLimit, getBillingPeriod, limits } = usePlanRestrictions();
+  const { bookings: optimizedBookings } = useOptimizedBookings();
   const { formData, handleInputChange, calculateNights, getMaxDate } = useHistoricalBookingForm();
   const { validateBookingData } = useBookingValidation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [expandedMonths, setExpandedMonths] = useState<string[]>([]);
+  
+  // Calcular reservas no período de faturamento
+  const { start: billingStart, end: billingEnd } = getBillingPeriod();
+  const bookingsThisMonth = optimizedBookings.filter(booking => {
+    const dateStr = booking.booking_date || booking.created_at?.slice(0, 10);
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return d >= billingStart && d < billingEnd;
+  }).length;
+
+  const canCreateBooking = checkBookingLimit(bookingsThisMonth);
+
+  const handleNewBookingClick = () => {
+    if (!canCreateBooking) {
+      toast.error(`Você atingiu o limite de ${limits.maxBookingsPerMonth} reservas no período de faturamento. Faça upgrade do seu plano!`);
+      return;
+    }
+    setIsDialogOpen(true);
+  };
 
   // Organize bookings by month and year
   const organizedBookings = useMemo(() => {
@@ -163,14 +187,17 @@ const HistoricalBookings = () => {
             properties={properties}
           />
           
+          <Button 
+            className={`w-full sm:w-auto ${!canCreateBooking ? 'opacity-75 cursor-not-allowed' : ''}`}
+            onClick={handleNewBookingClick}
+            disabled={!canCreateBooking}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Registrar Reserva Passada</span>
+            <span className="sm:hidden">Nova Reserva</span>
+          </Button>
+          
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Registrar Reserva Passada</span>
-              <span className="sm:hidden">Nova Reserva</span>
-            </Button>
-          </DialogTrigger>
           <DialogContent className="mx-2 w-[calc(100vw-1rem)] sm:mx-auto sm:w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-lg sm:text-xl">Registrar Reserva Histórica</DialogTitle>
