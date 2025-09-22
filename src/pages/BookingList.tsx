@@ -9,6 +9,7 @@ import { useBookings } from '@/contexts/BookingContext';
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
+import { FeatureRestriction } from '@/components/FeatureRestriction';
 
 const BookingList = () => {
   const { bookings, allBookings } = useBookings();
@@ -204,14 +205,31 @@ const BookingList = () => {
                 
                 <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
                   {booking.phone && (
-                    <button
-                      onClick={(e) => openWhatsApp(booking.phone, e)}
-                      className="p-2 hover:bg-green-50 rounded-lg transition-colors touch-manipulation"
-                      style={{ minHeight: '44px', minWidth: '44px' }}
+                    <FeatureRestriction
+                      feature="hasWhatsAppIntegration"
+                      featureName="acesso rápido ao WhatsApp"
+                      description="Envie mensagens diretamente da lista de reservas"
+                      fallback={
+                        <button
+                          className="p-2 rounded-lg transition-colors touch-manipulation opacity-50 cursor-not-allowed"
+                          style={{ minHeight: '44px', minWidth: '44px' }}
+                          disabled
+                          title="WhatsApp disponível no plano Pro"
+                        >
+                          <MessageCircle size={16} className="text-gray-400 md:hidden" />
+                          <MessageCircle size={18} className="text-gray-400 hidden md:block" />
+                        </button>
+                      }
                     >
-                      <MessageCircle size={16} className="text-green-600 md:hidden" />
-                      <MessageCircle size={18} className="text-green-600 hidden md:block" />
-                    </button>
+                      <button
+                        onClick={(e) => openWhatsApp(booking.phone, e)}
+                        className="p-2 hover:bg-green-50 rounded-lg transition-colors touch-manipulation"
+                        style={{ minHeight: '44px', minWidth: '44px' }}
+                      >
+                        <MessageCircle size={16} className="text-green-600 md:hidden" />
+                        <MessageCircle size={18} className="text-green-600 hidden md:block" />
+                      </button>
+                    </FeatureRestriction>
                   )}
                 </div>
               </div>

@@ -10,6 +10,7 @@ import BookingExportDialog from '@/components/BookingExportDialog';
 import { useBookings } from '@/contexts/BookingContext';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
+import { FeatureRestriction } from '@/components/FeatureRestriction';
 
 interface OptimizedBookingListProps {
   bookings: Booking[];
@@ -86,12 +87,26 @@ const BookingCard = memo(({ booking, properties }: { booking: Booking; propertie
         
         <div className="flex items-center gap-2">
           {booking.phone && (
-            <button
-              onClick={(e) => openWhatsApp(booking.phone, e)}
-              className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+            <FeatureRestriction
+              feature="hasWhatsAppIntegration"
+              featureName="acesso rápido ao WhatsApp"
+              description="Envie mensagens diretamente da lista de reservas"
+              fallback={
+                <button
+                  className="p-2 rounded-lg transition-colors opacity-50 cursor-not-allowed"
+                  disabled
+                >
+                  <MessageCircle size={18} className="text-gray-400" />
+                </button>
+              }
             >
-              <MessageCircle size={18} className="text-green-600" />
-            </button>
+              <button
+                onClick={(e) => openWhatsApp(booking.phone, e)}
+                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+              >
+                <MessageCircle size={18} className="text-green-600" />
+              </button>
+            </FeatureRestriction>
           )}
         </div>
       </div>

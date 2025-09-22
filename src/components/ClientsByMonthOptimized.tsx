@@ -2,6 +2,7 @@ import { useState, memo, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, TrendingUp, Calendar, ChevronDown, ChevronRight, Users } from 'lucide-react';
 import { getWhatsAppUrl } from '@/lib/whatsapp';
+import { FeatureRestriction } from '@/components/FeatureRestriction';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -64,15 +65,30 @@ const ClientCard = memo(({ client }: { client: ProcessedClient }) => {
         
         <div className="flex items-center gap-2">
           {client.phone && (
-            <a
-              href={getWhatsAppUrl({ phone: client.phone })}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+            <FeatureRestriction
+              feature="hasWhatsAppIntegration"
+              featureName="acesso rápido ao WhatsApp"
+              description="Envie mensagens diretamente da lista de clientes"
+              fallback={
+                <button
+                  className="p-2 rounded-lg transition-colors opacity-50 cursor-not-allowed"
+                  disabled
+                  title="WhatsApp disponível no plano Pro"
+                >
+                  <MessageCircle size={18} className="text-gray-400" />
+                </button>
+              }
             >
-              <MessageCircle size={18} className="text-green-600" />
-            </a>
+              <a
+                href={getWhatsAppUrl({ phone: client.phone })}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+              >
+                <MessageCircle size={18} className="text-green-600" />
+              </a>
+            </FeatureRestriction>
           )}
         </div>
       </div>

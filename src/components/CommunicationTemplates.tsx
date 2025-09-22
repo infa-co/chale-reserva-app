@@ -3,6 +3,7 @@ import { MessageCircle, Mail, Eye } from 'lucide-react';
 import { useCommunicationTemplates } from '@/hooks/useCommunicationTemplates';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { openWhatsApp } from '@/lib/whatsapp';
+import { FeatureRestriction } from '@/components/FeatureRestriction';
 import { Booking } from '@/types/booking';
 import { Property } from '@/types/property';
 import { Button } from '@/components/ui/button';
@@ -212,10 +213,24 @@ export const CommunicationTemplates = ({
                   Email
                 </Button>}
               
-              {booking.phone && <Button onClick={handleSendWhatsApp} className="bg-green-600 hover:bg-green-700 text-white">
-                  <MessageCircle size={16} className="mr-2" />
-                  WhatsApp
-                </Button>}
+              {booking.phone && (
+                <FeatureRestriction
+                  feature="hasWhatsAppIntegration"
+                  featureName="acesso rápido ao WhatsApp"
+                  description="Envie mensagens personalizadas via WhatsApp"
+                  fallback={
+                    <Button className="bg-gray-400 text-white cursor-not-allowed" disabled>
+                      <MessageCircle size={16} className="mr-2" />
+                      WhatsApp
+                    </Button>
+                  }
+                >
+                  <Button onClick={handleSendWhatsApp} className="bg-green-600 hover:bg-green-700 text-white">
+                    <MessageCircle size={16} className="mr-2" />
+                    WhatsApp
+                  </Button>
+                </FeatureRestriction>
+              )}
             </div>
           </div>
         </DialogContent>

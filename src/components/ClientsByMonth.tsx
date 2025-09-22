@@ -6,6 +6,7 @@ import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from 'da
 import { ptBR } from 'date-fns/locale';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
+import { FeatureRestriction } from '@/components/FeatureRestriction';
 
 interface ProcessedClient {
   id: string;
@@ -179,12 +180,27 @@ const ClientsByMonth = ({ clients, searchTerm }: ClientsByMonthProps) => {
                         
                         <div className="flex items-center gap-2">
                           {client.phone && (
-                            <button
-                              onClick={(e) => openWhatsApp(client.phone, e)}
-                              className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+                            <FeatureRestriction
+                              feature="hasWhatsAppIntegration"
+                              featureName="acesso rápido ao WhatsApp"
+                              description="Envie mensagens diretamente da lista de clientes"
+                              fallback={
+                                <button
+                                  className="p-2 rounded-lg transition-colors opacity-50 cursor-not-allowed"
+                                  disabled
+                                  title="WhatsApp disponível no plano Pro"
+                                >
+                                  <MessageCircle size={18} className="text-gray-400" />
+                                </button>
+                              }
                             >
-                              <MessageCircle size={18} className="text-green-600" />
-                            </button>
+                              <button
+                                onClick={(e) => openWhatsApp(client.phone, e)}
+                                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+                              >
+                                <MessageCircle size={18} className="text-green-600" />
+                              </button>
+                            </FeatureRestriction>
                           )}
                         </div>
                       </div>
