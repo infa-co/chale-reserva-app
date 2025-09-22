@@ -127,11 +127,11 @@ const Subscription = () => {
                 Para gerenciar sua assinatura, entre em contato com nosso suporte
               </p>
               <Button 
-                onClick={() => window.open('mailto:suporte@ordomo.com.br', '_blank')} 
+                onClick={() => window.location.href = '/auth'} 
                 variant="outline" 
                 className="border-green-300 text-green-700"
               >
-                Contatar Suporte
+                Fazer Login
               </Button>
             </CardFooter>
           </Card>
@@ -180,9 +180,9 @@ const Subscription = () => {
                     <Button 
                       className="w-full" 
                       variant="outline"
-                      onClick={() => window.open('mailto:suporte@ordomo.com.br', '_blank')}
+                      onClick={() => window.location.href = '/auth'}
                     >
-                      Contatar Suporte
+                      Fazer Login
                     </Button>
                   ) : (
                     <Button 
