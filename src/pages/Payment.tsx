@@ -17,44 +17,57 @@ const Payment = () => {
     {
       id: "basic",
       name: "Básico",
-      price: "39,90",
+      price: "39",
       badge: null,
-      priceId: "price_basic_monthly", // Será criado no Stripe
+      priceId: "price_basic_monthly",
       features: [
-        "Até 50 reservas/mês",
-        "1 propriedade",
-        "Calendário básico",
-        "Suporte por email"
+        "✅ Até 15 reservas/mês",
+        "✅ Cadastro de clientes",
+        "❌ Acesso rápido ao WhatsApp",
+        "❌ Dashboard financeiro",
+        "❌ Exportação de relatórios",
+        "❌ Integração Airbnb (nenhuma)",
+        "❌ Link iCal de exportação (Ordomo → Airbnb)",
+        "❌ Multi-chalé",
+        "❌ Suporte prioritário"
       ]
     },
     {
       id: "pro",
       name: "Pro",
-      price: "79,90", 
-      badge: "INDICADO PARA VOCÊ",
+      price: "89", 
+      badge: "MAIS POPULAR",
       badgeColor: "bg-primary",
-      priceId: "price_pro_monthly", // Será criado no Stripe
+      priceId: "price_pro_monthly",
       features: [
-        "Até 200 reservas/mês",
-        "Até 3 propriedades",
-        "Sincronização Airbnb",
-        "Dashboard financeiro",
-        "Suporte prioritário"
+        "✅ Até 35 reservas/mês",
+        "✅ Cadastro de clientes",
+        "✅ Acesso rápido ao WhatsApp",
+        "✅ Dashboard financeiro",
+        "❌ Exportação de relatórios",
+        "❌ Integração Airbnb (Airbnb → Ordomo)",
+        "✅ Link iCal de exportação (Ordomo → Airbnb)",
+        "❌ Multi-chalé",
+        "❌ Suporte prioritário"
       ]
     },
     {
       id: "premium",
       name: "Premium",
-      price: "149,90",
-      badge: "MAIS POPULAR",
+      price: "179",
+      badge: "COMPLETO",
       badgeColor: "bg-accent",
-      priceId: "price_premium_monthly", // Será criado no Stripe
+      priceId: "price_premium_monthly",
       features: [
-        "Reservas ilimitadas",
-        "Propriedades ilimitadas",
-        "Todas as integrações",
-        "Analytics avançado",
-        "Suporte 24/7"
+        "✅ Reservas ilimitadas",
+        "✅ Cadastro de clientes",
+        "✅ Acesso rápido ao WhatsApp",
+        "✅ Dashboard financeiro",
+        "✅ Exportação de relatórios",
+        "✅ Integração completa com Airbnb (Airbnb ↔ Ordomo bidirecional)",
+        "✅ Link iCal de exportação (Ordomo → Airbnb)",
+        "✅ Multi-chalé",
+        "✅ Suporte prioritário"
       ]
     }
   ];
