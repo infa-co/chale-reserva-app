@@ -12,22 +12,22 @@ interface SubscriptionData {
 // Planos disponíveis
 export const subscriptionTiers = {
   basic: {
-    price_id: "price_1SA8YlKF8m13UKNcHcc17kqM",
-    product_id: "prod_T6LFeoeZCMrw0c",
+    price_id: "price_1SAAe12cr9j2Q543DqSvOX1K",
+    product_id: "prod_T6NOVjbPPIf2Km",
     name: "Básico",
-    price: 39.90,
+    price: 39.00,
   },
   pro: {
-    price_id: "price_1SA8ZNKF8m13UKNcVbmfzjsA", 
-    product_id: "prod_T6LFjV1m2D2gIC",
+    price_id: "price_1SAAeT2cr9j2Q5434hjEsJY7", 
+    product_id: "prod_T6NPF6k2oT1Qdh",
     name: "Pro",
-    price: 89.90,
+    price: 89.00,
   },
   premium: {
-    price_id: "price_1SA8ZxKF8m13UKNciiWekPOI",
-    product_id: "prod_T6LGkx3eufdBo5",
+    price_id: "price_1SAAep2cr9j2Q5438bA7nlEV",
+    product_id: "prod_T6NP1b7m6xaYWN",
     name: "Premium", 
-    price: 179.90,
+    price: 179.00,
   }
 };
 
