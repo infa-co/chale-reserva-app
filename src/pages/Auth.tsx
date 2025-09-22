@@ -79,7 +79,7 @@ const Auth = () => {
           }
         } else {
           toast.success('Login realizado com sucesso!');
-          navigate('/');
+          navigate('/dashboard');
         }
       } else {
         const { error } = await signUp(email, password, name);
