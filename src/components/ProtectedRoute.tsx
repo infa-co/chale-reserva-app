@@ -1,15 +1,18 @@
-
+import { ReactNode } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading, hasActiveSubscription } = useAuth();
+  const { user, loading } = useAuth();
+  const { subscriptionData, loading: subscriptionLoading } = useSubscription();
+  const location = useLocation();
 
-  if (loading) {
+  if (loading || subscriptionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -21,7 +24,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  // Verificar se o usuário tem assinatura ativa
+  if (!subscriptionData.subscribed) {
+    return <Navigate to="/payment" replace />;
   }
 
   return <>{children}</>;

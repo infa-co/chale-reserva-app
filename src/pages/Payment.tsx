@@ -21,7 +21,7 @@ const Payment = () => {
       badge: null,
       priceId: "price_1SAAe12cr9j2Q543DqSvOX1K",
       features: [
-        "✅ Até 15 reservas/mês",
+        "✅ Até 50 reservas/mês",
         "✅ Cadastro de clientes",
         "❌ Acesso rápido ao WhatsApp",
         "❌ Dashboard financeiro",
@@ -40,7 +40,7 @@ const Payment = () => {
       badgeColor: "bg-primary",
       priceId: "price_1SAAeT2cr9j2Q5434hjEsJY7",
       features: [
-        "✅ Até 35 reservas/mês",
+        "✅ Até 200 reservas/mês",
         "✅ Cadastro de clientes",
         "✅ Acesso rápido ao WhatsApp",
         "✅ Dashboard financeiro",
@@ -106,9 +106,6 @@ const Payment = () => {
     }
   };
 
-  const handleSkip = () => {
-    navigate('/dashboard');
-  };
 
   return (
     <div className="min-h-screen bg-background font-inter py-12">
@@ -128,10 +125,10 @@ const Payment = () => {
             ORDOMO
           </div>
           <h1 className="text-4xl font-montserrat font-bold text-foreground mb-4">
-            Escolha seu plano
+            Escolha seu plano para continuar
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Selecione o plano ideal para sua hospedagem e comece a organizar suas reservas hoje mesmo.
+            Para usar o Ordomo, você precisa escolher um dos nossos planos. Comece organizando suas reservas hoje mesmo.
           </p>
         </div>
 
@@ -185,19 +182,6 @@ const Payment = () => {
           ))}
         </div>
 
-        {/* Skip Option */}
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">
-            Quer testar antes? Você pode escolher um plano depois.
-          </p>
-          <Button 
-            variant="ghost" 
-            onClick={handleSkip}
-            className="font-montserrat font-semibold"
-          >
-            Pular esta etapa por enquanto
-          </Button>
-        </div>
 
         {/* Trust Indicators */}
         <div className="mt-16 text-center">
