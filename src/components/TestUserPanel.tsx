@@ -10,32 +10,25 @@ import { toast } from "sonner";
 interface TestUser {
   email: string;
   password: string;
-  plan: 'free' | 'basic' | 'pro' | 'premium';
+  plan: 'basic' | 'pro' | 'premium';
   name: string;
   description: string;
 }
 
 const TEST_USERS: TestUser[] = [
   {
-    email: "usuario.gratuito@teste.com",
-    password: "teste123",
-    plan: 'free',
-    name: "Usuário Gratuito",
-    description: "5 reservas/mês, 1 propriedade"
-  },
-  {
-    email: "usuario.basico@teste.com", 
+    email: "usuario.basico@teste.com",
     password: "teste123",
     plan: 'basic',
     name: "Usuário Básico",
-    description: "15 reservas/mês, 1 propriedade"
+    description: "50 reservas/mês, 1 propriedade"
   },
   {
     email: "usuario.pro@teste.com",
     password: "teste123", 
     plan: 'pro',
     name: "Usuário Pro",
-    description: "35 reservas/mês, 3 propriedades, WhatsApp, Dashboard"
+    description: "200 reservas/mês, 3 propriedades, WhatsApp, Dashboard"
   },
   {
     email: "usuario.premium@teste.com",

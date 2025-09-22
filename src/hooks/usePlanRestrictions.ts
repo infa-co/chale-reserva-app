@@ -15,20 +15,8 @@ export interface PlanLimits {
 }
 
 const PLAN_LIMITS: Record<string, PlanLimits> = {
-  free: {
-    maxBookingsPerMonth: 5,
-    maxProperties: 1,
-    hasWhatsAppIntegration: false,
-    hasFinancialDashboard: false,
-    hasReportsExport: false,
-    hasAirbnbSync: false,
-    hasICalExport: false,
-    hasMultiProperty: false,
-    hasPrioritySupport: false,
-    airbnbSyncType: 'none'
-  },
   basic: {
-    maxBookingsPerMonth: 15,
+    maxBookingsPerMonth: 50,
     maxProperties: 1,
     hasWhatsAppIntegration: false,
     hasFinancialDashboard: false,
@@ -40,7 +28,7 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     airbnbSyncType: 'none'
   },
   pro: {
-    maxBookingsPerMonth: 35,
+    maxBookingsPerMonth: 200,
     maxProperties: 3,
     hasWhatsAppIntegration: true,
     hasFinancialDashboard: true,
@@ -73,21 +61,21 @@ export const usePlanRestrictions = () => {
     // Durante desenvolvimento, verificar se há plano simulado
     if (user && typeof window !== 'undefined') {
       const simulatedPlan = localStorage.getItem(`test_plan_${user.id}`);
-      if (simulatedPlan && ['free', 'basic', 'pro', 'premium'].includes(simulatedPlan)) {
+      if (simulatedPlan && ['basic', 'pro', 'premium'].includes(simulatedPlan)) {
         return simulatedPlan;
       }
     }
     
-    if (!subscriptionData.subscribed) return 'free';
+    if (!subscriptionData.subscribed) return 'basic';
     
     const tier = getCurrentTier();
-    if (!tier) return 'free';
+    if (!tier) return 'basic';
     
     if (tier.name === 'Básico') return 'basic';
     if (tier.name === 'Pro') return 'pro';
     if (tier.name === 'Premium') return 'premium';
     
-    return 'free';
+    return 'basic';
   };
 
   const currentPlan = getCurrentPlan();
@@ -109,21 +97,17 @@ export const usePlanRestrictions = () => {
 
   const getUpgradeMessage = (feature: string): string => {
     switch (currentPlan) {
-      case 'free':
-        return `Upgrade para o plano Básico para acessar ${feature}`;
       case 'basic':
         return `Upgrade para o plano Pro para acessar ${feature}`;
       case 'pro':
         return `Upgrade para o plano Premium para acessar ${feature}`;
       default:
-        return `Upgrade necessário para acessar ${feature}`;
+        return `Upgrade seu plano para acessar ${feature}`;
     }
   };
 
   const getNextPlanId = (): 'basic' | 'pro' | 'premium' | null => {
     switch (currentPlan) {
-      case 'free':
-        return 'basic';
       case 'basic':
         return 'pro';
       case 'pro':

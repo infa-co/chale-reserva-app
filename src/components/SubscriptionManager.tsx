@@ -76,7 +76,7 @@ const SubscriptionManager = () => {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            Você está usando o plano gratuito. Faça upgrade para desbloquear recursos premium.
+            Você está usando o plano básico. Faça upgrade para desbloquear recursos premium.
           </p>
           <Button onClick={() => createCheckout(subscriptionTiers.pro.price_id)}>
             Ver Planos Disponíveis
@@ -202,7 +202,7 @@ const SubscriptionManager = () => {
                         }).
                       </p>
                       <p>
-                        Após essa data, sua conta será convertida para o plano gratuito.
+                        Após essa data, sua conta será convertida para o plano básico.
                       </p>
                     </AlertDialogDescription>
                   </AlertDialogHeader>

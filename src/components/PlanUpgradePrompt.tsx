@@ -133,7 +133,7 @@ export const PlanUpgradePrompt = ({
           {plans
             .filter(plan => {
               // Mostra apenas planos superiores ao atual
-              const planOrder = ['free', 'basic', 'pro', 'premium'];
+              const planOrder = ['basic', 'pro', 'premium'];
               const currentIndex = planOrder.indexOf(currentPlan);
               const planIndex = planOrder.indexOf(plan.id);
               return planIndex > currentIndex;

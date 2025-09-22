@@ -34,10 +34,10 @@ const Settings = () => {
   // Get current subscription info
   const currentTier = getCurrentTier();
   const currentSubscription = {
-    planName: currentTier?.name || 'Gratuito',
-    price: currentTier?.price || 0,
-    currentPlan: subscriptionData.subscribed ? (currentTier?.name === 'Básico' ? 'basic' : currentTier?.name === 'Pro' ? 'pro' : 'premium') : 'free',
-    features: subscriptionData.subscribed ? getFeaturesByTier(currentTier?.name || '') : ['Funcionalidades limitadas'],
+    planName: currentTier?.name || 'Básico',
+    price: currentTier?.price || 39.90,
+    currentPlan: subscriptionData.subscribed ? (currentTier?.name === 'Básico' ? 'basic' : currentTier?.name === 'Pro' ? 'pro' : 'premium') : 'basic',
+    features: subscriptionData.subscribed ? getFeaturesByTier(currentTier?.name || '') : ['50 reservas/mês', '1 propriedade', 'Calendário básico'],
     nextBilling: subscriptionData.subscription_end ? new Date(subscriptionData.subscription_end).toLocaleDateString('pt-BR') : null
   };
 
@@ -319,13 +319,13 @@ const Settings = () => {
                   <div className="min-w-0">
                     <h3 className="font-semibold text-sm md:text-base">{currentSubscription.planName}</h3>
                     <p className="text-xs md:text-sm text-muted-foreground">
-                      {currentSubscription.price > 0 ? `R$ ${currentSubscription.price.toFixed(2)}/mês` : 'Gratuito'}
+                      {currentSubscription.price > 0 ? `R$ ${currentSubscription.price.toFixed(2)}/mês` : 'R$ 39,90/mês'}
                     </p>
                   </div>
                 </div>
                 <div className="text-left sm:text-right flex-shrink-0">
                   <Badge variant="secondary" className="text-xs">
-                    {subscriptionData.subscribed ? 'Ativo' : 'Gratuito'}
+                    {subscriptionData.subscribed ? 'Ativo' : 'Básico'}
                   </Badge>
                   {currentSubscription.nextBilling && (
                     <p className="text-xs text-muted-foreground mt-1">
