@@ -6,7 +6,7 @@ const MobileNav = () => {
   const location = useLocation();
 
   const navItems = [
-    { href: '/', icon: Home, label: 'Início' },
+    { href: '/dashboard', icon: Home, label: 'Início' },
     { href: '/reservas', icon: Calendar, label: 'Reservas' },
     { href: '/nova-reserva', icon: Plus, label: 'Nova', isButton: true },
     { href: '/historico-reservas', icon: History, label: 'Histórico' },
