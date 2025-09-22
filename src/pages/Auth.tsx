@@ -92,8 +92,20 @@ const Auth = () => {
             toast.error('Erro ao criar conta: ' + error.message);
           }
         } else {
-          toast.success('Conta criada com sucesso! Agora escolha seu plano.');
-          navigate('/payment');
+          toast.success('Conta criada com sucesso!');
+          // Verificar se é mobile
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          if (isMobile) {
+            // No mobile, vai direto para o login
+            setIsLogin(true);
+            setEmail('');
+            setPassword('');
+            setName('');
+            toast.info('Agora faça login com suas credenciais');
+          } else {
+            // No desktop, vai para o pagamento
+            navigate('/payment');
+          }
         }
       }
     } catch (error) {
