@@ -299,8 +299,77 @@ const Auth = () => {
               size="sm"
               className="text-blue-600 border-blue-300 hover:bg-blue-50"
             >
-              Gerenciar Usuários de Teste
+              Criar/Gerenciar Usuários de Teste
             </Button>
+          </div>
+          
+          <div className="mt-4 space-y-2">
+            <p className="text-xs text-blue-600 font-medium text-center">Login Rápido:</p>
+            <div className="grid grid-cols-1 gap-2">
+              <Button
+                onClick={async () => {
+                  try {
+                    const { error } = await signIn('usuario.basico@teste.com', 'teste123');
+                    if (error) {
+                      toast.error('Erro no login básico: ' + error.message);
+                    } else {
+                      toast.success('Logado como usuário básico!');
+                      navigate('/dashboard');
+                    }
+                  } catch (e) {
+                    toast.error('Erro inesperado');
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="text-xs h-8"
+                disabled={loading}
+              >
+                Login Básico
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    const { error } = await signIn('usuario.pro@teste.com', 'teste123');
+                    if (error) {
+                      toast.error('Erro no login pro: ' + error.message);
+                    } else {
+                      toast.success('Logado como usuário pro!');
+                      navigate('/dashboard');
+                    }
+                  } catch (e) {
+                    toast.error('Erro inesperado');
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="text-xs h-8"
+                disabled={loading}
+              >
+                Login Pro
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    const { error } = await signIn('usuario.premium@teste.com', 'teste123');
+                    if (error) {
+                      toast.error('Erro no login premium: ' + error.message);
+                    } else {
+                      toast.success('Logado como usuário premium!');
+                      navigate('/dashboard');
+                    }
+                  } catch (e) {
+                    toast.error('Erro inesperado');
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="text-xs h-8"
+                disabled={loading}
+              >
+                Login Premium
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -27,8 +27,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Verificar se o usuário tem assinatura ativa
-  if (!subscriptionData.subscribed) {
+  // Verificar se é um usuário de teste (permite acesso sem assinatura para teste)
+  const isTestUser = user && typeof window !== 'undefined' && 
+    localStorage.getItem(`test_plan_${user.id}`);
+
+  // Verificar se o usuário tem assinatura ativa OU é um usuário de teste
+  if (!subscriptionData.subscribed && !isTestUser) {
     return <Navigate to="/payment" replace />;
   }
 

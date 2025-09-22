@@ -49,6 +49,8 @@ export const TestUserPanel = () => {
     
     try {
       for (const testUser of TEST_USERS) {
+        console.log(`Tentando criar usuário: ${testUser.email}`);
+        
         // Tentar criar o usuário
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: testUser.email,
@@ -56,25 +58,43 @@ export const TestUserPanel = () => {
           options: {
             data: {
               name: testUser.name
-            }
+            },
+            emailRedirectTo: `${window.location.origin}/`
           }
         });
 
-        if (signUpError && !signUpError.message.includes('User already registered')) {
-          console.error(`Erro ao criar usuário ${testUser.email}:`, signUpError);
-          continue;
-        }
-
-        // Simular plano no localStorage para desenvolvimento
-        if (authData.user) {
+        if (signUpError) {
+          if (signUpError.message.includes('User already registered')) {
+            console.log(`Usuário ${testUser.email} já existe`);
+            
+            // Tentar fazer login para obter o ID do usuário
+            const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+              email: testUser.email,
+              password: testUser.password
+            });
+            
+            if (!loginError && loginData.user) {
+              localStorage.setItem(`test_plan_${loginData.user.id}`, testUser.plan);
+              console.log(`Plano ${testUser.plan} atribuído ao usuário ${testUser.email}`);
+              
+              // Fazer logout imediatamente após configurar o plano
+              await supabase.auth.signOut();
+            }
+          } else {
+            console.error(`Erro ao criar usuário ${testUser.email}:`, signUpError);
+            continue;
+          }
+        } else if (authData.user) {
+          console.log(`Usuário ${testUser.email} criado com sucesso`);
           localStorage.setItem(`test_plan_${authData.user.id}`, testUser.plan);
+          console.log(`Plano ${testUser.plan} atribuído ao usuário ${testUser.email}`);
         }
       }
       
-      toast.success('Usuários de teste criados com sucesso!');
+      toast.success('Usuários de teste configurados com sucesso!');
     } catch (error) {
-      console.error('Erro ao criar usuários de teste:', error);
-      toast.error('Erro ao criar usuários de teste');
+      console.error('Erro ao configurar usuários de teste:', error);
+      toast.error('Erro ao configurar usuários de teste');
     } finally {
       setIsCreating(false);
     }
@@ -84,24 +104,71 @@ export const TestUserPanel = () => {
     setLoggingIn(testUser.email);
     
     try {
+      console.log(`Tentando fazer login com: ${testUser.email}`);
+      
       if (user) {
+        console.log('Fazendo logout do usuário atual...');
         await signOut();
         // Aguardar um pouco para garantir que o logout foi processado
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
+      console.log(`Fazendo login com ${testUser.email}...`);
       const { error } = await signIn(testUser.email, testUser.password);
       
       if (error) {
+        console.error('Erro no login:', error);
         toast.error(`Erro ao fazer login: ${error.message}`);
+        
+        // Se der erro, tentar criar o usuário primeiro
+        if (error.message.includes('Invalid login credentials')) {
+          console.log('Credenciais inválidas. Tentando criar usuário...');
+          await createSingleTestUser(testUser);
+          
+          // Tentar login novamente após criar
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const { error: retryError } = await signIn(testUser.email, testUser.password);
+          
+          if (retryError) {
+            toast.error(`Erro persistente: ${retryError.message}`);
+          } else {
+            toast.success(`Logado como ${testUser.name}`);
+          }
+        }
       } else {
+        console.log('Login bem-sucedido!');
         toast.success(`Logado como ${testUser.name}`);
       }
     } catch (error) {
-      console.error('Erro no login:', error);
+      console.error('Erro inesperado no login:', error);
       toast.error('Erro inesperado no login');
     } finally {
       setLoggingIn(null);
+    }
+  };
+
+  const createSingleTestUser = async (testUser: TestUser) => {
+    console.log(`Criando usuário: ${testUser.email}`);
+    
+    const { data: authData, error: signUpError } = await supabase.auth.signUp({
+      email: testUser.email,
+      password: testUser.password,
+      options: {
+        data: {
+          name: testUser.name
+        },
+        emailRedirectTo: `${window.location.origin}/`
+      }
+    });
+
+    if (signUpError && !signUpError.message.includes('User already registered')) {
+      console.error(`Erro ao criar usuário ${testUser.email}:`, signUpError);
+      throw signUpError;
+    }
+
+    if (authData.user) {
+      localStorage.setItem(`test_plan_${authData.user.id}`, testUser.plan);
+      console.log(`Plano ${testUser.plan} configurado para ${testUser.email}`);
     }
   };
 
