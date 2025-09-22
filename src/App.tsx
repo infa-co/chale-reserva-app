@@ -22,6 +22,9 @@ const OptimizedClients = lazy(() => import("./pages/OptimizedClients"));
 const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
 import Settings from "./pages/Settings";
+import Payment from "./pages/Payment";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCanceled from "./pages/PaymentCanceled";
 const AssignBookings = lazy(() => import("./pages/AssignBookings"));
 
 const LoadingSpinner = () => (
@@ -53,6 +56,9 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/payment-canceled" element={<PaymentCanceled />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/assinatura" element={<Navigate to="/configuracoes" replace />} />
 

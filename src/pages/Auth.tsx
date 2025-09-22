@@ -91,8 +91,8 @@ const Auth = () => {
             toast.error('Erro ao criar conta: ' + error.message);
           }
         } else {
-          toast.success('Conta criada com sucesso! Verifique seu email.');
-          setIsLogin(true);
+          toast.success('Conta criada com sucesso! Agora escolha seu plano.');
+          navigate('/payment');
         }
       }
     } catch (error) {
