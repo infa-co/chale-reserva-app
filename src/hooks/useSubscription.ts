@@ -137,6 +137,13 @@ export const useSubscription = () => {
 
       if (error) {
         console.error('Error opening customer portal:', error);
+        
+        // Check if it's a configuration error
+        if (error.message?.includes('No configuration provided')) {
+          toast.error('Portal do cliente não configurado. Entre em contato com o suporte.');
+          return;
+        }
+        
         toast.error('Erro ao abrir portal do cliente');
         return;
       }

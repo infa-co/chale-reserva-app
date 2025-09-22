@@ -107,9 +107,16 @@ const Subscription = () => {
                 Sua assinatura está ativa
               </CardDescription>
             </CardHeader>
-            <CardFooter className="justify-center">
-              <Button onClick={openCustomerPortal} variant="outline" className="border-green-300 text-green-700">
-                Gerenciar Assinatura
+            <CardFooter className="justify-center flex-col gap-2">
+              <p className="text-sm text-green-600 text-center">
+                Para gerenciar sua assinatura, entre em contato com nosso suporte
+              </p>
+              <Button 
+                onClick={() => window.open('mailto:suporte@ordomo.com.br', '_blank')} 
+                variant="outline" 
+                className="border-green-300 text-green-700"
+              >
+                Contatar Suporte
               </Button>
             </CardFooter>
           </Card>
@@ -158,9 +165,9 @@ const Subscription = () => {
                     <Button 
                       className="w-full" 
                       variant="outline"
-                      onClick={openCustomerPortal}
+                      onClick={() => window.open('mailto:suporte@ordomo.com.br', '_blank')}
                     >
-                      Gerenciar Plano
+                      Contatar Suporte
                     </Button>
                   ) : (
                     <Button 
