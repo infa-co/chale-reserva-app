@@ -208,8 +208,16 @@ const Index = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="py-16 relative overflow-hidden">
+        {/* Background mockup */}
+        <div className="absolute top-16 right-0 opacity-20 pointer-events-none">
+          <img 
+            src="/mockup-dashboard.png" 
+            alt="Dashboard mockup"
+            className="w-48 md:w-64 h-auto object-contain transform rotate-12"
+          />
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-montserrat font-bold text-foreground mb-4">
               Feito para quem vive da hospedagem
@@ -232,8 +240,16 @@ const Index = () => {
       </section>
 
       {/* How it Works */}
-      <section className="py-16 bg-muted">
-        <div className="container mx-auto px-4">
+      <section className="py-16 bg-muted relative overflow-hidden">
+        {/* Background mockup */}
+        <div className="absolute bottom-0 left-0 opacity-15 pointer-events-none">
+          <img 
+            src="/mockup-hospede.png" 
+            alt="Hóspede mockup"
+            className="w-40 md:w-56 h-auto object-contain transform -rotate-12"
+          />
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-montserrat font-bold text-foreground mb-4">
               Começar é simples
@@ -267,8 +283,19 @@ const Index = () => {
       </section>
 
       {/* Pricing Plans */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="py-16 relative overflow-hidden">
+        {/* Background mockup with glow effect */}
+        <div className="absolute top-10 right-10 opacity-25 pointer-events-none">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
+            <img 
+              src="/mockup-stats.png" 
+              alt="Estatísticas mockup"
+              className="w-52 md:w-72 h-auto object-contain transform rotate-6 relative z-10 drop-shadow-2xl"
+            />
+          </div>
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-montserrat font-bold text-foreground mb-4">
               Planos para todos os donos
