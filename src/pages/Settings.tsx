@@ -44,27 +44,27 @@ const Settings = () => {
     switch (tierName) {
       case 'Básico':
         return [
-          "Até 50 reservas por mês",
-          "Calendário básico", 
-          "Relatórios simples",
-          "Suporte por email"
+          "Até 15 reservas/mês",
+          "Cadastro de clientes"
         ];
       case 'Pro':
         return [
-          "Até 200 reservas por mês",
-          "Sincronização com Airbnb",
-          "Relatórios avançados", 
-          "Templates de comunicação",
-          "Suporte prioritário"
+          "Até 35 reservas/mês",
+          "Cadastro de clientes",
+          "Acesso rápido ao WhatsApp",
+          "Dashboard financeiro",
+          "Link iCal de exportação (Ordomo → Airbnb)"
         ];
       case 'Premium':
         return [
           "Reservas ilimitadas",
-          "Todas as integrações",
-          "Analytics avançado",
-          "Automação completa", 
-          "Suporte 24/7",
-          "Múltiplas propriedades"
+          "Cadastro de clientes",
+          "Acesso rápido ao WhatsApp",
+          "Dashboard financeiro", 
+          "Exportação de relatórios",
+          "Integração completa com Airbnb (Airbnb ↔ Ordomo bidirecional)",
+          "Multi-chalé",
+          "Suporte prioritário"
         ];
       default:
         return [];
@@ -80,10 +80,8 @@ const Settings = () => {
       icon: Star,
       popular: false,
       features: [
-        "Até 50 reservas por mês",
-        "Calendário básico",
-        "Relatórios simples", 
-        "Suporte por email"
+        "Até 15 reservas/mês",
+        "Cadastro de clientes"
       ]
     },
     {
@@ -95,11 +93,11 @@ const Settings = () => {
       popular: true,
       highlight: 'MAIS POPULAR',
       features: [
-        "Até 200 reservas por mês",
-        "Sincronização com Airbnb",
-        "Relatórios avançados",
-        "Templates de comunicação",
-        "Suporte prioritário"
+        "Até 35 reservas/mês",
+        "Cadastro de clientes",
+        "Acesso rápido ao WhatsApp",
+        "Dashboard financeiro",
+        "Link iCal de exportação (Ordomo → Airbnb)"
       ]
     },
     {
@@ -111,11 +109,13 @@ const Settings = () => {
       popular: false,
       features: [
         "Reservas ilimitadas",
-        "Todas as integrações", 
-        "Analytics avançado",
-        "Automação completa",
-        "Suporte 24/7",
-        "Múltiplas propriedades"
+        "Cadastro de clientes",
+        "Acesso rápido ao WhatsApp",
+        "Dashboard financeiro", 
+        "Exportação de relatórios",
+        "Integração completa com Airbnb (Airbnb ↔ Ordomo bidirecional)",
+        "Multi-chalé",
+        "Suporte prioritário"
       ]
     }
   ];
@@ -402,24 +402,26 @@ const Settings = () => {
                         <div className="space-y-3 flex-grow">
                           {/* All available features for comparison */}
                           {[
-                            plan.id === 'basic' ? 'Até 50 reservas/mês' : plan.id === 'pro' ? 'Até 200 reservas/mês' : 'Reservas ilimitadas',
+                            plan.id === 'basic' ? 'Até 15 reservas/mês' : plan.id === 'pro' ? 'Até 35 reservas/mês' : 'Reservas ilimitadas',
                             'Cadastro de clientes', 
                             'Acesso rápido ao WhatsApp',
                             'Dashboard financeiro',
                             'Exportação de relatórios',
-                            'Integração com Airbnb (Airbnb → Ordomo)',
+                            plan.id === 'basic' ? 'Integração Airbnb (nenhuma)' : plan.id === 'pro' ? 'Integração Airbnb (Airbnb → Ordomo)' : 'Integração completa com Airbnb (Airbnb ↔ Ordomo bidirecional)',
                             'Link iCal de exportação (Ordomo → Airbnb)',
                             'Multi-chalé',
                             'Suporte prioritário'
                           ].map((feature, index) => {
-                            const isIncluded = plan.features.some(f => 
-                              f.includes(feature) || 
-                              (feature.includes('reservas') && (f.includes('reservas') || f.includes('Reservas'))) ||
-                              (feature.includes('Cadastro') && index === 1) ||
-                              (feature.includes('WhatsApp') && index === 2) ||
-                              (feature.includes('Dashboard') && index === 3) ||
-                              (feature.includes('Exportação') && index === 4)
-                            ) || (index <= 4); // Primeiros 5 recursos sempre incluídos
+                            let isIncluded = false;
+                            
+                            // Define what's included in each plan
+                            if (plan.id === 'basic') {
+                              isIncluded = index <= 1; // Apenas reservas e cadastro
+                            } else if (plan.id === 'pro') {
+                              isIncluded = index <= 1 || index === 2 || index === 3 || index === 6; // reservas, cadastro, whatsapp, dashboard, ical
+                            } else if (plan.id === 'premium') {
+                              isIncluded = true; // Todos os recursos
+                            }
                             
                             return (
                               <div key={index} className="flex items-start gap-3 text-sm">
