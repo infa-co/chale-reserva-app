@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { BookingProvider } from "./contexts/BookingContext";
 import Auth from "./pages/Auth";
@@ -52,6 +52,7 @@ function App() {
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/assinatura" element={<Navigate to="/configuracoes" replace />} />
 
               <Route element={<ProtectedShell />}>
                 <Route index element={<Dashboard />} />
