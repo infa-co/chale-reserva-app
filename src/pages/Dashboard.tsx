@@ -18,7 +18,7 @@ import { FeatureRestriction } from '@/components/FeatureRestriction';
 const Dashboard = memo(() => {
   const { bookings, allBookings, loading } = useBookings();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { checkBookingLimit, currentPlan, limits } = usePlanRestrictions();
+  const { checkBookingLimit, getPaymentMonth, currentPlan, limits } = usePlanRestrictions();
 
   const currentMonthBookings = useMemo(() => {
     const monthStart = startOfMonth(currentDate);
@@ -31,16 +31,15 @@ const Dashboard = memo(() => {
     });
   }, [bookings, currentDate]);
 
-  // Verificar limite de reservas do mês atual
+  // Verificar limite de reservas do mês do pagamento
   const currentMonthBookingCount = useMemo(() => {
-    const monthStart = startOfMonth(new Date());
-    const monthEnd = endOfMonth(new Date());
+    const paymentMonth = getPaymentMonth();
     
     return bookings.filter(booking => {
-      const checkIn = new Date(booking.check_in);
-      return checkIn >= monthStart && checkIn <= monthEnd;
+      return booking.check_in?.startsWith(paymentMonth) || 
+             booking.check_out?.startsWith(paymentMonth);
     }).length;
-  }, [bookings]);
+  }, [bookings, getPaymentMonth]);
 
   const canCreateNewBooking = checkBookingLimit(currentMonthBookingCount);
   const isNearLimit = limits.maxBookingsPerMonth && currentMonthBookingCount >= limits.maxBookingsPerMonth * 0.8;
@@ -74,7 +73,7 @@ const Dashboard = memo(() => {
         {isNearLimit && canCreateNewBooking && (
           <PlanUpgradePrompt 
             feature="mais reservas"
-            description={`Você já tem ${currentMonthBookingCount} de ${limits.maxBookingsPerMonth} reservas este mês`}
+            description={`Você já tem ${currentMonthBookingCount} de ${limits.maxBookingsPerMonth} reservas no mês do pagamento`}
             compact
           />
         )}

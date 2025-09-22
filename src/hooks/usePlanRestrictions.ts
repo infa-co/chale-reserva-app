@@ -98,6 +98,18 @@ export const usePlanRestrictions = () => {
     return currentBookingsThisMonth < limits.maxBookingsPerMonth;
   };
 
+  const getPaymentMonth = (): string => {
+    if (!subscriptionData.subscription_end) {
+      return new Date().toISOString().slice(0, 7); // fallback to current month
+    }
+    
+    // Subscription end is at the end of the billing period
+    // So the payment month is the previous month
+    const endDate = new Date(subscriptionData.subscription_end);
+    endDate.setMonth(endDate.getMonth() - 1);
+    return endDate.toISOString().slice(0, 7);
+  };
+
   const checkPropertyLimit = (currentPropertiesCount: number): boolean => {
     if (limits.maxProperties === null) return true; // unlimited
     return currentPropertiesCount < limits.maxProperties;
@@ -133,6 +145,7 @@ export const usePlanRestrictions = () => {
     checkPropertyLimit,
     getUpgradeMessage,
     getNextPlanId,
+    getPaymentMonth,
     isFeatureEnabled: checkFeatureAccess
   };
 };
