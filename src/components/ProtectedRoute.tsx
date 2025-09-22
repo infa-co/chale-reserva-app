@@ -1,7 +1,8 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -11,8 +12,37 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const { subscriptionData, loading: subscriptionLoading } = useSubscription();
   const location = useLocation();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(true);
 
-  if (loading || subscriptionLoading) {
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user?.id) {
+        setIsAdmin(false);
+        setAdminLoading(false);
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      if (!error && data) {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+      setAdminLoading(false);
+    };
+
+    checkAdminStatus();
+  }, [user?.id]);
+
+  if (loading || subscriptionLoading || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -35,11 +65,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     userEmail: user?.email,
     hasSubscription: subscriptionData.subscribed,
     isTestUser: !!isTestUser,
+    isAdmin,
     testPlan: isTestUser ? localStorage.getItem(`test_plan_${user.id}`) : null
   });
 
-  // Verificar se o usuário tem assinatura ativa OU é um usuário de teste
-  if (!subscriptionData.subscribed && !isTestUser) {
+  // Verificar se o usuário tem assinatura ativa OU é um usuário de teste OU é admin
+  if (!subscriptionData.subscribed && !isTestUser && !isAdmin) {
     return <Navigate to="/payment" replace />;
   }
 
