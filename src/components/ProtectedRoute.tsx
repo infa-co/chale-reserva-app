@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading, hasActiveSubscription } = useAuth();
 
   if (loading) {
     return (
@@ -22,6 +22,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  if (!hasActiveSubscription) {
+    return <Navigate to="/assinatura" replace />;
   }
 
   return <>{children}</>;
