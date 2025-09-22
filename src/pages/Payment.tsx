@@ -19,7 +19,7 @@ const Payment = () => {
       name: "Básico",
       price: "39",
       badge: null,
-      priceId: "price_basic_monthly",
+      priceId: "price_1SAARvKF8m13UKNcrykeEAiS",
       features: [
         "✅ Até 15 reservas/mês",
         "✅ Cadastro de clientes",
@@ -38,7 +38,7 @@ const Payment = () => {
       price: "89", 
       badge: "MAIS POPULAR",
       badgeColor: "bg-primary",
-      priceId: "price_pro_monthly",
+      priceId: "price_1SAASCKF8m13UKNczP0MpAcg",
       features: [
         "✅ Até 35 reservas/mês",
         "✅ Cadastro de clientes",
@@ -57,7 +57,7 @@ const Payment = () => {
       price: "179",
       badge: "COMPLETO",
       badgeColor: "bg-accent",
-      priceId: "price_premium_monthly",
+      priceId: "price_1SAASRKF8m13UKNcPDNS1Pjp",
       features: [
         "✅ Reservas ilimitadas",
         "✅ Cadastro de clientes",
