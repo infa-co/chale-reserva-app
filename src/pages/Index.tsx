@@ -83,23 +83,17 @@ const Index = () => {
   const plans = [
     {
       name: "Básico",
-      price: "39",
+      price: "39,90",
       badge: null,
       features: [
         "Até 15 reservas/mês",
         "Cadastro de clientes",
-        "Acesso rápido ao WhatsApp",
-        "Dashboard financeiro",
-        "Exportação de relatórios",
-        "Integração Airbnb",
-        "Link iCal de exportação",
-        "Multi-chalé",
-        "Suporte prioritário"
+        
       ]
     },
     {
       name: "Pro",
-      price: "89", 
+      price: "89,90", 
       badge: "MAIS POPULAR",
       badgeColor: "bg-primary",
       features: [
@@ -109,14 +103,13 @@ const Index = () => {
         "Dashboard financeiro",
         "Exportação de relatórios",
         "Integração Airbnb",
-        "Link iCal de exportação",
         "Multi-chalé",
         "Suporte prioritário"
       ]
     },
     {
       name: "Premium",
-      price: "179",
+      price: "179,90",
       badge: "COMPLETO",
       badgeColor: "bg-accent",
       features: [
@@ -126,7 +119,6 @@ const Index = () => {
         "Dashboard financeiro",
         "Exportação de relatórios",
         "Integração completa com Airbnb",
-        "Link iCal de exportação",
         "Multi-chalé",
         "Suporte prioritário"
       ]
