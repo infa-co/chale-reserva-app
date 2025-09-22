@@ -23,7 +23,6 @@ const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
 import Settings from "./pages/Settings";
 const AssignBookings = lazy(() => import("./pages/AssignBookings"));
-import RedirectToSettings from "./components/RedirectToSettings";
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -62,9 +61,6 @@ function App() {
                   <ResetPassword />
                 </AuthOnlyRoute>
               } />
-              
-              {/* Redirect old subscription route */}
-              <Route path="/assinatura" element={<RedirectToSettings />} />
 
               <Route element={<ProtectedShell />}>
                 <Route index element={<Dashboard />} />

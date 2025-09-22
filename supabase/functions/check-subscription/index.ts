@@ -73,18 +73,11 @@ serve(async (req) => {
       
       // Safely convert timestamp
       try {
-        const currentPeriodEnd = subscription.current_period_end;
-        if (currentPeriodEnd) {
-          // Handle both number and string timestamps
-          const timestamp = typeof currentPeriodEnd === 'string' ? parseInt(currentPeriodEnd) : currentPeriodEnd;
-          if (!isNaN(timestamp) && timestamp > 0) {
-            subscriptionEnd = new Date(timestamp * 1000).toISOString();
-            logStep("Subscription end date calculated", { endDate: subscriptionEnd, original: currentPeriodEnd });
-          } else {
-            logStep("Invalid timestamp format", { current_period_end: currentPeriodEnd });
-          }
+        if (subscription.current_period_end && typeof subscription.current_period_end === 'number') {
+          subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+          logStep("Subscription end date calculated", { endDate: subscriptionEnd });
         } else {
-          logStep("No current_period_end available", { subscription_id: subscription.id });
+          logStep("Invalid or missing current_period_end", { current_period_end: subscription.current_period_end });
         }
       } catch (error) {
         logStep("Error converting subscription end date", { error: error.message, current_period_end: subscription.current_period_end });
