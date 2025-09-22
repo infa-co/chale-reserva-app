@@ -13,6 +13,7 @@ import { format, startOfMonth, endOfMonth, addMonths, subMonths, parseISO } from
 import { ptBR } from 'date-fns/locale';
 import type { PropertyStats } from '@/types/property';
 import type { Booking } from '@/types/booking';
+import { FeatureRestriction } from '@/components/FeatureRestriction';
 
 const PropertyDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -157,6 +158,12 @@ const PropertyDashboard = () => {
   }
 
   return (
+    <FeatureRestriction
+      feature="hasPropertyDashboard"
+      featureName="dashboard de propriedades"
+      description="Visualize estatísticas detalhadas e relatórios de cada chalé"
+      showUpgradePrompt={true}
+    >
     <div className="p-4 space-y-6 pb-32">
       {/* Header com breadcrumb */}
       <div className="space-y-4">
@@ -246,6 +253,7 @@ const PropertyDashboard = () => {
         title={`Reservas - ${format(currentDate, 'MMMM yyyy', { locale: ptBR })}`}
       />
     </div>
+    </FeatureRestriction>
   );
 };
 

@@ -12,6 +12,7 @@ export interface PlanLimits {
   hasMultiProperty: boolean;
   hasPrioritySupport: boolean;
   hasHistoricalBookings: boolean;
+  hasPropertyDashboard: boolean; // Dashboard específico de propriedades
   airbnbSyncType: 'none' | 'export-only' | 'bidirectional';
 }
 
@@ -20,13 +21,14 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     maxBookingsPerMonth: 15,
     maxProperties: 1,
     hasWhatsAppIntegration: false,
-    hasFinancialDashboard: false,
+    hasFinancialDashboard: true,  // Dashboard principal permitido
     hasReportsExport: false,
     hasAirbnbSync: false,
     hasICalExport: false,
     hasMultiProperty: false,
     hasPrioritySupport: false,
     hasHistoricalBookings: false,
+    hasPropertyDashboard: false, // Dashboard de propriedades restrito
     airbnbSyncType: 'none'
   },
   pro: {
@@ -40,6 +42,7 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     hasMultiProperty: true,
     hasPrioritySupport: false,
     hasHistoricalBookings: true,
+    hasPropertyDashboard: true,
     airbnbSyncType: 'export-only'
   },
   premium: {
@@ -53,6 +56,7 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     hasMultiProperty: true,
     hasPrioritySupport: true,
     hasHistoricalBookings: true,
+    hasPropertyDashboard: true,
     airbnbSyncType: 'bidirectional'
   }
 };

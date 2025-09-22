@@ -67,12 +67,6 @@ const Dashboard = memo(() => {
   }
 
   return (
-    <FeatureRestriction
-      feature="hasFinancialDashboard"
-      featureName="dashboard completo"
-      description="Visualize estatísticas, calendário e gerencie suas reservas"
-      showUpgradePrompt={true}
-    >
       <div className="p-3 md:p-4 space-y-4 md:space-y-6 pb-32">
         <DashboardHeader />
         
@@ -132,7 +126,6 @@ const Dashboard = memo(() => {
           </div>
         )}
       </div>
-    </FeatureRestriction>
   );
 });
 
