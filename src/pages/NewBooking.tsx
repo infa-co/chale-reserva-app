@@ -6,23 +6,41 @@ import { useBookings } from '@/contexts/BookingContext';
 import { toast } from 'sonner';
 import { useBookingForm } from '@/hooks/useBookingForm';
 import { useBookingValidation } from '@/hooks/useBookingValidation';
+import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
 import { BookingDatesFormWithValidation } from '@/components/forms/BookingDatesFormWithValidation';
 import { PaymentForm } from '@/components/forms/PaymentForm';
 import { NotesForm } from '@/components/forms/NotesForm';
 import { PropertySelector } from '@/components/forms/PropertySelector';
+import { PlanUpgradePrompt } from '@/components/PlanUpgradePrompt';
 
 const NewBooking = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const propertyIdFromUrl = searchParams.get('property_id');
   
-  const { addBooking } = useBookings();
+  const { addBooking, bookings } = useBookings();
   const { formData, handleInputChange, calculateNights, openWhatsApp } = useBookingForm(propertyIdFromUrl || undefined);
   const { checkDateConflict, validateBookingData } = useBookingValidation();
+  const { checkBookingLimit, limits } = usePlanRestrictions();
+
+  // Verificar limite de reservas do mês atual
+  const currentMonthBookingCount = bookings.filter(booking => {
+    const checkIn = new Date(booking.check_in);
+    const now = new Date();
+    return checkIn.getMonth() === now.getMonth() && checkIn.getFullYear() === now.getFullYear();
+  }).length;
+
+  const canCreateBooking = checkBookingLimit(currentMonthBookingCount);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificar limite de reservas
+    if (!canCreateBooking) {
+      toast.error(`Limite de ${limits.maxBookingsPerMonth} reservas/mês atingido`);
+      return;
+    }
     
     // Validar property_id
     if (!formData.propertyId) {
@@ -89,7 +107,18 @@ const NewBooking = () => {
         <h1 className="text-xl font-bold text-sage-800">Nova Reserva</h1>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Prompt de upgrade se limite atingido */}
+      {!canCreateBooking && (
+        <div className="mb-6">
+          <PlanUpgradePrompt 
+            feature="mais reservas"
+            description={`Você atingiu o limite de ${limits.maxBookingsPerMonth} reservas este mês`}
+          />
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6"
+            style={{ opacity: canCreateBooking ? 1 : 0.6, pointerEvents: canCreateBooking ? 'auto' : 'none' }}>
         <PropertySelector
           value={formData.propertyId}
           onChange={(value) => handleInputChange('propertyId', value)}

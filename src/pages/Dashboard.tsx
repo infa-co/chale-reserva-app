@@ -10,10 +10,13 @@ import OptimizedQuickStats from '@/components/dashboard/OptimizedQuickStats';
 import CalendarNavigation from '@/components/dashboard/CalendarNavigation';
 import CalendarWithFilters from '@/components/dashboard/CalendarWithFilters';
 import MonthlyBookings from '@/components/dashboard/MonthlyBookings';
+import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
+import { PlanUpgradePrompt } from '@/components/PlanUpgradePrompt';
 
 const Dashboard = memo(() => {
   const { bookings, allBookings, loading } = useBookings();
   const [currentDate, setCurrentDate] = useState(new Date());
+  const { checkBookingLimit, currentPlan, limits } = usePlanRestrictions();
 
   const currentMonthBookings = useMemo(() => {
     const monthStart = startOfMonth(currentDate);
@@ -25,6 +28,20 @@ const Dashboard = memo(() => {
       return checkIn <= monthEnd && checkOut >= monthStart;
     });
   }, [bookings, currentDate]);
+
+  // Verificar limite de reservas do mês atual
+  const currentMonthBookingCount = useMemo(() => {
+    const monthStart = startOfMonth(new Date());
+    const monthEnd = endOfMonth(new Date());
+    
+    return bookings.filter(booking => {
+      const checkIn = new Date(booking.check_in);
+      return checkIn >= monthStart && checkIn <= monthEnd;
+    }).length;
+  }, [bookings]);
+
+  const canCreateNewBooking = checkBookingLimit(currentMonthBookingCount);
+  const isNearLimit = limits.maxBookingsPerMonth && currentMonthBookingCount >= limits.maxBookingsPerMonth * 0.8;
 
   const previousMonth = useCallback(() => {
     setCurrentDate(subMonths(currentDate, 1));
@@ -51,6 +68,23 @@ const Dashboard = memo(() => {
     <div className="p-3 md:p-4 space-y-4 md:space-y-6 pb-32">
       <DashboardHeader />
       
+      {/* Aviso de limite próximo */}
+      {isNearLimit && canCreateNewBooking && (
+        <PlanUpgradePrompt 
+          feature="mais reservas"
+          description={`Você já tem ${currentMonthBookingCount} de ${limits.maxBookingsPerMonth} reservas este mês`}
+          compact
+        />
+      )}
+      
+      {/* Bloqueio por limite excedido */}
+      {!canCreateNewBooking && (
+        <PlanUpgradePrompt 
+          feature="reservas ilimitadas"
+          description={`Limite de ${limits.maxBookingsPerMonth} reservas/mês atingido`}
+        />
+      )}
+      
       <OptimizedQuickStats bookings={bookings} allBookings={allBookings} selectedMonth={currentDate} />
 
       <CalendarNavigation 
@@ -67,14 +101,26 @@ const Dashboard = memo(() => {
         title={monthTitle}
       />
 
-      <Link
-        to="/nova-reserva"
-        className="fixed bottom-24 md:bottom-28 right-3 md:right-4 bg-sage-600 text-white p-3 md:p-4 rounded-full shadow-lg hover:bg-sage-700 transition-colors z-40 touch-manipulation"
-        style={{ minHeight: '44px', minWidth: '44px' }}
-      >
-        <Plus size={20} className="md:hidden" />
-        <Plus size={24} className="hidden md:block" />
-      </Link>
+      {/* Botão de nova reserva - condicional */}
+      {canCreateNewBooking ? (
+        <Link
+          to="/nova-reserva"
+          className="fixed bottom-24 md:bottom-28 right-3 md:right-4 bg-sage-600 text-white p-3 md:p-4 rounded-full shadow-lg hover:bg-sage-700 transition-colors z-40 touch-manipulation"
+          style={{ minHeight: '44px', minWidth: '44px' }}
+        >
+          <Plus size={20} className="md:hidden" />
+          <Plus size={24} className="hidden md:block" />
+        </Link>
+      ) : (
+        <div 
+          className="fixed bottom-24 md:bottom-28 right-3 md:right-4 bg-gray-400 text-white p-3 md:p-4 rounded-full shadow-lg cursor-not-allowed z-40 touch-manipulation opacity-50"
+          style={{ minHeight: '44px', minWidth: '44px' }}
+          title="Limite de reservas atingido"
+        >
+          <Plus size={20} className="md:hidden" />
+          <Plus size={24} className="hidden md:block" />
+        </div>
+      )}
     </div>
   );
 });

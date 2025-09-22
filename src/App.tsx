@@ -54,13 +54,14 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/payment" element={<Payment />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/payment-canceled" element={<PaymentCanceled />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/assinatura" element={<Navigate to="/configuracoes" replace />} />
+              
+              {/* Redirect root to dashboard */}
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
               <Route element={<ProtectedShell />}>
                 <Route path="/dashboard" element={<Dashboard />} />

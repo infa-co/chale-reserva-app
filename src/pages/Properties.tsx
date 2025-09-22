@@ -20,20 +20,28 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
+import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import OptimizedPropertyCard from '@/components/properties/OptimizedPropertyCard';
 import PropertyForm from '@/components/properties/PropertyForm';
 import ICalSyncSettings from '@/components/properties/ICalSyncSettings';
+import { PlanUpgradePrompt } from '@/components/PlanUpgradePrompt';
 import { Property } from '@/types/property';
 
 const Properties = () => {
   const { properties, loading, addProperty, updateProperty, deleteProperty } = useOptimizedProperties();
+  const { checkPropertyLimit, limits } = usePlanRestrictions();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [propertyToDelete, setPropertyToDelete] = useState<Property | undefined>();
 
+  const canAddProperty = checkPropertyLimit(properties.length);
+
   const handleAddProperty = () => {
+    if (!canAddProperty) {
+      return; // Não abre o dialog se não pode adicionar
+    }
     setEditingProperty(undefined);
     setIsDialogOpen(true);
   };
@@ -96,12 +104,26 @@ const Properties = () => {
           <Home className="h-5 md:h-6 w-5 md:w-6 text-sage-600" />
           <h1 className="text-xl md:text-2xl font-bold text-sage-800">Meus Chalés</h1>
         </div>
-        <Button onClick={handleAddProperty} className="bg-sage-600 hover:bg-sage-700 self-start sm:self-auto">
+        <Button 
+          onClick={handleAddProperty} 
+          disabled={!canAddProperty}
+          className="bg-sage-600 hover:bg-sage-700 self-start sm:self-auto disabled:opacity-50 disabled:cursor-not-allowed"
+          title={!canAddProperty ? `Limite de ${limits.maxProperties} propriedades atingido` : undefined}
+        >
           <Plus className="h-4 w-4 mr-2" />
           <span className="hidden sm:inline">Adicionar Chalé</span>
           <span className="sm:hidden">Novo Chalé</span>
         </Button>
       </div>
+
+      {/* Prompt de upgrade se limite atingido */}
+      {!canAddProperty && (
+        <PlanUpgradePrompt 
+          feature="mais propriedades"
+          description={`Limite de ${limits.maxProperties} propriedades atingido`}
+          compact
+        />
+      )}
 
       {/* Tabs */}
       <Tabs defaultValue="properties" className="w-full">
