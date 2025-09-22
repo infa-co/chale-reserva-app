@@ -195,11 +195,12 @@ const Index = () => {
               </Button>
             </div>
             <div className="flex justify-center">
-              <div className="w-64 h-96 bg-white/10 rounded-3xl border border-white/20 shadow-2xl backdrop-blur-sm flex items-center justify-center">
-                <div className="text-white/70 text-center">
-                  <Smartphone size={64} className="mx-auto mb-4" />
-                  <p className="text-sm">Mockup do app Ordomo</p>
-                </div>
+              <div className="relative">
+                <img 
+                  src="/ordomo-app-mockup.png" 
+                  alt="Mockup do app Ordomo"
+                  className="w-64 h-auto object-contain drop-shadow-2xl"
+                />
               </div>
             </div>
           </div>
