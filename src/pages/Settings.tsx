@@ -352,8 +352,8 @@ const Settings = () => {
                 Escolha o plano que melhor se adapta às suas necessidades
               </p>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <CardContent className="pt-8">
+              <div className="grid grid-cols-1 gap-6 items-stretch">
                 {plans.map((plan) => {
                   const Icon = plan.icon;
                   const isCurrent = plan.id === currentSubscription.currentPlan;
@@ -361,50 +361,109 @@ const Settings = () => {
                   return (
                     <div
                       key={plan.id}
-                      className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg ${
+                      className={`relative border rounded-xl p-6 transition-all duration-200 hover:shadow-lg h-full flex flex-col min-h-[560px] pt-14 ${
                         plan.popular 
                           ? 'border-primary shadow-lg ring-2 ring-primary/20' 
                           : 'border-border hover:border-primary/30'
                         } ${isCurrent ? 'bg-muted/30' : 'bg-card'}`}
                     >
-                      {plan.highlight && (
-                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
-                          {plan.highlight}
-                        </Badge>
-                      )}
-                      
-                      <div className="text-center mb-6">
-                        <div className="flex justify-center mb-4">
-                          <Icon className="h-8 w-8 text-primary" />
-                        </div>
-                        <h3 className="text-xl font-bold">{plan.name}</h3>
-                        <div className="mt-2">
-                          <span className="text-3xl font-bold">R$ {plan.price.toFixed(2)}</span>
-                          <span className="text-muted-foreground">/mês</span>
-                        </div>
-                      </div>
+                        {plan.highlight && (
+                          <Badge className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs px-3 py-1">
+                            {plan.highlight}
+                          </Badge>
+                        )}
+                        
+                        {isCurrent && (
+                          <Badge className="absolute top-4 right-4 bg-green-100 text-green-800 text-xs">
+                            Ativo
+                          </Badge>
+                        )}
 
-                      <div className="space-y-3 mb-6">
-                        {plan.features.map((feature, index) => (
-                          <div key={index} className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                            <span className="text-sm">{feature}</span>
+                        {/* Header section with icon and title */}
+                        <div className="text-center mb-6 space-y-3">
+                          <div className="flex justify-center">
+                            <div className="p-3 rounded-full bg-primary/10">
+                              <Icon size={32} className="text-primary" />
+                            </div>
                           </div>
-                        ))}
-                      </div>
+                          
+                          <div>
+                            <h3 className="text-xl font-bold text-foreground mb-2">{plan.name}</h3>
+                            <div className="space-y-1">
+                              <p className="text-3xl font-bold text-foreground">
+                                R$ {plan.price.toFixed(2).replace('.', ',')}
+                                <span className="text-base font-normal text-muted-foreground">/mês</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
 
-                      <Button
-                        className="w-full"
-                        variant={isCurrent ? 'secondary' : plan.popular ? 'default' : 'outline'}
-                        disabled={isCurrent || subscriptionLoading}
-                        onClick={() => handleSubscribe(plan)}
-                      >
-                        {isCurrent ? 'Plano Atual' : subscriptionLoading ? 'Carregando...' : 'Assinar Agora'}
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
+                        {/* Features list - flex-grow to push button to bottom */}
+                        <div className="space-y-3 flex-grow">
+                          {/* All available features for comparison */}
+                          {[
+                            plan.id === 'basic' ? 'Até 50 reservas/mês' : plan.id === 'pro' ? 'Até 200 reservas/mês' : 'Reservas ilimitadas',
+                            'Cadastro de clientes', 
+                            'Acesso rápido ao WhatsApp',
+                            'Dashboard financeiro',
+                            'Exportação de relatórios',
+                            'Integração com Airbnb (Airbnb → Ordomo)',
+                            'Link iCal de exportação (Ordomo → Airbnb)',
+                            'Multi-chalé',
+                            'Suporte prioritário'
+                          ].map((feature, index) => {
+                            const isIncluded = plan.features.some(f => 
+                              f.includes(feature) || 
+                              (feature.includes('reservas') && (f.includes('reservas') || f.includes('Reservas'))) ||
+                              (feature.includes('Cadastro') && index === 1) ||
+                              (feature.includes('WhatsApp') && index === 2) ||
+                              (feature.includes('Dashboard') && index === 3) ||
+                              (feature.includes('Exportação') && index === 4)
+                            ) || (index <= 4); // Primeiros 5 recursos sempre incluídos
+                            
+                            return (
+                              <div key={index} className="flex items-start gap-3 text-sm">
+                                <span className="text-base mt-0.5 flex-none">
+                                  {isIncluded ? '✅' : '❌'}
+                                </span>
+                                <span className={`${
+                                  isIncluded 
+                                    ? 'text-foreground' 
+                                    : 'text-muted-foreground'
+                                } whitespace-normal break-normal leading-relaxed`}
+                                >
+                                  {feature}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Action button - positioned at bottom */}
+                        <div className="mt-6">
+                          <Button
+                            className={`w-full h-11 font-medium text-base ${
+                              plan.popular 
+                                ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                                : ''
+                            }`}
+                            variant={
+                              isCurrent 
+                                ? 'secondary' 
+                                : plan.popular 
+                                  ? 'default' 
+                                  : 'outline'
+                            }
+                            disabled={isCurrent || subscriptionLoading}
+                            onClick={() => handleSubscribe(plan)}
+                          >
+                            {isCurrent ? 'Plano Atual' : subscriptionLoading ? 'Carregando...' : 'Começar'}
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
             </CardContent>
           </Card>
 
