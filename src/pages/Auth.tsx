@@ -16,7 +16,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { signIn, signUp, resetPassword, signInAsTestUser } = useAuth();
   const navigate = useNavigate();
 
   // Check if should show signup form based on URL parameters
@@ -309,7 +309,7 @@ const Auth = () => {
               <Button
                 onClick={async () => {
                   try {
-                    const { error } = await signIn('usuario.basico@teste.com', 'teste123');
+                    const { error } = await signInAsTestUser('usuario.basico@teste.com', 'teste123', 'basic');
                     if (error) {
                       toast.error('Erro no login básico: ' + error.message);
                     } else {
@@ -330,7 +330,7 @@ const Auth = () => {
               <Button
                 onClick={async () => {
                   try {
-                    const { error } = await signIn('usuario.pro@teste.com', 'teste123');
+                    const { error } = await signInAsTestUser('usuario.pro@teste.com', 'teste123', 'pro');
                     if (error) {
                       toast.error('Erro no login pro: ' + error.message);
                     } else {
@@ -351,7 +351,7 @@ const Auth = () => {
               <Button
                 onClick={async () => {
                   try {
-                    const { error } = await signIn('usuario.premium@teste.com', 'teste123');
+                    const { error } = await signInAsTestUser('usuario.premium@teste.com', 'teste123', 'premium');
                     if (error) {
                       toast.error('Erro no login premium: ' + error.message);
                     } else {

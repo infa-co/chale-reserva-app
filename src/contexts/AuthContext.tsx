@@ -15,6 +15,7 @@ interface AuthContextType {
   updatePassword: (password: string) => Promise<{ error: any }>;
   updateEmail: (email: string) => Promise<{ error: any }>;
   checkSubscription: () => Promise<void>;
+  signInAsTestUser: (email: string, password: string, plan: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -141,6 +142,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
+  const signInAsTestUser = async (email: string, password: string, plan: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (!error && data.user) {
+      // Configurar plano de teste no localStorage
+      localStorage.setItem(`test_plan_${data.user.id}`, plan);
+      console.log(`Plano ${plan} configurado para usuário de teste ${email}`);
+    }
+    
+    return { error };
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -153,7 +169,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       resetPassword,
       updatePassword,
       updateEmail,
-      checkSubscription
+      checkSubscription,
+      signInAsTestUser
     }}>
       {children}
     </AuthContext.Provider>

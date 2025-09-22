@@ -31,6 +31,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const isTestUser = user && typeof window !== 'undefined' && 
     localStorage.getItem(`test_plan_${user.id}`);
 
+  console.log('ProtectedRoute Debug:', {
+    userEmail: user?.email,
+    hasSubscription: subscriptionData.subscribed,
+    isTestUser: !!isTestUser,
+    testPlan: isTestUser ? localStorage.getItem(`test_plan_${user.id}`) : null
+  });
+
   // Verificar se o usuário tem assinatura ativa OU é um usuário de teste
   if (!subscriptionData.subscribed && !isTestUser) {
     return <Navigate to="/payment" replace />;
