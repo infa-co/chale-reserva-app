@@ -400,7 +400,11 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
-              <div className="text-2xl font-montserrat font-bold mb-4">ORDOMO</div>
+              <img 
+                src="/src/assets/ordomo-footer-logo.png" 
+                alt="Ordomo"
+                className="h-8 w-auto mb-4"
+              />
               <p className="text-white/70">Feito por Infa & Co.</p>
             </div>
             <div className="md:text-right">
