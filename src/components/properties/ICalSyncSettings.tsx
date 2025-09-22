@@ -9,6 +9,7 @@ import { Property } from '@/types/property';
 import OptimizedSyncManager from './OptimizedSyncManager';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { FeatureRestriction } from '@/components/FeatureRestriction';
 
 interface ICalSyncSettingsProps {
   properties: Property[];
@@ -47,25 +48,26 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
 
   return (
     <div className={`space-y-4 ${isMobile ? 'pb-20' : ''}`}>
-      {/* Sync Overview */}
-      <Card>
-        <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-4"}>
-          <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} flex items-center gap-2`}>
-            <Calendar className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
-            Sincronização de Calendários
-          </CardTitle>
-          <CardDescription className={isMobile ? "text-sm" : ""}>
-            Configure a sincronização bidirecional com plataformas externas
-          </CardDescription>
-        </CardHeader>
-        <CardContent className={isMobile ? "px-4 pb-4" : ""}>
-          <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-1 lg:grid-cols-2 gap-6'}`}>
-            
-            {/* Export Section */}
+      {/* Export Section - Restricted for Basic Plan */}
+      <FeatureRestriction
+        feature="hasICalExport"
+        featureName="exportação de calendário"
+        description="Exporte seus calendários para sincronizar com Airbnb"
+        showUpgradePrompt={true}
+      >
+        <Card>
+          <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-4"}>
+            <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} flex items-center gap-2`}>
+              <ExternalLink className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
+              Exportar para Airbnb
+            </CardTitle>
+            <CardDescription className={isMobile ? "text-sm" : ""}>
+              Exporte seus calendários para sincronizar com plataformas externas
+            </CardDescription>
+          </CardHeader>
+          <CardContent className={isMobile ? "px-4 pb-4" : ""}>
             <div className="space-y-4">
               <div className={`flex items-center gap-2 pb-2 border-b ${isMobile ? 'flex-wrap' : ''}`}>
-                <ExternalLink className="h-4 w-4 text-primary" />
-                <h3 className={`font-medium ${isMobile ? 'text-sm' : ''}`}>Exportar para Airbnb</h3>
                 <Badge variant="outline" className={`${isMobile ? 'text-xs ml-auto' : 'ml-auto'}`}>
                   {properties.length} propriedades
                 </Badge>
@@ -111,12 +113,30 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </FeatureRestriction>
 
-            {/* Import Section */}
+      {/* Import Section - Restricted for Basic Plan */}
+      <FeatureRestriction
+        feature="hasAirbnbSync"
+        featureName="importação de calendário"
+        description="Importe reservas automaticamente do Airbnb e outras plataformas"
+        showUpgradePrompt={true}
+      >
+        <Card>
+          <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-4"}>
+            <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} flex items-center gap-2`}>
+              <RefreshCw className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
+              Importar do Airbnb
+            </CardTitle>
+            <CardDescription className={isMobile ? "text-sm" : ""}>
+              Configure importação automática de reservas externas
+            </CardDescription>
+          </CardHeader>
+          <CardContent className={isMobile ? "px-4 pb-4" : ""}>
             <div className="space-y-4">
               <div className={`flex items-center gap-2 pb-2 border-b ${isMobile ? 'flex-wrap' : ''}`}>
-                <RefreshCw className="h-4 w-4 text-primary" />
-                <h3 className={`font-medium ${isMobile ? 'text-sm' : ''}`}>Importar do Airbnb</h3>
                 <Badge variant="outline" className={`${isMobile ? 'text-xs ml-auto' : 'ml-auto'}`}>
                   {activeSyncs.length}/{totalSyncs} ativas
                 </Badge>
@@ -149,22 +169,22 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
                 )}
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Sync Manager */}
-      <Card>
-        <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-3"}>
-          <CardTitle className={isMobile ? "text-sm" : "text-base"}>Configurar Sincronizações</CardTitle>
-          <CardDescription className="text-sm">
-            Gerencie importações de calendários externos
-          </CardDescription>
-        </CardHeader>
-        <CardContent className={isMobile ? "px-4 pb-4" : ""}>
-          <OptimizedSyncManager properties={properties} />
-        </CardContent>
-      </Card>
+        {/* Sync Manager */}
+        <Card>
+          <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-3"}>
+            <CardTitle className={isMobile ? "text-sm" : "text-base"}>Configurar Sincronizações</CardTitle>
+            <CardDescription className="text-sm">
+              Gerencie importações de calendários externos
+            </CardDescription>
+          </CardHeader>
+          <CardContent className={isMobile ? "px-4 pb-4" : ""}>
+            <OptimizedSyncManager properties={properties} />
+          </CardContent>
+        </Card>
+      </FeatureRestriction>
     </div>
   );
 };

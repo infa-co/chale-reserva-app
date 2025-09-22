@@ -26,21 +26,21 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     hasICalExport: false,
     hasMultiProperty: false,
     hasPrioritySupport: false,
-    hasHistoricalBookings: true,
+    hasHistoricalBookings: false,
     airbnbSyncType: 'none'
   },
   pro: {
-    maxBookingsPerMonth: 35,
-    maxProperties: 1,
+    maxBookingsPerMonth: 50,
+    maxProperties: 3,
     hasWhatsAppIntegration: true,
     hasFinancialDashboard: true,
-    hasReportsExport: false,
+    hasReportsExport: true,
     hasAirbnbSync: false,
     hasICalExport: true,
-    hasMultiProperty: false,
+    hasMultiProperty: true,
     hasPrioritySupport: false,
     hasHistoricalBookings: true,
-    airbnbSyncType: 'none'
+    airbnbSyncType: 'export-only'
   },
   premium: {
     maxBookingsPerMonth: null, // unlimited

@@ -14,6 +14,7 @@ import MobileNav from "./components/MobileNav";
 // Import das páginas diretamente para resolver problemas de dynamic import
 import Dashboard from "./pages/Dashboard";
 import HistoricalBookings from "./pages/HistoricalBookings";
+import { FeatureRestriction } from "./components/FeatureRestriction";
 const NewBooking = lazy(() => import("./pages/NewBooking"));
 const EditBooking = lazy(() => import("./pages/EditBooking"));
 import OptimizedBookingList from "./pages/OptimizedBookingList";
@@ -75,7 +76,15 @@ function App() {
                 <Route path="/clientes" element={<OptimizedClients />} />
                 <Route path="/meus-chales" element={<Properties />} />
                 <Route path="/chale/:id/dashboard" element={<PropertyDashboard />} />
-                <Route path="/historico-reservas" element={<HistoricalBookings />} />
+                <Route path="/historico-reservas" element={
+                  <FeatureRestriction
+                    feature="hasHistoricalBookings"
+                    featureName="registro de reservas passadas"
+                    description="Registre e gerencie histórico de hóspedes anteriores"
+                  >
+                    <HistoricalBookings />
+                  </FeatureRestriction>
+                } />
                 <Route path="/configuracoes" element={<Settings />} />
                 <Route path="/atribuir-reservas" element={<AssignBookings />} />
               </Route>

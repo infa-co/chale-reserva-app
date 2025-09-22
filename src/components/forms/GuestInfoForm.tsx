@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
+import { FeatureRestriction } from '@/components/FeatureRestriction';
 
 interface GuestInfoFormProps {
   formData: {
@@ -47,15 +48,31 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
             className="mt-1"
           />
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          className="mt-6 px-3"
-          onClick={onOpenWhatsApp}
-          disabled={!formData.phone}
+        <FeatureRestriction
+          feature="hasWhatsAppIntegration"
+          featureName="acesso rápido ao WhatsApp"
+          description="Envie mensagens diretamente do formulário"
+          fallback={
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-6 px-3 opacity-50 cursor-not-allowed"
+              disabled
+            >
+              <MessageCircle size={18} className="text-gray-400" />
+            </Button>
+          }
         >
-          <MessageCircle size={18} className="text-green-600" />
-        </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-6 px-3"
+            onClick={onOpenWhatsApp}
+            disabled={!formData.phone}
+          >
+            <MessageCircle size={18} className="text-green-600" />
+          </Button>
+        </FeatureRestriction>
       </div>
 
       <div>

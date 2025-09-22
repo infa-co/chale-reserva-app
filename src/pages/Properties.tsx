@@ -25,6 +25,7 @@ import OptimizedPropertyCard from '@/components/properties/OptimizedPropertyCard
 import PropertyForm from '@/components/properties/PropertyForm';
 import ICalSyncSettings from '@/components/properties/ICalSyncSettings';
 import { PlanUpgradePrompt } from '@/components/PlanUpgradePrompt';
+import { FeatureRestriction } from '@/components/FeatureRestriction';
 import { Property } from '@/types/property';
 
 const Properties = () => {
@@ -172,7 +173,14 @@ const Properties = () => {
         </TabsContent>
 
         <TabsContent value="sync">
-          <ICalSyncSettings properties={properties} />
+          <FeatureRestriction
+            feature="hasAirbnbSync"
+            featureName="sincronização de calendários"
+            description="Sincronize com Airbnb e outras plataformas automaticamente"
+            showUpgradePrompt={true}
+          >
+            <ICalSyncSettings properties={properties} />
+          </FeatureRestriction>
         </TabsContent>
       </Tabs>
 
