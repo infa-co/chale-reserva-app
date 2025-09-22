@@ -157,7 +157,7 @@ const Index = () => {
             </Button>
             <Button 
               className="bg-white text-primary hover:bg-white/90 font-montserrat font-semibold"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/auth?mode=signup')}
             >
               Começar
             </Button>
@@ -183,7 +183,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 className="bg-white text-primary hover:bg-white/90 font-montserrat font-semibold text-lg px-8 py-4 h-auto"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/auth?mode=signup')}
               >
                 <ArrowRight className="mr-2" />
                 Começar agora
@@ -251,7 +251,7 @@ const Index = () => {
               size="lg" 
               variant="secondary"
               className="font-montserrat font-semibold"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/auth?mode=signup')}
             >
               <Smartphone className="mr-2" />
               Começar agora
@@ -298,7 +298,7 @@ const Index = () => {
                   <Button 
                     className="w-full font-montserrat font-semibold"
                     variant={plan.badge ? "default" : "outline"}
-                    onClick={() => navigate('/auth')}
+                    onClick={() => navigate('/auth?mode=signup')}
                   >
                     Escolher Plano
                   </Button>
@@ -388,7 +388,7 @@ const Index = () => {
           <Button 
             size="lg" 
             className="bg-white text-primary hover:bg-white/90 font-montserrat font-semibold text-lg px-8 py-4 h-auto"
-            onClick={() => navigate('/auth')}
+            onClick={() => navigate('/auth?mode=signup')}
           >
             🎯 Criar conta agora
           </Button>
