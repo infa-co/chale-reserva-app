@@ -5,6 +5,8 @@ import { Check, Crown, Zap, Star } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const Subscription = () => {
   const { user, hasActiveSubscription } = useAuth();
@@ -14,13 +16,41 @@ const Subscription = () => {
     createCheckout, 
     openCustomerPortal, 
     getCurrentTier,
-    subscriptionTiers 
+    subscriptionTiers,
+    checkSubscription 
   } = useSubscription();
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
+  // Check for payment success URL parameter and refresh subscription
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const sessionId = urlParams.get('session_id');
+    
+    if (success === 'true' || sessionId) {
+      toast.success('Pagamento realizado com sucesso! Verificando assinatura...');
+      
+      // Force refresh subscription status after payment
+      const refreshSubscription = async () => {
+        await checkSubscription();
+        // Check again after a short delay to ensure Stripe has processed
+        setTimeout(async () => {
+          await checkSubscription();
+        }, 2000);
+      };
+      
+      refreshSubscription();
+      
+      // Clean URL
+      window.history.replaceState({}, '', '/assinatura');
+    }
+  }, [checkSubscription]);
+
+  // Redirect to dashboard if user has active subscription
   if (hasActiveSubscription) {
     return <Navigate to="/" replace />;
   }
@@ -135,10 +165,14 @@ const Subscription = () => {
                   ) : (
                     <Button 
                       className={`w-full ${isPremium ? 'bg-yellow-600 hover:bg-yellow-700' : ''}`}
-                      onClick={() => createCheckout(plan.price_id)}
-                      disabled={loading}
+                      onClick={async () => {
+                        setCheckoutLoading(plan.price_id);
+                        await createCheckout(plan.price_id);
+                        setCheckoutLoading(null);
+                      }}
+                      disabled={loading || checkoutLoading === plan.price_id}
                     >
-                      {loading ? 'Carregando...' : 'Assinar Agora'}
+                      {checkoutLoading === plan.price_id ? 'Redirecionando...' : loading ? 'Carregando...' : 'Assinar Agora'}
                     </Button>
                   )}
                 </CardFooter>

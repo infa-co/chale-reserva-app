@@ -112,6 +112,8 @@ export const useSubscription = () => {
       }
 
       if (data?.url) {
+        // Store timestamp when checkout was initiated
+        localStorage.setItem('checkout_initiated_at', Date.now().toString());
         window.open(data.url, '_blank');
       }
     } catch (error) {
@@ -160,13 +162,24 @@ export const useSubscription = () => {
     checkSubscription();
   }, [checkSubscription]);
 
-  // Auto-refresh assinatura a cada 5 minutos (otimizado)
+  // Auto-refresh assinatura com foco no usuário ativo
   useEffect(() => {
     if (!user) return;
 
+    // Check more frequently if checkout was recently initiated
+    const checkoutTime = localStorage.getItem('checkout_initiated_at');
+    const isRecentCheckout = checkoutTime && (Date.now() - parseInt(checkoutTime)) < 300000; // 5 minutes
+    
     const interval = setInterval(() => {
       checkSubscription();
-    }, 300000); // 5 minutos
+    }, isRecentCheckout ? 30000 : 300000); // 30s if recent checkout, 5min otherwise
+
+    // Clear checkout timestamp after 5 minutes
+    if (isRecentCheckout && checkoutTime) {
+      setTimeout(() => {
+        localStorage.removeItem('checkout_initiated_at');
+      }, 300000);
+    }
 
     return () => clearInterval(interval);
   }, [user, checkSubscription]);
