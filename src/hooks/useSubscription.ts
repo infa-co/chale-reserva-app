@@ -97,6 +97,7 @@ export const useSubscription = () => {
       return;
     }
 
+    setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId },
@@ -117,6 +118,8 @@ export const useSubscription = () => {
     } catch (error) {
       console.error('Error creating checkout:', error);
       toast.error('Erro ao criar checkout');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,6 +129,7 @@ export const useSubscription = () => {
       return;
     }
 
+    setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal', {
         headers: {
@@ -145,6 +149,8 @@ export const useSubscription = () => {
     } catch (error) {
       console.error('Error opening customer portal:', error);
       toast.error('Erro ao abrir portal do cliente');
+    } finally {
+      setLoading(false);
     }
   };
 
