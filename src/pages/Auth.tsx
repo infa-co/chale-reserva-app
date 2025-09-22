@@ -253,6 +253,56 @@ const Auth = () => {
             </div>
           )}
         </div>
+
+        {/* Usuários de Teste */}
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="font-semibold text-blue-900 mb-4 text-center">🧪 Usuários de Teste</h3>
+          <div className="space-y-4 text-sm">
+            <div className="bg-white rounded-lg p-4 border border-blue-100">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium text-blue-900">Plano Básico</span>
+                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">50 reservas/mês</span>
+              </div>
+              <div className="text-blue-700">
+                <p><strong>Email:</strong> usuario.basico@teste.com</p>
+                <p><strong>Senha:</strong> teste123</p>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 border border-blue-100">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium text-blue-900">Plano Pro</span>
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">200 reservas/mês</span>
+              </div>
+              <div className="text-blue-700">
+                <p><strong>Email:</strong> usuario.pro@teste.com</p>
+                <p><strong>Senha:</strong> teste123</p>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 border border-blue-100">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium text-blue-900">Plano Premium</span>
+                <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Ilimitado</span>
+              </div>
+              <div className="text-blue-700">
+                <p><strong>Email:</strong> usuario.premium@teste.com</p>
+                <p><strong>Senha:</strong> teste123</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-4 text-center">
+            <Button
+              onClick={() => navigate('/test-users')}
+              variant="outline"
+              size="sm"
+              className="text-blue-600 border-blue-300 hover:bg-blue-50"
+            >
+              Gerenciar Usuários de Teste
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

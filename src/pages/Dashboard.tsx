@@ -12,6 +12,7 @@ import CalendarWithFilters from '@/components/dashboard/CalendarWithFilters';
 import MonthlyBookings from '@/components/dashboard/MonthlyBookings';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { PlanUpgradePrompt } from '@/components/PlanUpgradePrompt';
+import { PlanLimitationsDisplay } from '@/components/PlanLimitationsDisplay';
 
 const Dashboard = memo(() => {
   const { bookings, allBookings, loading } = useBookings();
@@ -84,6 +85,8 @@ const Dashboard = memo(() => {
           description={`Limite de ${limits.maxBookingsPerMonth} reservas/mês atingido`}
         />
       )}
+      
+      <PlanLimitationsDisplay />
       
       <OptimizedQuickStats bookings={bookings} allBookings={allBookings} selectedMonth={currentDate} />
 
