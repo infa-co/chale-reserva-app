@@ -26,6 +26,7 @@ import Settings from "./pages/Settings";
 import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
+import Onboarding from "./pages/Onboarding";
 
 const AssignBookings = lazy(() => import("./pages/AssignBookings"));
 
@@ -60,6 +61,7 @@ function App() {
               <Route path="/payment" element={<Payment />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/payment-canceled" element={<PaymentCanceled />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               
               

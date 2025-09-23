@@ -67,6 +67,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
+        // Auto-login para usuários vindos de pagamento
+        if (event === 'SIGNED_IN' && session?.user) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const fromPayment = urlParams.get('from_payment');
+          const fromConfirmation = urlParams.get('type') === 'signup';
+          
+          if (fromPayment || fromConfirmation) {
+            // Limpar parâmetros da URL
+            window.history.replaceState({}, '', window.location.pathname);
+            
+            // Redirecionar baseado na origem
+            if (fromPayment) {
+              window.location.href = '/onboarding';
+            } else if (fromConfirmation) {
+              window.location.href = '/dashboard';
+            }
+          }
+        }
+        
         // Check subscription after auth state changes
         if (session?.user) {
           setTimeout(() => {
@@ -104,7 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signUp = async (email: string, password: string, name?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { error } = await supabase.auth.signUp({
       email,

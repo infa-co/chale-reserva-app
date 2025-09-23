@@ -25,6 +25,18 @@ const SubscriptionManager = () => {
 
   const currentTier = getCurrentTier();
 
+  const handleOpenCustomerPortal = async () => {
+    try {
+      await openCustomerPortal();
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível abrir o portal do cliente. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCancelSubscription = async () => {
     setIsCanceling(true);
     try {
@@ -229,11 +241,28 @@ const SubscriptionManager = () => {
           <CardTitle>Informações de Cobrança</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-6 text-muted-foreground">
-            <CreditCard size={48} className="mx-auto mb-4 opacity-50" />
-            <p className="mb-2">Informações de Cobrança</p>
-            <p className="text-sm">
-              Para gerenciar métodos de pagamento, visualizar faturas e histórico, entre em contato com o suporte.
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Settings size={16} className="text-muted-foreground" />
+              <div>
+                <p className="font-medium">Portal do Cliente</p>
+                <p className="text-sm text-muted-foreground">
+                  Gerencie métodos de pagamento, visualize faturas e histórico
+                </p>
+              </div>
+            </div>
+            
+            <Button 
+              variant="outline" 
+              onClick={handleOpenCustomerPortal}
+              className="w-full"
+            >
+              <Settings size={16} className="mr-2" />
+              Abrir Portal de Cobrança
+            </Button>
+            
+            <p className="text-xs text-muted-foreground text-center">
+              O portal será aberto em uma nova aba e gerenciado pelo Stripe
             </p>
           </div>
         </CardContent>
