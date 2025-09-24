@@ -7,6 +7,7 @@ interface SubscriptionData {
   subscribed: boolean;
   product_id?: string;
   subscription_end?: string;
+  cancel_at_period_end?: boolean;
 }
 
 // Planos disponíveis
@@ -184,7 +185,7 @@ export const useSubscription = () => {
   const cancelSubscription = async () => {
     if (!session) {
       toast.error('Usuário não autenticado');
-      return;
+      return { success: false };
     }
 
     setLoading(true);
@@ -198,16 +199,18 @@ export const useSubscription = () => {
       if (error) {
         console.error('Error canceling subscription:', error);
         toast.error('Erro ao cancelar assinatura');
-        return false;
+        return { success: false };
       }
 
-      toast.success('Assinatura cancelada com sucesso');
-      checkSubscription(); // Refresh subscription status
-      return true;
+      return {
+        success: true,
+        cancelAtPeriodEnd: data?.cancelAtPeriodEnd,
+        currentPeriodEnd: data?.currentPeriodEnd
+      };
     } catch (error) {
       console.error('Error canceling subscription:', error);
       toast.error('Erro ao cancelar assinatura');
-      return false;
+      return { success: false };
     } finally {
       setLoading(false);
     }

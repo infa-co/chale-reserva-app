@@ -66,10 +66,15 @@ serve(async (req) => {
     const hasActiveSub = subscriptions.data.length > 0;
     let productId = null;
     let subscriptionEnd = null;
+    let cancelAtPeriodEnd = false;
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
       logStep("Active subscription found", { subscriptionId: subscription.id });
+      
+      // Check if subscription is set to cancel at period end
+      cancelAtPeriodEnd = subscription.cancel_at_period_end || false;
+      logStep("Cancel at period end status", { cancelAtPeriodEnd });
       
       // Safely convert timestamp
       try {
@@ -98,7 +103,8 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       product_id: productId,
-      subscription_end: subscriptionEnd
+      subscription_end: subscriptionEnd,
+      cancel_at_period_end: cancelAtPeriodEnd
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

@@ -40,13 +40,13 @@ const SubscriptionManager = () => {
   const handleCancelSubscription = async () => {
     setIsCanceling(true);
     try {
-      const success = await cancelSubscription();
-      if (success) {
+      const result = await cancelSubscription();
+      if (result?.success) {
         toast({
-          title: "Assinatura Cancelada",
-          description: "Sua assinatura será cancelada no final do período atual. Você ainda terá acesso até " + 
-            (subscriptionData.subscription_end ? new Date(subscriptionData.subscription_end).toLocaleDateString('pt-BR') : ''),
+          title: "✅ Assinatura cancelada com sucesso",
+          description: `Você manterá acesso completo até ${result.currentPeriodEnd ? new Date(result.currentPeriodEnd).toLocaleDateString('pt-BR') : 'o final do período'}. Sua assinatura está marcada para cancelamento.`,
         });
+        await refreshSubscription(); // Refresh para mostrar o status atualizado
       }
     } finally {
       setIsCanceling(false);
@@ -109,6 +109,19 @@ const SubscriptionManager = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {subscriptionData.cancel_at_period_end && (
+            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+              <p className="text-sm text-orange-800">
+                ✅ <strong>Você tem acesso até {subscriptionData.subscription_end 
+                  ? new Date(subscriptionData.subscription_end).toLocaleDateString('pt-BR') 
+                  : 'o final do período'}</strong>
+              </p>
+              <p className="text-xs text-orange-600 mt-1">
+                Sua assinatura está marcada para cancelamento.
+              </p>
+            </div>
+          )}
+          
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-lg">{currentTier?.name || 'Plano Ativo'}</h3>
@@ -116,9 +129,15 @@ const SubscriptionManager = () => {
                 R$ {currentTier?.price?.toFixed(2) || '0,00'}/mês
               </p>
             </div>
-            <Badge variant="default" className="bg-green-100 text-green-800">
-              Ativo
-            </Badge>
+            {subscriptionData.cancel_at_period_end ? (
+              <Badge variant="destructive" className="bg-orange-100 text-orange-800 border-orange-200">
+                Cancelada
+              </Badge>
+            ) : (
+              <Badge variant="default" className="bg-green-100 text-green-800">
+                Ativo
+              </Badge>
+            )}
           </div>
 
           <Separator />
@@ -127,7 +146,9 @@ const SubscriptionManager = () => {
             <div className="flex items-center gap-2">
               <Calendar size={16} className="text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Próxima Cobrança</p>
+                <p className="text-sm font-medium">
+                  {subscriptionData.cancel_at_period_end ? 'Acesso até' : 'Próxima Cobrança'}
+                </p>
                 <p className="text-sm text-muted-foreground">
                   {subscriptionData.subscription_end 
                     ? new Date(subscriptionData.subscription_end).toLocaleDateString('pt-BR')
@@ -188,45 +209,48 @@ const SubscriptionManager = () => {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button 
-                    variant="destructive" 
+                    variant="outline" 
                     size="sm"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground border-muted-foreground/30 hover:border-foreground/30"
                   >
                     <X size={16} />
                     Cancelar Assinatura
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="flex items-center gap-2">
-                      <AlertTriangle size={20} className="text-destructive" />
-                      Cancelar Assinatura
+                <AlertDialogContent className="max-w-md">
+                  <AlertDialogHeader className="text-center space-y-4">
+                    <div className="mx-auto w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                      <AlertTriangle size={24} className="text-orange-600" />
+                    </div>
+                    <AlertDialogTitle className="text-xl font-semibold">
+                      ❗ Você está prestes a cancelar sua assinatura
                     </AlertDialogTitle>
-                    <AlertDialogDescription className="space-y-2">
-                      <p>
-                        Tem certeza que deseja cancelar sua assinatura? 
+                    <AlertDialogDescription className="text-center space-y-3 text-base">
+                      <p className="text-foreground">
+                        Você manterá acesso ao Ordomo até o final do período já pago 
+                        <span className="font-semibold text-primary">
+                          {subscriptionData.subscription_end 
+                            ? ` (${new Date(subscriptionData.subscription_end).toLocaleDateString('pt-BR')})`
+                            : ''
+                          }
+                        </span>.
                       </p>
-                      <p>
-                        <strong>Importante:</strong> Você manterá o acesso a todos os recursos até o final do período atual 
-                        ({subscriptionData.subscription_end 
-                          ? new Date(subscriptionData.subscription_end).toLocaleDateString('pt-BR')
-                          : 'final do ciclo'
-                        }).
-                      </p>
-                      <p>
-                        Após essa data, sua conta será convertida para o plano básico.
+                      <p className="text-muted-foreground">
+                        Sem cobranças futuras. Deseja continuar?
                       </p>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Manter Assinatura</AlertDialogCancel>
+                  <AlertDialogFooter className="flex-col space-y-2 sm:flex-col sm:space-x-0">
                     <AlertDialogAction
                       onClick={handleCancelSubscription}
                       disabled={isCanceling}
-                      className="bg-destructive hover:bg-destructive/90"
+                      className="w-full bg-red-600 hover:bg-red-700 text-white"
                     >
-                      {isCanceling ? 'Cancelando...' : 'Confirmar Cancelamento'}
+                      {isCanceling ? 'Cancelando...' : '❌ Cancelar assinatura'}
                     </AlertDialogAction>
+                    <AlertDialogCancel className="w-full bg-green-600 hover:bg-green-700 text-white border-green-600">
+                      ✅ Manter plano
+                    </AlertDialogCancel>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
