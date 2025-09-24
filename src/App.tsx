@@ -38,13 +38,15 @@ const LoadingSpinner = () => (
 
 const ProtectedShell = () => (
   <ProtectedRoute>
-    <div className="mobile-container pb-16">
-      <Suspense fallback={<LoadingSpinner />}>
-        <Outlet />
-      </Suspense>
-      <MobileNav />
-      <PWAInstallPrompt />
-    </div>
+    <BookingProvider>
+      <div className="mobile-container pb-16">
+        <Suspense fallback={<LoadingSpinner />}>
+          <Outlet />
+        </Suspense>
+        <MobileNav />
+        <PWAInstallPrompt />
+      </div>
+    </BookingProvider>
   </ProtectedRoute>
 );
 
@@ -52,7 +54,6 @@ function App() {
   return (
     <>
       <AuthProvider>
-        <BookingProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -92,7 +93,6 @@ function App() {
               </Route>
             </Routes>
           </BrowserRouter>
-        </BookingProvider>
       </AuthProvider>
     </>
   );
