@@ -72,16 +72,20 @@ serve(async (req) => {
       cancel_at_period_end: true,
     });
 
+    const currentPeriodEndDate = canceledSubscription.current_period_end 
+      ? new Date(canceledSubscription.current_period_end * 1000).toISOString()
+      : null;
+
     logStep("Subscription canceled", { 
       subscriptionId: canceledSubscription.id,
       cancelAtPeriodEnd: canceledSubscription.cancel_at_period_end,
-      currentPeriodEnd: new Date(canceledSubscription.current_period_end * 1000)
+      currentPeriodEnd: currentPeriodEndDate
     });
 
     return new Response(JSON.stringify({ 
       success: true,
       cancelAtPeriodEnd: canceledSubscription.cancel_at_period_end,
-      currentPeriodEnd: new Date(canceledSubscription.current_period_end * 1000).toISOString()
+      currentPeriodEnd: currentPeriodEndDate
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

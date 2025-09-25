@@ -85,7 +85,7 @@ serve(async (req) => {
           logStep("Invalid or missing current_period_end", { current_period_end: subscription.current_period_end });
         }
       } catch (error) {
-        logStep("Error converting subscription end date", { error: error.message, current_period_end: subscription.current_period_end });
+        logStep("Error converting subscription end date", { error: error instanceof Error ? error.message : String(error), current_period_end: subscription.current_period_end });
         subscriptionEnd = null;
       }
       

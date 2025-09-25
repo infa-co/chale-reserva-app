@@ -23,7 +23,7 @@ async function triggerScheduledSyncs(supabase: any) {
 
     console.log(`Found ${syncs?.length || 0} active syncs`);
 
-    const syncsToTrigger = syncs?.filter(sync => {
+    const syncsToTrigger = syncs?.filter((sync: any) => {
       if (!sync.last_sync_at) {
         return true; // Never synced before
       }
@@ -37,7 +37,7 @@ async function triggerScheduledSyncs(supabase: any) {
     console.log(`${syncsToTrigger.length} syncs need to be triggered`);
 
     // Trigger sync for each qualifying sync
-    const syncPromises = syncsToTrigger.map(async (sync) => {
+    const syncPromises = syncsToTrigger.map(async (sync: any) => {
       try {
         console.log(`Triggering sync for sync_id: ${sync.id}`);
         
@@ -53,7 +53,7 @@ async function triggerScheduledSyncs(supabase: any) {
         return { sync_id: sync.id, success: true };
       } catch (error) {
         console.error(`Exception triggering sync for ${sync.id}:`, error);
-        return { sync_id: sync.id, success: false, error: error.message };
+        return { sync_id: sync.id, success: false, error: error instanceof Error ? error.message : String(error) };
       }
     });
 
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
     console.error('Function error:', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Internal server error' 
+        error: error instanceof Error ? error.message : 'Internal server error' 
       }),
       { 
         status: 500, 
