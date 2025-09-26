@@ -30,6 +30,11 @@ import Onboarding from "./pages/Onboarding";
 
 const AssignBookings = lazy(() => import("./pages/AssignBookings"));
 
+// Legal pages
+const Terms = lazy(() => import("./pages/legal/Terms"));
+const Privacy = lazy(() => import("./pages/legal/Privacy"));
+const Support = lazy(() => import("./pages/legal/Support"));
+
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage-600"></div>
@@ -91,6 +96,23 @@ function App() {
                 <Route path="/configuracoes" element={<Settings />} />
                 <Route path="/atribuir-reservas" element={<AssignBookings />} />
               </Route>
+
+              {/* Legal pages - accessible without authentication */}
+              <Route path="/legal/terms" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Terms />
+                </Suspense>
+              } />
+              <Route path="/legal/privacy" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Privacy />
+                </Suspense>
+              } />
+              <Route path="/legal/support" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Support />
+                </Suspense>
+              } />
             </Routes>
           </BrowserRouter>
       </AuthProvider>

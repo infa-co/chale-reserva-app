@@ -448,15 +448,24 @@ const Index = () => {
             <div className="md:text-right">
               <div className="flex flex-col md:items-end gap-4">
                 <div className="flex gap-6 text-sm">
-                  <a href="#" className="text-white/70 hover:text-white transition-colors">
+                  <button 
+                    onClick={() => navigate('/legal/terms')}
+                    className="text-white/70 hover:text-white transition-colors"
+                  >
                     Termos de Uso
-                  </a>
-                  <a href="#" className="text-white/70 hover:text-white transition-colors">
+                  </button>
+                  <button 
+                    onClick={() => navigate('/legal/privacy')}
+                    className="text-white/70 hover:text-white transition-colors"
+                  >
                     Política de Privacidade
-                  </a>
-                  <a href="#" className="text-white/70 hover:text-white transition-colors">
+                  </button>
+                  <button 
+                    onClick={() => navigate('/legal/support')}
+                    className="text-white/70 hover:text-white transition-colors"
+                  >
                     Suporte
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
