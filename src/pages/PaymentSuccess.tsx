@@ -4,15 +4,40 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const { checkSubscription } = useAuth();
+  const { getCurrentTier } = useSubscription();
 
   useEffect(() => {
-    // Refresh subscription status after successful payment
-    checkSubscription();
-  }, [checkSubscription]);
+    const handlePaymentSuccess = async () => {
+      await checkSubscription();
+      
+      // Send welcome email after subscription is confirmed
+      const currentTier = getCurrentTier();
+      if (currentTier) {
+        try {
+          await supabase.functions.invoke('send-welcome-email', {
+            body: {
+              planName: currentTier.name,
+              planPrice: `R$ ${currentTier.price}`
+            }
+          });
+          
+          toast.success("Email de boas-vindas enviado!");
+        } catch (error) {
+          console.error("Erro ao enviar email de boas-vindas:", error);
+          // Don't show error to user, it's not critical
+        }
+      }
+    };
+
+    handlePaymentSuccess();
+  }, [checkSubscription, getCurrentTier]);
 
   return (
     <div className="min-h-screen bg-background font-inter flex items-center justify-center py-12">
