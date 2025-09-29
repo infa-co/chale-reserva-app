@@ -57,20 +57,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Verificar se é um usuário de teste (permite acesso sem assinatura para teste)
-  const isTestUser = user && typeof window !== 'undefined' && 
-    localStorage.getItem(`test_plan_${user.id}`);
-
-  console.log('ProtectedRoute Debug:', {
-    userEmail: user?.email,
-    hasSubscription: subscriptionData.subscribed,
-    isTestUser: !!isTestUser,
-    isAdmin,
-    testPlan: isTestUser ? localStorage.getItem(`test_plan_${user.id}`) : null
-  });
-
-  // Verificar se o usuário tem assinatura ativa OU é um usuário de teste OU é admin
-  if (!subscriptionData.subscribed && !isTestUser && !isAdmin) {
+  // Verificar se o usuário tem assinatura ativa OU é admin
+  if (!subscriptionData.subscribed && !isAdmin) {
     return <Navigate to="/payment" replace />;
   }
 

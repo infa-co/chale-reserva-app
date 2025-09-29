@@ -6,6 +6,7 @@ import { MessageCircle } from 'lucide-react';
 import { FeatureRestriction } from '@/components/FeatureRestriction';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { toast } from 'sonner';
+import { sanitizeString, sanitizePhone, sanitizeCPF } from '@/lib/validation';
 
 interface GuestInfoFormProps {
   formData: {
@@ -45,9 +46,10 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
         <Input
           id="guestName"
           value={formData.guestName}
-          onChange={(e) => onInputChange('guestName', e.target.value)}
+          onChange={(e) => onInputChange('guestName', sanitizeString(e.target.value))}
           placeholder="Nome completo"
           className="mt-1"
+          maxLength={100}
         />
       </div>
 
@@ -57,9 +59,10 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
           <Input
             id="phone"
             value={formData.phone}
-            onChange={(e) => onInputChange('phone', e.target.value)}
+            onChange={(e) => onInputChange('phone', sanitizePhone(e.target.value))}
             placeholder="(11) 99999-9999"
             className="mt-1"
+            maxLength={20}
           />
         </div>
         <Button
@@ -79,9 +82,10 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
           id="email"
           type="email"
           value={formData.email}
-          onChange={(e) => onInputChange('email', e.target.value)}
+          onChange={(e) => onInputChange('email', sanitizeString(e.target.value))}
           placeholder="email@exemplo.com"
           className="mt-1"
+          maxLength={255}
         />
       </div>
 
@@ -91,9 +95,10 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
           <Input
             id="city"
             value={formData.city}
-            onChange={(e) => onInputChange('city', e.target.value)}
+            onChange={(e) => onInputChange('city', sanitizeString(e.target.value))}
             placeholder="São Paulo"
             className="mt-1"
+            maxLength={100}
           />
         </div>
         <div>
@@ -101,7 +106,7 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
           <Input
             id="state"
             value={formData.state}
-            onChange={(e) => onInputChange('state', e.target.value)}
+            onChange={(e) => onInputChange('state', sanitizeString(e.target.value).toUpperCase())}
             placeholder="SP"
             className="mt-1"
             maxLength={2}
@@ -127,7 +132,8 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
             id="cpf"
             value={formData.cpf}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, '');
+              const sanitized = sanitizeCPF(e.target.value);
+              const value = sanitized.replace(/\D/g, '');
               const maskedValue = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
               onInputChange('cpf', maskedValue);
             }}

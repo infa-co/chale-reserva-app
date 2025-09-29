@@ -19,6 +19,25 @@ interface WelcomeEmailRequest {
   planPrice: string;
 }
 
+// Input validation for edge function
+const validateWelcomeEmailInput = (data: any): WelcomeEmailRequest => {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Invalid request body');
+  }
+  
+  const { planName, planPrice } = data;
+  
+  if (!planName || typeof planName !== 'string' || planName.length > 50) {
+    throw new Error('Invalid plan name');
+  }
+  
+  if (!planPrice || typeof planPrice !== 'string' || planPrice.length > 20) {
+    throw new Error('Invalid plan price');
+  }
+  
+  return { planName: planName.trim(), planPrice: planPrice.trim() };
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -45,8 +64,8 @@ serve(async (req) => {
     
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const requestBody = await req.json() as WelcomeEmailRequest;
-    const { planName, planPrice } = requestBody;
+    const requestBody = await req.json();
+    const { planName, planPrice } = validateWelcomeEmailInput(requestBody);
 
     // Get user profile for personalized greeting
     const { data: profile } = await supabaseClient

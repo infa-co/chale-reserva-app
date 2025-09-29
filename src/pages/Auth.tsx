@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
+import { validateData, loginSchema, signupSchema } from '@/lib/validation';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -37,18 +38,23 @@ const Auth = () => {
         return;
       }
 
+      // Validate email format
+      const emailValidation = validateData(loginSchema.pick({ email: true }), { email });
+      if (!emailValidation.success) {
+        toast.error(emailValidation.errors[0]);
+        return;
+      }
+
       setLoading(true);
       try {
         const { error } = await resetPassword(email);
         if (error) {
-          console.error('Reset password error:', error);
           toast.error('Erro ao enviar email de recuperação: ' + error.message);
         } else {
           toast.success('Email de recuperação enviado! Verifique sua caixa de entrada.');
           setResetEmailSent(true);
         }
       } catch (error) {
-        console.error('Reset password error:', error);
         toast.error('Erro inesperado. Tente novamente.');
       } finally {
         setLoading(false);
@@ -56,13 +62,16 @@ const Auth = () => {
       return;
     }
     
-    if (!email || !password) {
-      toast.error('Por favor, preencha todos os campos obrigatórios');
-      return;
-    }
-
-    if (!isLogin && !name) {
-      toast.error('Por favor, informe seu nome');
+    // Validate form data
+    const formData = isLogin 
+      ? { email, password }
+      : { email, password, name };
+    
+    const schema = isLogin ? loginSchema : signupSchema;
+    const validation = validateData(schema, formData);
+    
+    if (!validation.success) {
+      toast.error(validation.errors[0]);
       return;
     }
 
@@ -70,9 +79,8 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(validation.data.email, validation.data.password);
         if (error) {
-          console.error('Login error:', error);
           if (error.message.includes('Invalid login credentials')) {
             toast.error('Email ou senha incorretos');
           } else {
@@ -83,9 +91,8 @@ const Auth = () => {
           navigate('/dashboard');
         }
       } else {
-        const { error } = await signUp(email, password, name);
+        const { error } = await signUp(validation.data.email, validation.data.password, validation.data.name);
         if (error) {
-          console.error('Signup error:', error);
           if (error.message.includes('User already registered')) {
             toast.error('Este email já está cadastrado');
           } else {
@@ -109,7 +116,6 @@ const Auth = () => {
         }
       }
     } catch (error) {
-      console.error('Auth error:', error);
       toast.error('Erro inesperado. Tente novamente.');
     } finally {
       setLoading(false);
