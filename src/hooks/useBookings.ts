@@ -51,6 +51,16 @@ export const useBookings = () => {
     if (!user) return;
 
     try {
+      // Check if this is the first booking
+      const { data: existingBookings } = await supabase
+        .from('bookings')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_historical', false)
+        .limit(1);
+
+      const isFirstBooking = !existingBookings || existingBookings.length === 0;
+
       const { data, error } = await supabase
         .from('bookings')
         .insert([{
@@ -73,6 +83,29 @@ export const useBookings = () => {
 
       setBookings(prev => [typedBooking, ...prev]);
       toast.success('Reserva criada com sucesso!');
+
+      // Send first booking email if this is the first booking
+      if (isFirstBooking) {
+        try {
+          const { error: emailError } = await supabase.functions.invoke('send-first-booking-email', {
+            body: {
+              guestName: bookingData.guest_name,
+              checkIn: bookingData.check_in,
+              checkOut: bookingData.check_out,
+              totalValue: bookingData.total_value.toString()
+            },
+            headers: {
+              Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            },
+          });
+
+          if (emailError) {
+            console.error('Error sending first booking email:', emailError);
+          }
+        } catch (emailError) {
+          console.error('Error sending first booking email:', emailError);
+        }
+      }
     } catch (error) {
       console.error('Error adding booking:', error);
       toast.error('Erro ao criar reserva');

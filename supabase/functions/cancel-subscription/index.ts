@@ -82,6 +82,26 @@ serve(async (req) => {
       currentPeriodEnd: currentPeriodEndDate
     });
 
+    // Send cancellation email
+    try {
+      const { error: emailError } = await supabaseClient.functions.invoke('send-cancellation-email', {
+        body: {
+          currentPeriodEnd: currentPeriodEndDate
+        },
+        headers: {
+          Authorization: authHeader,
+        },
+      });
+
+      if (emailError) {
+        logStep("Email sending failed", emailError);
+      } else {
+        logStep("Cancellation email sent successfully");
+      }
+    } catch (emailError) {
+      logStep("Email sending error", emailError);
+    }
+
     return new Response(JSON.stringify({ 
       success: true,
       cancelAtPeriodEnd: canceledSubscription.cancel_at_period_end,

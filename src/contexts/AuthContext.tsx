@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (email: string, password: string, name?: string) => {
     const redirectUrl = `${window.location.origin}/dashboard`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -135,6 +135,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     });
+
+    // Send signup email if successful
+    if (!error && data.user) {
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-signup-email', {
+          body: { name: name || '' },
+          headers: {
+            Authorization: `Bearer ${data.session?.access_token}`,
+          },
+        });
+
+        if (emailError) {
+          console.error('Error sending signup email:', emailError);
+        }
+      } catch (emailError) {
+        console.error('Error sending signup email:', emailError);
+      }
+    }
+
     return { error };
   };
 
@@ -148,11 +167,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
     });
+
+    // Send password reset notification email if successful
+    if (!error && session) {
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-password-reset-email', {
+          body: { type: 'reset_requested' },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
+
+        if (emailError) {
+          console.error('Error sending password reset email:', emailError);
+        }
+      } catch (emailError) {
+        console.error('Error sending password reset email:', emailError);
+      }
+    }
+
     return { error };
   };
 
   const updatePassword = async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password });
+
+    // Send password changed notification email if successful
+    if (!error && session) {
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-password-reset-email', {
+          body: { type: 'password_changed' },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
+
+        if (emailError) {
+          console.error('Error sending password changed email:', emailError);
+        }
+      } catch (emailError) {
+        console.error('Error sending password changed email:', emailError);
+      }
+    }
+
     return { error };
   };
 

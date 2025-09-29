@@ -70,6 +70,44 @@ export const useSubscription = () => {
 
       // Validate response data
       if (data && typeof data.subscribed === 'boolean') {
+        // Check for plan changes and send email
+        const oldTierData = localStorage.getItem('ordomo_old_tier');
+        if (oldTierData && data.subscribed && data.product_id) {
+          try {
+            const oldTier = JSON.parse(oldTierData);
+            const newTier = Object.values(subscriptionTiers).find(
+              tier => tier.product_id === data.product_id
+            );
+            
+            if (newTier && oldTier.product_id !== newTier.product_id) {
+              // Send plan change email
+              const changeType = newTier.price > oldTier.price ? 'upgrade' : 'downgrade';
+              
+              const { error: emailError } = await supabase.functions.invoke('send-plan-change-email', {
+                body: {
+                  oldPlan: oldTier.name,
+                  newPlan: newTier.name,
+                  newPrice: `R$ ${newTier.price.toFixed(2)}`,
+                  changeType
+                },
+                headers: {
+                  Authorization: `Bearer ${session.access_token}`,
+                },
+              });
+
+              if (emailError) {
+                console.error('Error sending plan change email:', emailError);
+              }
+            }
+            
+            // Clear stored old tier
+            localStorage.removeItem('ordomo_old_tier');
+          } catch (e) {
+            console.error('Error processing plan change:', e);
+            localStorage.removeItem('ordomo_old_tier');
+          }
+        }
+        
         setSubscriptionData(data);
       } else {
         console.error('Invalid subscription data received:', data);
@@ -98,7 +136,9 @@ export const useSubscription = () => {
       return;
     }
 
+    const oldTier = getCurrentTier();
     setLoading(true);
+    
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId },
@@ -114,6 +154,10 @@ export const useSubscription = () => {
       }
 
       if (data?.url) {
+        // Store old tier for plan change detection
+        if (oldTier) {
+          localStorage.setItem('ordomo_old_tier', JSON.stringify(oldTier));
+        }
         window.open(data.url, '_blank');
       }
     } catch (error) {
