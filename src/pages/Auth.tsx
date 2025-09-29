@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
-import { validateData, loginSchema, signupSchema } from '@/lib/validation';
+import { validateEmail, validateAuth, validateSignup } from '@/lib/validation';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -39,9 +38,10 @@ const Auth = () => {
       }
 
       // Validate email format
-      const emailValidation = validateData(loginSchema.pick({ email: true }), { email });
+      const emailValidation = validateEmail(email);
       if (!emailValidation.success) {
-        toast.error(emailValidation.errors[0]);
+        const errorMessage = 'errors' in emailValidation ? emailValidation.errors[0] : 'Email inválido';
+        toast.error(errorMessage);
         return;
       }
 
@@ -63,15 +63,13 @@ const Auth = () => {
     }
     
     // Validate form data
-    const formData = isLogin 
-      ? { email, password }
-      : { email, password, name };
-    
-    const schema = isLogin ? loginSchema : signupSchema;
-    const validation = validateData(schema, formData);
+    const validation = isLogin 
+      ? validateAuth(email, password)
+      : validateSignup(email, password, name);
     
     if (!validation.success) {
-      toast.error(validation.errors[0]);
+      const errorMessage = 'errors' in validation ? validation.errors[0] : 'Dados inválidos';
+      toast.error(errorMessage);
       return;
     }
 
@@ -91,7 +89,9 @@ const Auth = () => {
           navigate('/dashboard');
         }
       } else {
-        const { error } = await signUp(validation.data.email, validation.data.password, validation.data.name);
+        // Type assertion for signup data
+        const signupData = validation.data as { email: string; password: string; name: string };
+        const { error } = await signUp(signupData.email, signupData.password, signupData.name);
         if (error) {
           if (error.message.includes('User already registered')) {
             toast.error('Este email já está cadastrado');

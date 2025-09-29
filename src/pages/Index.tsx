@@ -88,7 +88,7 @@ const Index = () => {
       features: [
         "Até 15 reservas/mês",
         "Cadastro de clientes",
-        
+        "Acesso rápido ao WhatsApp"
       ]
     },
     {

@@ -62,7 +62,7 @@ export const validateData = <T>(schema: z.ZodSchema<T>, data: unknown): { succes
     return { success: true, data: validatedData };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors.map(err => err.message);
+      const errors = error.issues.map(err => err.message);
       return { success: false, errors };
     }
     return { success: false, errors: ['Erro de validação desconhecido'] };
@@ -80,4 +80,17 @@ export const sanitizePhone = (phone: string): string => {
 
 export const sanitizeCPF = (cpf: string): string => {
   return cpf.replace(/[^\d\.\-]/g, '');
+};
+
+// Helper validation functions for common use cases
+export const validateEmail = (email: string) => {
+  return validateData(z.object({ email: authSchema.email }), { email });
+};
+
+export const validateAuth = (email: string, password: string) => {
+  return validateData(loginSchema, { email, password });
+};
+
+export const validateSignup = (email: string, password: string, name: string) => {
+  return validateData(signupSchema, { email, password, name });
 };
