@@ -74,7 +74,7 @@ serve(async (req) => {
     logStep("Sending cancellation email", { to: user.email, endDate });
 
     const emailResponse = await resend.emails.send({
-      from: "Ordomo <billing@resend.dev>",
+      from: "Ordomo <billing@ordomo.com.br>",
       to: [user.email],
       subject: `😔 Assinatura cancelada - Ordomo`,
       html: `

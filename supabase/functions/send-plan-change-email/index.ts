@@ -97,7 +97,7 @@ serve(async (req) => {
     const changeText = isUpgrade ? 'Upgrade' : 'Downgrade';
 
     const emailResponse = await resend.emails.send({
-      from: "Ordomo <billing@resend.dev>",
+      from: "Ordomo <billing@ordomo.com.br>",
       to: [user.email],
       subject: `${changeIcon} ${changeText} de Plano Confirmado - Ordomo`,
       html: `

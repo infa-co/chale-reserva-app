@@ -106,6 +106,37 @@ export const useBookings = () => {
           console.error('Error sending first booking email:', emailError);
         }
       }
+
+      // Send guest confirmation email if guest_email is provided
+      if (bookingData.guest_email && bookingData.guest_email.trim()) {
+        try {
+          const { data: propertyData } = await supabase
+            .from('properties')
+            .select('name')
+            .eq('id', bookingData.property_id || '')
+            .single();
+
+          await supabase.functions.invoke('send-booking-confirmation-guest', {
+            body: {
+              guestEmail: bookingData.guest_email,
+              guestName: bookingData.guest_name,
+              propertyName: propertyData?.name || 'Propriedade',
+              checkIn: bookingData.check_in,
+              checkOut: bookingData.check_out,
+              nights: bookingData.nights,
+              totalValue: bookingData.total_value,
+              notes: bookingData.notes || '',
+              hostPhone: bookingData.phone || '' // Using guest phone as contact
+            },
+            headers: {
+              Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            },
+          });
+        } catch (emailError) {
+          // Don't block booking creation if email fails
+          console.error('Error sending guest confirmation email:', emailError);
+        }
+      }
     } catch (error) {
       console.error('Error adding booking:', error);
       toast.error('Erro ao criar reserva');

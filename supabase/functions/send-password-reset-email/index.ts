@@ -78,7 +78,7 @@ serve(async (req) => {
       : `✅ Senha alterada com sucesso - Ordomo`;
 
     const emailResponse = await resend.emails.send({
-      from: "Ordomo <security@resend.dev>",
+      from: "Ordomo <security@ordomo.com.br>",
       to: [user.email],
       subject,
       html: `

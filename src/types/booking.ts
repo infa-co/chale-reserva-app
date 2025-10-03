@@ -22,6 +22,7 @@ export interface Booking {
   updated_at?: string;
   is_historical?: boolean;
   historical_registration_date?: string;
+  guest_email?: string; // Email para enviar confirmação ao hóspede
 }
 
 export interface Client {

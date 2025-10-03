@@ -17,20 +17,33 @@ const PaymentSuccess = () => {
     const handlePaymentSuccess = async () => {
       await checkSubscription();
       
-      // Send welcome email after subscription is confirmed
+      // Send payment success email after subscription is confirmed
       const currentTier = getCurrentTier();
       if (currentTier) {
         try {
-          await supabase.functions.invoke('send-welcome-email', {
+          const session = (await supabase.auth.getSession()).data.session;
+          
+          // Get subscription details for email
+          const { data: subscriptionData } = await supabase.functions.invoke('check-subscription', {
+            headers: {
+              Authorization: `Bearer ${session?.access_token}`,
+            },
+          });
+
+          await supabase.functions.invoke('send-payment-success-email', {
             body: {
               planName: currentTier.name,
-              planPrice: `R$ ${currentTier.price}`
-            }
+              planPrice: `R$ ${currentTier.price}`,
+              subscriptionEnd: subscriptionData?.subscription_end || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            headers: {
+              Authorization: `Bearer ${session?.access_token}`,
+            },
           });
           
-          toast.success("Email de boas-vindas enviado!");
+          toast.success("Email de confirmação enviado!");
         } catch (error) {
-          console.error("Erro ao enviar email de boas-vindas:", error);
+          console.error("Erro ao enviar email de confirmação:", error);
           // Don't show error to user, it's not critical
         }
       }

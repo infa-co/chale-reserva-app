@@ -56,3 +56,9 @@ verify_jwt = false
 
 [functions.export-ical]
 verify_jwt = false
+
+[functions.send-payment-success-email]
+verify_jwt = false
+
+[functions.send-booking-confirmation-guest]
+verify_jwt = false

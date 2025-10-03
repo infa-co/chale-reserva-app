@@ -93,7 +93,7 @@ serve(async (req) => {
     logStep("Sending first booking email", { to: user.email, guestName });
 
     const emailResponse = await resend.emails.send({
-      from: "Ordomo <success@resend.dev>",
+      from: "Ordomo <success@ordomo.com.br>",
       to: [user.email],
       subject: `🎉 Parabéns pela sua primeira reserva! - Ordomo`,
       html: `

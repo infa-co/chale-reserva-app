@@ -73,7 +73,7 @@ serve(async (req) => {
     logStep("Sending signup email", { to: user.email, name: userName });
 
     const emailResponse = await resend.emails.send({
-      from: "Ordomo <onboarding@resend.dev>",
+      from: "Ordomo <welcome@ordomo.com.br>",
       to: [user.email],
       subject: `🎉 Bem-vindo ao Ordomo, ${userName}!`,
       html: `
