@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           birth_date: string | null
@@ -24,6 +51,7 @@ export type Database = {
           cpf: string | null
           created_at: string | null
           email: string | null
+          guest_email: string | null
           guest_name: string
           historical_registration_date: string | null
           id: string
@@ -48,6 +76,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string | null
           email?: string | null
+          guest_email?: string | null
           guest_name: string
           historical_registration_date?: string | null
           id?: string
@@ -72,6 +101,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string | null
           email?: string | null
+          guest_email?: string | null
           guest_name?: string
           historical_registration_date?: string | null
           id?: string
@@ -305,6 +335,33 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_tracking: {
+        Row: {
+          action: string
+          attempt_count: number | null
+          created_at: string | null
+          id: string
+          identifier: string
+          window_start: string | null
+        }
+        Insert: {
+          action: string
+          attempt_count?: number | null
+          created_at?: string | null
+          id?: string
+          identifier: string
+          window_start?: string | null
+        }
+        Update: {
+          action?: string
+          attempt_count?: number | null
+          created_at?: string | null
+          id?: string
+          identifier?: string
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -360,6 +417,10 @@ export type Database = {
     Functions: {
       assign_admin_role: {
         Args: { _user_id: string }
+        Returns: undefined
+      }
+      cleanup_old_rate_limits: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       has_role: {
