@@ -180,6 +180,9 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
+              <Badge className="bg-white/20 text-white border-white/30 font-montserrat font-semibold px-4 py-2 w-fit">
+                🎉 7 dias de teste gratuito
+              </Badge>
               <h1 className="text-5xl lg:text-6xl font-montserrat font-bold leading-tight">
                 Organize suas reservas. 
                 <br />
@@ -198,6 +201,9 @@ const Index = () => {
                 <ArrowRight className="mr-2" />
                 Começar agora
               </Button>
+              <p className="text-sm text-white/70">
+                Teste grátis por 7 dias. Sem cartão de crédito necessário.
+              </p>
             </div>
             <div className="flex justify-center">
               <div className="relative">
@@ -305,9 +311,12 @@ const Index = () => {
             <h2 className="text-4xl font-montserrat font-bold text-foreground mb-4">
               Planos para todos os donos
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-muted-foreground mb-2">
               A partir de R$39,90 por mês
             </p>
+            <Badge className="bg-primary/10 text-primary border-primary/20 font-montserrat font-semibold px-4 py-2">
+              ✨ 7 dias de teste gratuito em todos os planos
+            </Badge>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {plans.map((plan, index) => (
@@ -420,9 +429,15 @@ const Index = () => {
       {/* Final CTA */}
       <section className="py-16 bg-gradient-hero text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-montserrat font-bold mb-8">
+          <Badge className="bg-white/20 text-white border-white/30 font-montserrat font-semibold px-4 py-2 mb-6 inline-block">
+            🎉 7 dias grátis para testar
+          </Badge>
+          <h2 className="text-4xl font-montserrat font-bold mb-4">
             Tudo o que sua hospedagem precisa em um só lugar.
           </h2>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            Comece seu teste gratuito agora e descubra como é fácil gerenciar suas reservas.
+          </p>
           <Button 
             size="lg" 
             className="bg-white text-primary hover:bg-white/90 font-montserrat font-semibold text-lg px-8 py-4 h-auto"
