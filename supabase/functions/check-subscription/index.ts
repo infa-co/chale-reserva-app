@@ -67,10 +67,17 @@ serve(async (req) => {
     let productId = null;
     let subscriptionEnd = null;
     let cancelAtPeriodEnd = false;
+    let trialEnd = null;
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
       logStep("Active subscription found", { subscriptionId: subscription.id });
+      
+      // Check if subscription is in trial period
+      if (subscription.trial_end && subscription.trial_end > Math.floor(Date.now() / 1000)) {
+        trialEnd = new Date(subscription.trial_end * 1000).toISOString();
+        logStep("Subscription in trial period", { trialEnd });
+      }
       
       // Check if subscription is set to cancel at period end
       cancelAtPeriodEnd = subscription.cancel_at_period_end || false;
@@ -104,7 +111,8 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       product_id: productId,
       subscription_end: subscriptionEnd,
-      cancel_at_period_end: cancelAtPeriodEnd
+      cancel_at_period_end: cancelAtPeriodEnd,
+      trial_end: trialEnd
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

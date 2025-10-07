@@ -109,7 +109,18 @@ const SubscriptionManager = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {subscriptionData.cancel_at_period_end && (
+          {subscriptionData.trial_end && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                🎉 <strong>Período de teste gratuito até {new Date(subscriptionData.trial_end).toLocaleDateString('pt-BR')}</strong>
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                Após o período de teste, você será cobrado automaticamente.
+              </p>
+            </div>
+          )}
+          
+          {subscriptionData.cancel_at_period_end && !subscriptionData.trial_end && (
             <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
               <p className="text-sm text-orange-800">
                 ✅ <strong>Você tem acesso até {subscriptionData.subscription_end 
@@ -147,12 +158,19 @@ const SubscriptionManager = () => {
               <Calendar size={16} className="text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">
-                  {subscriptionData.cancel_at_period_end ? 'Acesso até' : 'Próxima Cobrança'}
+                  {subscriptionData.trial_end 
+                    ? 'Fim do Teste Gratuito' 
+                    : subscriptionData.cancel_at_period_end 
+                      ? 'Acesso até' 
+                      : 'Próxima Cobrança'
+                  }
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {subscriptionData.subscription_end 
-                    ? new Date(subscriptionData.subscription_end).toLocaleDateString('pt-BR')
-                    : 'N/A'
+                  {subscriptionData.trial_end
+                    ? new Date(subscriptionData.trial_end).toLocaleDateString('pt-BR')
+                    : subscriptionData.subscription_end 
+                      ? new Date(subscriptionData.subscription_end).toLocaleDateString('pt-BR')
+                      : 'N/A'
                   }
                 </p>
               </div>

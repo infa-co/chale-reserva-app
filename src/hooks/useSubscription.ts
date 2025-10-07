@@ -8,6 +8,7 @@ interface SubscriptionData {
   product_id?: string;
   subscription_end?: string;
   cancel_at_period_end?: boolean;
+  trial_end?: string;
 }
 
 // Planos disponíveis

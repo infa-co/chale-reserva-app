@@ -78,6 +78,9 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
+      subscription_data: {
+        trial_period_days: 7,
+      },
       success_url: `${req.headers.get("origin")}/onboarding?from_payment=true`,
       cancel_url: `${req.headers.get("origin")}/payment-canceled`,
     });
