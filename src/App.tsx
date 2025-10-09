@@ -8,6 +8,8 @@ import { BookingProvider } from "./contexts/BookingContext";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+import Error from "./pages/Error";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import MobileNav from "./components/MobileNav";
@@ -123,11 +125,17 @@ function App() {
               <Route path="/legal/support" element={
                 <Suspense fallback={<LoadingSpinner />}>
                   <Support />
-                </Suspense>
-              } />
-            </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+                 </Suspense>
+               } />
+               
+               {/* Error page */}
+               <Route path="/error" element={<Error />} />
+               
+               {/* 404 - Must be last */}
+               <Route path="*" element={<NotFound />} />
+             </Routes>
+         </BrowserRouter>
+       </AuthProvider>
     </QueryClientProvider>
   );
 }
