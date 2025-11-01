@@ -1,6 +1,6 @@
 
-const CACHE_NAME = 'ordomo-v2024092201';
-const STATIC_CACHE = 'ordomo-static-v2024092201';
+const CACHE_NAME = 'ordomo-v2025110101';
+const STATIC_CACHE = 'ordomo-static-v2025110101';
 
 // Static assets to cache (excluding root to prevent navigation caching)
 const urlsToCache = [
@@ -53,12 +53,12 @@ self.addEventListener('fetch', (event) => {
 
   // Different strategies for different types of requests
   if (request.mode === 'navigate') {
-    // Navigation requests - always try network first
+    // Navigation requests - ALWAYS network first, NO cache for root routes
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Cache successful navigation responses
-          if (response.status === 200) {
+          // Only cache non-critical navigation responses
+          if (response.status === 200 && !url.pathname.match(/^\/(auth|dashboard|site)?$/)) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(request, responseClone);
@@ -67,7 +67,7 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Fallback to cache for navigation
+          // Fallback to cache for navigation only if network fails
           return caches.match(request);
         })
     );
