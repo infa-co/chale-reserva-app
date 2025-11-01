@@ -13,6 +13,7 @@ import Error from "./pages/Error";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import MobileNav from "./components/MobileNav";
+import RootRedirect from "./components/RootRedirect";
 
 // Import das páginas diretamente para resolver problemas de dynamic import
 import Dashboard from "./pages/Dashboard";
@@ -86,7 +87,7 @@ function App() {
             
             
             {/* Landing page */}
-            <Route path="/" element={<Navigate to="/site" replace />} />
+            <Route path="/" element={<RootRedirect />} />
             <Route path="/site" element={<Index />} />
 
               <Route element={<ProtectedShell />}>
