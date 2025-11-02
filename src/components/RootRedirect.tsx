@@ -7,15 +7,15 @@ const RootRedirect = () => {
   const isMobile = useIsMobile();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-sage-200 border-t-sage-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sage-600">Carregando...</p>
-        </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="text-center">
+        <div className="w-8 h-8 border-4 border-sage-200 border-t-sage-600 rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-sage-600">Carregando Ordomo...</p>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   // Se está autenticado, vai para o dashboard (mobile ou desktop)
   if (user) {
