@@ -415,14 +415,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      assign_admin_role: {
-        Args: { _user_id: string }
-        Returns: undefined
-      }
-      cleanup_old_rate_limits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      assign_admin_role: { Args: { _user_id: string }; Returns: undefined }
+      cleanup_old_rate_limits: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
