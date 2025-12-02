@@ -1,13 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProperty } from '@/contexts/PropertyContext';
 import { useToast } from '@/hooks/use-toast';
 import { ExternalBooking } from '@/types/externalBooking';
 
+interface ExternalBookingWithProperty extends ExternalBooking {
+  ical_syncs?: {
+    property_id: string | null;
+  };
+}
+
 export const useExternalBookings = () => {
   const { user } = useAuth();
+  const { activePropertyId, properties } = useProperty();
   const { toast } = useToast();
-  const [externalBookings, setExternalBookings] = useState<ExternalBooking[]>([]);
+  const [allExternalBookings, setAllExternalBookings] = useState<ExternalBookingWithProperty[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchExternalBookings = useCallback(async () => {
@@ -17,7 +25,12 @@ export const useExternalBookings = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('external_bookings')
-        .select('*')
+        .select(`
+          *,
+          ical_syncs!inner (
+            property_id
+          )
+        `)
         .eq('user_id', user.id)
         .order('start_date', { ascending: true });
 
@@ -31,7 +44,7 @@ export const useExternalBookings = () => {
         return;
       }
 
-      setExternalBookings(data || []);
+      setAllExternalBookings(data || []);
     } catch (error) {
       console.error('Error fetching external bookings:', error);
       toast({
@@ -47,6 +60,14 @@ export const useExternalBookings = () => {
   useEffect(() => {
     fetchExternalBookings();
   }, [fetchExternalBookings]);
+
+  // Filtra pelo property_id ativo
+  const externalBookings = useMemo(() => {
+    if (!activePropertyId || properties.length === 0) {
+      return allExternalBookings;
+    }
+    return allExternalBookings.filter(b => b.ical_syncs?.property_id === activePropertyId);
+  }, [allExternalBookings, activePropertyId, properties.length]);
 
   const getExternalBookingsForDateRange = useCallback((startDate: Date, endDate: Date) => {
     return externalBookings.filter(booking => {

@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
+import { PropertyProvider } from "./contexts/PropertyContext";
 import { BookingProvider } from "./contexts/BookingContext";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -58,15 +59,17 @@ const LoadingSpinner = () => (
 
 const ProtectedShell = () => (
   <ProtectedRoute>
-    <BookingProvider>
-      <div className="mobile-container pb-16">
-        <Suspense fallback={<LoadingSpinner />}>
-          <Outlet />
-        </Suspense>
-        <MobileNav />
-        <PWAInstallPrompt />
-      </div>
-    </BookingProvider>
+    <PropertyProvider>
+      <BookingProvider>
+        <div className="mobile-container pb-16">
+          <Suspense fallback={<LoadingSpinner />}>
+            <Outlet />
+          </Suspense>
+          <MobileNav />
+          <PWAInstallPrompt />
+        </div>
+      </BookingProvider>
+    </PropertyProvider>
   </ProtectedRoute>
 );
 

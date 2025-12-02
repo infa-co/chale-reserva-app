@@ -3,6 +3,7 @@ import { Building2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
+import { useProperty } from '@/contexts/PropertyContext';
 
 interface PropertySelectorProps {
   value: string;
@@ -13,13 +14,23 @@ interface PropertySelectorProps {
 
 export const PropertySelector = ({ value, onChange, required = false, autoSelectIfOne = false }: PropertySelectorProps) => {
   const { properties, loading } = useOptimizedProperties();
+  const { activePropertyId } = useProperty();
 
-  // Auto-select if only one property exists
+  // Auto-select based on active property or if only one property exists
   React.useEffect(() => {
-    if (autoSelectIfOne && properties.length === 1 && !value) {
+    if (value) return; // Já tem valor selecionado
+    
+    // Se tem propriedade ativa no contexto, usa ela
+    if (activePropertyId && properties.find(p => p.id === activePropertyId)) {
+      onChange(activePropertyId);
+      return;
+    }
+    
+    // Se só tem uma propriedade e autoSelectIfOne está habilitado
+    if (autoSelectIfOne && properties.length === 1) {
       onChange(properties[0].id);
     }
-  }, [properties, value, onChange, autoSelectIfOne]);
+  }, [properties, value, onChange, autoSelectIfOne, activePropertyId]);
 
   if (loading) {
     return (
