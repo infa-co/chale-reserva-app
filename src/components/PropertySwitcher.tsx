@@ -26,7 +26,7 @@ const PropertySwitcher = memo(() => {
 
   if (properties.length === 0) {
     return (
-      <Link to="/properties">
+      <Link to="/meus-chales">
         <Button variant="outline" size="sm" className="gap-2">
           <Building2 className="h-4 w-4" />
           <span>Adicionar Chalé</span>
@@ -84,7 +84,7 @@ const PropertySwitcher = memo(() => {
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/properties" className="flex items-center gap-2 cursor-pointer">
+          <Link to="/meus-chales" className="flex items-center gap-2 cursor-pointer">
             <Building2 className="h-4 w-4" />
             <span>Gerenciar Chalés</span>
           </Link>
