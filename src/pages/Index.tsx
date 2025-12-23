@@ -77,15 +77,17 @@ const Index = () => {
     ]
   }, {
     name: "Premium",
-    price: "179,90",
-    badge: "COMPLETO",
-    badgeColor: "bg-accent",
+    price: "179,00",
+    badge: "MAIS POPULAR",
+    badgeColor: "bg-primary",
     features: [
       { text: "Reservas ilimitadas", included: true },
       { text: "Cadastro de clientes", included: true },
+      { text: "Acesso rápido ao WhatsApp", included: true },
       { text: "Dashboard financeiro", included: true },
       { text: "Exportação de relatórios", included: true },
-      { text: "Integração completa com Airbnb", included: true },
+      { text: "Integração completa com Airbnb (Airbnb ↔ Ordomo bidirecional)", included: true },
+      { text: "Link iCal de exportação (Ordomo → Airbnb)", included: true },
       { text: "Multi-chalé", included: true },
       { text: "Suporte prioritário", included: true }
     ]
