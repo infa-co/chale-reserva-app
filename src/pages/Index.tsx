@@ -53,11 +53,18 @@ const Index = () => {
   }];
   const plans = [{
     name: "Básico",
-    price: "39,90",
+    price: "39,00",
     badge: null,
     features: [
       { text: "Até 15 reservas/mês", included: true },
-      { text: "Cadastro de clientes", included: true }
+      { text: "Cadastro de clientes", included: true },
+      { text: "Acesso rápido ao WhatsApp", included: false },
+      { text: "Dashboard financeiro", included: false },
+      { text: "Exportação de relatórios", included: false },
+      { text: "Integração Airbnb (nenhuma)", included: false },
+      { text: "Link iCal de exportação (Ordomo → Airbnb)", included: false },
+      { text: "Multi-chalé", included: false },
+      { text: "Suporte prioritário", included: false }
     ]
   }, {
     name: "Pro",
