@@ -55,7 +55,7 @@ const Index = () => {
     name: "Básico",
     price: "39,90",
     badge: null,
-    features: ["Até 15 reservas/mês", "Cadastro de clientes", "Acesso rápido ao WhatsApp"]
+    features: ["Até 15 reservas/mês", "Cadastro de clientes"]
   }, {
     name: "Pro",
     price: "89,90",
