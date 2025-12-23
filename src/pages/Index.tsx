@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Calendar, Users, RefreshCw, BarChart3, Smartphone, ArrowRight, Check, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Users, RefreshCw, BarChart3, Smartphone, ArrowRight, Check, Star, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const Index = () => {
   const navigate = useNavigate();
@@ -55,19 +55,38 @@ const Index = () => {
     name: "Básico",
     price: "39,90",
     badge: null,
-    features: ["Até 15 reservas/mês", "Cadastro de clientes"]
+    features: [
+      { text: "Até 15 reservas/mês", included: true },
+      { text: "Cadastro de clientes", included: true }
+    ]
   }, {
     name: "Pro",
     price: "89,90",
     badge: "MAIS POPULAR",
     badgeColor: "bg-primary",
-    features: ["Até 35 reservas/mês", "Cadastro de clientes", "Acesso rápido ao WhatsApp", "Dashboard financeiro", "Exportação de relatórios", "Integração Airbnb", "Multi-chalé", "Suporte prioritário"]
+    features: [
+      { text: "Até 35 reservas/mês", included: true },
+      { text: "Cadastro de clientes", included: true },
+      { text: "Dashboard financeiro", included: true },
+      { text: "Exportação de relatórios", included: false },
+      { text: "Integração Airbnb", included: false },
+      { text: "Multi-chalé", included: false },
+      { text: "Suporte prioritário", included: false }
+    ]
   }, {
     name: "Premium",
     price: "179,90",
     badge: "COMPLETO",
     badgeColor: "bg-accent",
-    features: ["Reservas ilimitadas", "Cadastro de clientes", "Acesso rápido ao WhatsApp", "Dashboard financeiro", "Exportação de relatórios", "Integração completa com Airbnb", "Multi-chalé", "Suporte prioritário"]
+    features: [
+      { text: "Reservas ilimitadas", included: true },
+      { text: "Cadastro de clientes", included: true },
+      { text: "Dashboard financeiro", included: true },
+      { text: "Exportação de relatórios", included: true },
+      { text: "Integração completa com Airbnb", included: true },
+      { text: "Multi-chalé", included: true },
+      { text: "Suporte prioritário", included: true }
+    ]
   }];
   const faqs = [{
     question: "O que acontece se eu passar do limite de reservas?",
@@ -230,8 +249,12 @@ const Index = () => {
                   </div>
                   <ul className="space-y-3">
                     {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center gap-3">
-                        <Check size={16} className="text-primary flex-shrink-0" />
-                        <span className="text-sm">{feature}</span>
+                        {feature.included ? (
+                          <Check size={16} className="text-primary flex-shrink-0" />
+                        ) : (
+                          <X size={16} className="text-muted-foreground flex-shrink-0" />
+                        )}
+                        <span className={`text-sm ${!feature.included ? 'text-muted-foreground' : ''}`}>{feature.text}</span>
                       </li>)}
                   </ul>
                   <Button className="w-full font-montserrat font-semibold" variant={plan.badge ? "default" : "outline"} onClick={() => navigate('/auth?mode=signup')}>
