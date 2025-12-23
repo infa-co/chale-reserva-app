@@ -67,9 +67,11 @@ const Index = () => {
     features: [
       { text: "Até 35 reservas/mês", included: true },
       { text: "Cadastro de clientes", included: true },
+      { text: "Acesso rápido ao WhatsApp", included: true },
       { text: "Dashboard financeiro", included: true },
       { text: "Exportação de relatórios", included: false },
-      { text: "Integração Airbnb", included: false },
+      { text: "Integração Airbnb (Airbnb → Ordomo)", included: false },
+      { text: "Link iCal de exportação (Ordomo → Airbnb)", included: true },
       { text: "Multi-chalé", included: false },
       { text: "Suporte prioritário", included: false }
     ]
