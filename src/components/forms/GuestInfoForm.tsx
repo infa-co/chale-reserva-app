@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { sanitizeString, sanitizePhone, sanitizeCPF } from '@/lib/validation';
 import { VoiceInputButton } from './VoiceInputButton';
 import { parseDateFromSpeech } from '@/lib/voiceParsers';
-import { toast } from 'sonner';
 
 interface GuestInfoFormProps {
   formData: {
