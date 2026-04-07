@@ -1,6 +1,7 @@
 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { VoiceInputButton } from './VoiceInputButton';
 
 interface NotesFormProps {
   notes: string;
@@ -11,7 +12,13 @@ export const NotesForm = ({ notes, onInputChange }: NotesFormProps) => {
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border space-y-4">
       <div>
-        <Label htmlFor="notes">Observações</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="notes">Observações</Label>
+          <VoiceInputButton
+            fieldId="notes"
+            onResult={(text) => onInputChange('notes', notes ? `${notes} ${text}` : text)}
+          />
+        </div>
         <Textarea
           id="notes"
           value={notes}
