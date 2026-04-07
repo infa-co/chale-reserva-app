@@ -45,13 +45,14 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
       
       <div>
         <Label htmlFor="guestName">Nome do Hóspede *</Label>
-        <div className="flex gap-2 mt-1">
+        <div className="flex items-center gap-1.5 mt-1">
           <Input
             id="guestName"
             value={formData.guestName}
             onChange={(e) => onInputChange('guestName', sanitizeString(e.target.value))}
             placeholder="Nome completo"
             maxLength={100}
+            className="min-w-0"
           />
           <VoiceInputButton
             fieldId="guestName"
@@ -60,37 +61,37 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <div className="flex-1">
-          <Label htmlFor="phone">Telefone *</Label>
-          <div className="flex gap-2 mt-1">
-            <Input
-              id="phone"
-              value={formData.phone}
-              onChange={(e) => onInputChange('phone', sanitizePhone(e.target.value))}
-              placeholder="(11) 99999-9999"
-              maxLength={20}
-            />
-            <VoiceInputButton
-              fieldId="phone"
-              onResult={(text) => onInputChange('phone', sanitizePhone(text.replace(/\s/g, '')))}
-            />
-          </div>
+      <div>
+        <Label htmlFor="phone">Telefone *</Label>
+        <div className="flex items-center gap-1.5 mt-1">
+          <Input
+            id="phone"
+            value={formData.phone}
+            onChange={(e) => onInputChange('phone', sanitizePhone(e.target.value))}
+            placeholder="(11) 99999-9999"
+            maxLength={20}
+            className="min-w-0"
+          />
+          <VoiceInputButton
+            fieldId="phone"
+            onResult={(text) => onInputChange('phone', sanitizePhone(text.replace(/\s/g, '')))}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className={`h-10 w-10 min-w-[40px] shrink-0 rounded-full ${!hasWhatsAppAccess ? 'opacity-75' : ''}`}
+            onClick={handleWhatsAppClick}
+            disabled={!formData.phone}
+          >
+            <MessageCircle size={18} className={hasWhatsAppAccess ? "text-green-600" : "text-muted-foreground"} />
+          </Button>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          className={`mt-6 px-3 ${!hasWhatsAppAccess ? 'opacity-75' : ''}`}
-          onClick={handleWhatsAppClick}
-          disabled={!formData.phone}
-        >
-          <MessageCircle size={18} className={hasWhatsAppAccess ? "text-green-600" : "text-gray-400"} />
-        </Button>
       </div>
 
       <div>
         <Label htmlFor="email">E-mail</Label>
-        <div className="flex gap-2 mt-1">
+        <div className="flex items-center gap-1.5 mt-1">
           <Input
             id="email"
             type="email"
@@ -98,6 +99,7 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
             onChange={(e) => onInputChange('email', sanitizeString(e.target.value))}
             placeholder="email@exemplo.com"
             maxLength={255}
+            className="min-w-0"
           />
           <VoiceInputButton
             fieldId="email"
@@ -109,13 +111,14 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="city">Cidade</Label>
-          <div className="flex gap-2 mt-1">
+          <div className="flex items-center gap-1.5 mt-1">
             <Input
               id="city"
               value={formData.city}
               onChange={(e) => onInputChange('city', sanitizeString(e.target.value))}
               placeholder="São Paulo"
               maxLength={100}
+              className="min-w-0"
             />
             <VoiceInputButton
               fieldId="city"
@@ -139,13 +142,14 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="birthDate">Data de Nascimento</Label>
-          <div className="flex gap-2 mt-1">
+          <div className="flex items-center gap-1.5 mt-1">
             <Input
               id="birthDate"
               type="date"
               value={formData.birthDate}
               onChange={(e) => onInputChange('birthDate', e.target.value)}
               max={new Date().toISOString().split('T')[0]}
+              className="min-w-0"
             />
             <VoiceInputButton
               fieldId="birthDate"

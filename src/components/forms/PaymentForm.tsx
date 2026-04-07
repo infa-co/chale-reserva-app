@@ -27,7 +27,7 @@ export const PaymentForm = ({ formData, onInputChange }: PaymentFormProps) => {
       
       <div>
         <Label htmlFor="totalValue">Valor Total *</Label>
-        <div className="flex gap-2 mt-1">
+        <div className="flex items-center gap-1.5 mt-1">
           <Input
             id="totalValue"
             type="number"
@@ -35,6 +35,7 @@ export const PaymentForm = ({ formData, onInputChange }: PaymentFormProps) => {
             value={formData.totalValue}
             onChange={(e) => onInputChange('totalValue', e.target.value)}
             placeholder="0,00"
+            className="min-w-0"
           />
           <VoiceInputButton
             fieldId="totalValue"
