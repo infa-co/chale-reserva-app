@@ -6,6 +6,9 @@ import { useBookingValidation } from '@/hooks/useBookingValidation';
 import { useEffect, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { VoiceInputButton } from './VoiceInputButton';
+import { parseDateFromSpeech } from '@/lib/voiceParsers';
+import { toast } from 'sonner';
 
 interface BookingDatesFormWithValidationProps {
   formData: {
