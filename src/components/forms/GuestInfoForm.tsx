@@ -139,47 +139,46 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label htmlFor="birthDate">Data de Nascimento</Label>
-          <div className="flex items-center gap-1.5 mt-1">
-            <Input
-              id="birthDate"
-              type="date"
-              value={formData.birthDate}
-              onChange={(e) => onInputChange('birthDate', e.target.value)}
-              max={new Date().toISOString().split('T')[0]}
-              className="min-w-0"
-            />
-            <VoiceInputButton
-              fieldId="birthDate"
-              onResult={(text) => {
-                const parsed = parseDateFromSpeech(text);
-                if (parsed) {
-                  onInputChange('birthDate', parsed);
-                } else {
-                  toast.info(`Não entendi a data: "${text}". Tente "15 de março de 1990".`);
-                }
-              }}
-            />
-          </div>
-        </div>
-        <div>
-          <Label htmlFor="cpf">CPF</Label>
+      <div>
+        <Label htmlFor="birthDate">Data de Nascimento</Label>
+        <div className="flex items-center gap-1.5 mt-1">
           <Input
-            id="cpf"
-            value={formData.cpf}
-            onChange={(e) => {
-              const sanitized = sanitizeCPF(e.target.value);
-              const value = sanitized.replace(/\D/g, '');
-              const maskedValue = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-              onInputChange('cpf', maskedValue);
+            id="birthDate"
+            type="date"
+            value={formData.birthDate}
+            onChange={(e) => onInputChange('birthDate', e.target.value)}
+            max={new Date().toISOString().split('T')[0]}
+            className="min-w-0"
+          />
+          <VoiceInputButton
+            fieldId="birthDate"
+            onResult={(text) => {
+              const parsed = parseDateFromSpeech(text);
+              if (parsed) {
+                onInputChange('birthDate', parsed);
+              } else {
+                toast.info(`Não entendi a data: "${text}". Tente "15 de março de 1990".`);
+              }
             }}
-            placeholder="000.000.000-00"
-            className="mt-1"
-            maxLength={14}
           />
         </div>
+      </div>
+
+      <div>
+        <Label htmlFor="cpf">CPF</Label>
+        <Input
+          id="cpf"
+          value={formData.cpf}
+          onChange={(e) => {
+            const sanitized = sanitizeCPF(e.target.value);
+            const value = sanitized.replace(/\D/g, '');
+            const maskedValue = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            onInputChange('cpf', maskedValue);
+          }}
+          placeholder="000.000.000-00"
+          className="mt-1"
+          maxLength={14}
+        />
       </div>
     </div>
   );
