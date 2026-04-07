@@ -4,6 +4,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Booking } from '@/types/booking';
+import { VoiceInputButton } from './VoiceInputButton';
+import { parseValueFromSpeech } from '@/lib/voiceParsers';
+import { toast } from 'sonner';
 
 interface PaymentFormProps {
   formData: {
@@ -24,15 +27,27 @@ export const PaymentForm = ({ formData, onInputChange }: PaymentFormProps) => {
       
       <div>
         <Label htmlFor="totalValue">Valor Total *</Label>
-        <Input
-          id="totalValue"
-          type="number"
-          step="0.01"
-          value={formData.totalValue}
-          onChange={(e) => onInputChange('totalValue', e.target.value)}
-          placeholder="0,00"
-          className="mt-1"
-        />
+        <div className="flex gap-2 mt-1">
+          <Input
+            id="totalValue"
+            type="number"
+            step="0.01"
+            value={formData.totalValue}
+            onChange={(e) => onInputChange('totalValue', e.target.value)}
+            placeholder="0,00"
+          />
+          <VoiceInputButton
+            fieldId="totalValue"
+            onResult={(text) => {
+              const parsed = parseValueFromSpeech(text);
+              if (parsed !== null) {
+                onInputChange('totalValue', String(parsed));
+              } else {
+                toast.info(`Não entendi o valor: "${text}". Tente dizer o número.`);
+              }
+            }}
+          />
+        </div>
       </div>
 
       <div>

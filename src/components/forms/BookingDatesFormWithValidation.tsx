@@ -6,6 +6,9 @@ import { useBookingValidation } from '@/hooks/useBookingValidation';
 import { useEffect, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { VoiceInputButton } from './VoiceInputButton';
+import { parseDateFromSpeech } from '@/lib/voiceParsers';
+import { toast } from 'sonner';
 
 interface BookingDatesFormWithValidationProps {
   formData: {
@@ -40,10 +43,24 @@ export const BookingDatesFormWithValidation = ({
   
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border space-y-4">
-      <h3 className="font-semibold text-sage-800 flex items-center gap-2">
-        <CalendarIcon size={18} />
-        Datas e Período
-      </h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-sage-800 flex items-center gap-2">
+          <CalendarIcon size={18} />
+          Datas e Período
+        </h3>
+        <VoiceInputButton
+          fieldId="checkIn"
+          onResult={(text) => {
+            const parsed = parseDateFromSpeech(text);
+            if (parsed) {
+              onInputChange('checkIn', parsed);
+              toast.success(`Check-in definido para ${format(parseISO(parsed), 'dd/MM/yyyy')}`);
+            } else {
+              toast.info(`Não entendi a data: "${text}". Tente "15 de março".`);
+            }
+          }}
+        />
+      </div>
       
       <div>
         <Label htmlFor="bookingDate">Data da Reserva</Label>
