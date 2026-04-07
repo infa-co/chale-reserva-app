@@ -71,7 +71,7 @@ export const validateData = <T>(schema: z.ZodSchema<T>, data: unknown): { succes
 
 // Sanitization functions
 export const sanitizeString = (input: string): string => {
-  return input.trim().replace(/[<>]/g, '');
+  return input.replace(/[<>]/g, '');
 };
 
 export const sanitizePhone = (phone: string): string => {
