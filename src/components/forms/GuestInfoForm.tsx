@@ -7,6 +7,7 @@ import { FeatureRestriction } from '@/components/FeatureRestriction';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { toast } from 'sonner';
 import { sanitizeString, sanitizePhone, sanitizeCPF } from '@/lib/validation';
+import { VoiceInputButton } from './VoiceInputButton';
 
 interface GuestInfoFormProps {
   formData: {
@@ -43,27 +44,37 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
       
       <div>
         <Label htmlFor="guestName">Nome do Hóspede *</Label>
-        <Input
-          id="guestName"
-          value={formData.guestName}
-          onChange={(e) => onInputChange('guestName', sanitizeString(e.target.value))}
-          placeholder="Nome completo"
-          className="mt-1"
-          maxLength={100}
-        />
+        <div className="flex gap-2 mt-1">
+          <Input
+            id="guestName"
+            value={formData.guestName}
+            onChange={(e) => onInputChange('guestName', sanitizeString(e.target.value))}
+            placeholder="Nome completo"
+            maxLength={100}
+          />
+          <VoiceInputButton
+            fieldId="guestName"
+            onResult={(text) => onInputChange('guestName', sanitizeString(text))}
+          />
+        </div>
       </div>
 
       <div className="flex gap-2">
         <div className="flex-1">
           <Label htmlFor="phone">Telefone *</Label>
-          <Input
-            id="phone"
-            value={formData.phone}
-            onChange={(e) => onInputChange('phone', sanitizePhone(e.target.value))}
-            placeholder="(11) 99999-9999"
-            className="mt-1"
-            maxLength={20}
-          />
+          <div className="flex gap-2 mt-1">
+            <Input
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => onInputChange('phone', sanitizePhone(e.target.value))}
+              placeholder="(11) 99999-9999"
+              maxLength={20}
+            />
+            <VoiceInputButton
+              fieldId="phone"
+              onResult={(text) => onInputChange('phone', sanitizePhone(text.replace(/\s/g, '')))}
+            />
+          </div>
         </div>
         <Button
           type="button"
@@ -78,28 +89,38 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
 
       <div>
         <Label htmlFor="email">E-mail</Label>
-        <Input
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={(e) => onInputChange('email', sanitizeString(e.target.value))}
-          placeholder="email@exemplo.com"
-          className="mt-1"
-          maxLength={255}
-        />
+        <div className="flex gap-2 mt-1">
+          <Input
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => onInputChange('email', sanitizeString(e.target.value))}
+            placeholder="email@exemplo.com"
+            maxLength={255}
+          />
+          <VoiceInputButton
+            fieldId="email"
+            onResult={(text) => onInputChange('email', sanitizeString(text.replace(/\s/g, '').toLowerCase()))}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="city">Cidade</Label>
-          <Input
-            id="city"
-            value={formData.city}
-            onChange={(e) => onInputChange('city', sanitizeString(e.target.value))}
-            placeholder="São Paulo"
-            className="mt-1"
-            maxLength={100}
-          />
+          <div className="flex gap-2 mt-1">
+            <Input
+              id="city"
+              value={formData.city}
+              onChange={(e) => onInputChange('city', sanitizeString(e.target.value))}
+              placeholder="São Paulo"
+              maxLength={100}
+            />
+            <VoiceInputButton
+              fieldId="city"
+              onResult={(text) => onInputChange('city', sanitizeString(text))}
+            />
+          </div>
         </div>
         <div>
           <Label htmlFor="state">Estado</Label>
