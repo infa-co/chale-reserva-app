@@ -4,6 +4,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Booking } from '@/types/booking';
+import { VoiceInputButton } from './VoiceInputButton';
+import { parseValueFromSpeech } from '@/lib/voiceParsers';
+import { toast } from 'sonner';
 
 interface PaymentFormProps {
   formData: {
