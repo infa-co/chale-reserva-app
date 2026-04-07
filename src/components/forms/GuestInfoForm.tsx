@@ -111,13 +111,14 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="city">Cidade</Label>
-          <div className="flex gap-2 mt-1">
+          <div className="flex items-center gap-1.5 mt-1">
             <Input
               id="city"
               value={formData.city}
               onChange={(e) => onInputChange('city', sanitizeString(e.target.value))}
               placeholder="São Paulo"
               maxLength={100}
+              className="min-w-0"
             />
             <VoiceInputButton
               fieldId="city"
