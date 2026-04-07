@@ -1,53 +1,28 @@
 
 
-## Entrada por Voz nos Campos do Formulário de Reserva
+## Adicionar Botões de Voz em Mais Campos
 
-### Abordagem
-Usar a **Web Speech API** nativa do navegador (gratuita, sem API externa). Funciona em Chrome, Edge, Safari e na maioria dos navegadores mobile. Um botão de microfone aparece ao lado de cada campo de texto — ao clicar, o navegador escuta e preenche o campo com o que foi ditado.
+### Alterações
 
-### Plano
+#### 1. `src/components/forms/GuestInfoForm.tsx`
+- Adicionar `VoiceInputButton` no campo **Data de Nascimento** — o usuário dita a data (ex: "15 de março de 1990") e o sistema converte para o formato de data.
 
-#### 1. Criar hook `useSpeechToText`
-**Novo arquivo**: `src/hooks/useSpeechToText.ts`
-- Encapsula a Web Speech API (`webkitSpeechRecognition` / `SpeechRecognition`)
-- Recebe `language: 'pt-BR'` como padrão
-- Retorna: `{ isListening, startListening(callback), stopListening, isSupported }`
-- O `callback` recebe o texto reconhecido para preencher o campo
-- Trata erros mostrando toast amigável ("Não foi possível acessar o microfone")
+#### 2. `src/components/forms/BookingDatesFormWithValidation.tsx`
+- Adicionar **1 único** `VoiceInputButton` na seção de datas (ao lado do título "Datas e Período"), que permite ditar as datas de check-in e check-out por voz.
+- O botão interpreta o texto falado e tenta preencher as datas (lógica simples de parse de datas em português).
 
-#### 2. Criar componente `VoiceInputButton`
-**Novo arquivo**: `src/components/forms/VoiceInputButton.tsx`
-- Botão pequeno com ícone de microfone (Mic / MicOff do lucide-react)
-- Quando gravando: ícone fica vermelho e pulsa (animação CSS)
-- Props: `onResult(text)`, `disabled`, `fieldId` (para acessibilidade)
-- Ao receber resultado, chama `onResult` com o texto reconhecido
-- Se o navegador não suportar Speech API, o botão não aparece
+#### 3. `src/components/forms/PaymentForm.tsx`
+- Adicionar **1 único** `VoiceInputButton` no campo **Valor Total** — o usuário dita o valor (ex: "trezentos e cinquenta reais") e o sistema preenche o campo numérico.
 
-#### 3. Adicionar botões de voz nos formulários
-**Arquivos**: `src/components/forms/GuestInfoForm.tsx`, `src/components/forms/NotesForm.tsx`
-
-Campos que ganham botão de microfone:
-- Nome do hóspede
-- Telefone (o reconhecimento de voz converte números falados)
-- E-mail
-- Cidade
-- Observações/Notas
-
-Campos que **não** ganham (melhor preencher manualmente):
-- Estado (só 2 letras)
-- CPF (formato específico)
-- Data de nascimento (campo date picker)
-
-O botão fica ao lado do input, similar ao botão de WhatsApp no telefone.
-
-### Compatibilidade
-- Chrome, Edge, Safari (desktop e mobile): suportado
-- Firefox: não suporta Web Speech API — o botão simplesmente não aparece
-- Não precisa de chave de API nem serviço externo
+### Detalhes Técnicos
+- Os campos de data (nascimento, check-in, check-out) e valor são difíceis de preencher por voz porque o Speech API retorna texto livre, não formatos estruturados. A abordagem será:
+  - **Datas**: Tentar parsear texto como "quinze de março" ou "15/03/1990" para formato `YYYY-MM-DD`
+  - **Valor**: Extrair números do texto falado (ex: "350" → `350`, "mil e duzentos" → funcionalidade básica)
+- Criar uma função auxiliar `parseDateFromSpeech(text)` e `parseValueFromSpeech(text)` em um novo arquivo utilitário `src/lib/voiceParsers.ts`
 
 ### Arquivos tocados
-- `src/hooks/useSpeechToText.ts` (novo)
-- `src/components/forms/VoiceInputButton.tsx` (novo)
-- `src/components/forms/GuestInfoForm.tsx` (adicionar botões de voz)
-- `src/components/forms/NotesForm.tsx` (adicionar botão de voz)
+- `src/lib/voiceParsers.ts` (novo — funções de parse de voz)
+- `src/components/forms/GuestInfoForm.tsx` (botão voz na data de nascimento)
+- `src/components/forms/BookingDatesFormWithValidation.tsx` (1 botão voz para datas)
+- `src/components/forms/PaymentForm.tsx` (1 botão voz para valor)
 
