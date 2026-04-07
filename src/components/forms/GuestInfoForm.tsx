@@ -61,32 +61,32 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <div className="flex-1">
-          <Label htmlFor="phone">Telefone *</Label>
-          <div className="flex gap-2 mt-1">
-            <Input
-              id="phone"
-              value={formData.phone}
-              onChange={(e) => onInputChange('phone', sanitizePhone(e.target.value))}
-              placeholder="(11) 99999-9999"
-              maxLength={20}
-            />
-            <VoiceInputButton
-              fieldId="phone"
-              onResult={(text) => onInputChange('phone', sanitizePhone(text.replace(/\s/g, '')))}
-            />
-          </div>
+      <div>
+        <Label htmlFor="phone">Telefone *</Label>
+        <div className="flex items-center gap-1.5 mt-1">
+          <Input
+            id="phone"
+            value={formData.phone}
+            onChange={(e) => onInputChange('phone', sanitizePhone(e.target.value))}
+            placeholder="(11) 99999-9999"
+            maxLength={20}
+            className="min-w-0"
+          />
+          <VoiceInputButton
+            fieldId="phone"
+            onResult={(text) => onInputChange('phone', sanitizePhone(text.replace(/\s/g, '')))}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className={`h-10 w-10 min-w-[40px] shrink-0 rounded-full ${!hasWhatsAppAccess ? 'opacity-75' : ''}`}
+            onClick={handleWhatsAppClick}
+            disabled={!formData.phone}
+          >
+            <MessageCircle size={18} className={hasWhatsAppAccess ? "text-green-600" : "text-muted-foreground"} />
+          </Button>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          className={`mt-6 px-3 ${!hasWhatsAppAccess ? 'opacity-75' : ''}`}
-          onClick={handleWhatsAppClick}
-          disabled={!formData.phone}
-        >
-          <MessageCircle size={18} className={hasWhatsAppAccess ? "text-green-600" : "text-gray-400"} />
-        </Button>
       </div>
 
       <div>
