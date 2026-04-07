@@ -142,13 +142,14 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="birthDate">Data de Nascimento</Label>
-          <div className="flex gap-2 mt-1">
+          <div className="flex items-center gap-1.5 mt-1">
             <Input
               id="birthDate"
               type="date"
               value={formData.birthDate}
               onChange={(e) => onInputChange('birthDate', e.target.value)}
               max={new Date().toISOString().split('T')[0]}
+              className="min-w-0"
             />
             <VoiceInputButton
               fieldId="birthDate"
