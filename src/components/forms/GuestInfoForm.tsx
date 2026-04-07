@@ -138,14 +138,26 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="birthDate">Data de Nascimento</Label>
-          <Input
-            id="birthDate"
-            type="date"
-            value={formData.birthDate}
-            onChange={(e) => onInputChange('birthDate', e.target.value)}
-            className="mt-1"
-            max={new Date().toISOString().split('T')[0]}
-          />
+          <div className="flex gap-2 mt-1">
+            <Input
+              id="birthDate"
+              type="date"
+              value={formData.birthDate}
+              onChange={(e) => onInputChange('birthDate', e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+            />
+            <VoiceInputButton
+              fieldId="birthDate"
+              onResult={(text) => {
+                const parsed = parseDateFromSpeech(text);
+                if (parsed) {
+                  onInputChange('birthDate', parsed);
+                } else {
+                  toast.info(`Não entendi a data: "${text}". Tente "15 de março de 1990".`);
+                }
+              }}
+            />
+          </div>
         </div>
         <div>
           <Label htmlFor="cpf">CPF</Label>
