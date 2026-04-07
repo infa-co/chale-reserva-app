@@ -45,13 +45,14 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
       
       <div>
         <Label htmlFor="guestName">Nome do Hóspede *</Label>
-        <div className="flex gap-2 mt-1">
+        <div className="flex items-center gap-1.5 mt-1">
           <Input
             id="guestName"
             value={formData.guestName}
             onChange={(e) => onInputChange('guestName', sanitizeString(e.target.value))}
             placeholder="Nome completo"
             maxLength={100}
+            className="min-w-0"
           />
           <VoiceInputButton
             fieldId="guestName"
