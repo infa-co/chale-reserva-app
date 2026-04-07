@@ -1,42 +1,53 @@
 
 
-## Bug Fixes for New Booking Form
+## Entrada por Voz nos Campos do Formulário de Reserva
 
-### Problems Identified
+### Abordagem
+Usar a **Web Speech API** nativa do navegador (gratuita, sem API externa). Funciona em Chrome, Edge, Safari e na maioria dos navegadores mobile. Um botão de microfone aparece ao lado de cada campo de texto — ao clicar, o navegador escuta e preenche o campo com o que foi ditado.
 
-1. **Cannot type spaces in text fields**: The `sanitizeString()` function in `src/lib/validation.ts` calls `.trim()` on every keystroke. When typing "João " (with a trailing space before the next word), `trim()` immediately removes it, making it impossible to type multi-word names, cities, etc.
+### Plano
 
-2. **Booking date field is awkward**: The "Data da Reserva" input has both `min={currentDate}` and `max={currentDate}`, forcing exactly today's date but requiring the user to manually pick it. Since it should always be today, we should auto-set it and either hide the field or make it read-only.
+#### 1. Criar hook `useSpeechToText`
+**Novo arquivo**: `src/hooks/useSpeechToText.ts`
+- Encapsula a Web Speech API (`webkitSpeechRecognition` / `SpeechRecognition`)
+- Recebe `language: 'pt-BR'` como padrão
+- Retorna: `{ isListening, startListening(callback), stopListening, isSupported }`
+- O `callback` recebe o texto reconhecido para preencher o campo
+- Trata erros mostrando toast amigável ("Não foi possível acessar o microfone")
 
-3. **No inline validation errors**: Validation errors only appear as toast notifications on submit. The user wants inline warnings on the form with a "Salvar assim mesmo" button — friendly, non-blocking warnings.
+#### 2. Criar componente `VoiceInputButton`
+**Novo arquivo**: `src/components/forms/VoiceInputButton.tsx`
+- Botão pequeno com ícone de microfone (Mic / MicOff do lucide-react)
+- Quando gravando: ícone fica vermelho e pulsa (animação CSS)
+- Props: `onResult(text)`, `disabled`, `fieldId` (para acessibilidade)
+- Ao receber resultado, chama `onResult` com o texto reconhecido
+- Se o navegador não suportar Speech API, o botão não aparece
 
----
+#### 3. Adicionar botões de voz nos formulários
+**Arquivos**: `src/components/forms/GuestInfoForm.tsx`, `src/components/forms/NotesForm.tsx`
 
-### Plan
+Campos que ganham botão de microfone:
+- Nome do hóspede
+- Telefone (o reconhecimento de voz converte números falados)
+- E-mail
+- Cidade
+- Observações/Notas
 
-#### 1. Fix `sanitizeString` — allow spaces while typing
-**File**: `src/lib/validation.ts`
-- Change `sanitizeString` to only strip `<>` characters, without calling `.trim()`. Trimming should only happen at submission time, not on every keystroke.
+Campos que **não** ganham (melhor preencher manualmente):
+- Estado (só 2 letras)
+- CPF (formato específico)
+- Data de nascimento (campo date picker)
 
-#### 2. Simplify "Data da Reserva" field  
-**File**: `src/components/forms/BookingDatesFormWithValidation.tsx`
-- Remove the `min` and `max` constraints from the booking date input.
-- Make the field read-only and display today's date formatted nicely, so the user doesn't need to interact with it at all.
+O botão fica ao lado do input, similar ao botão de WhatsApp no telefone.
 
-**File**: `src/hooks/useBookingForm.ts`
-- Keep the default value as today's date (already done).
+### Compatibilidade
+- Chrome, Edge, Safari (desktop e mobile): suportado
+- Firefox: não suporta Web Speech API — o botão simplesmente não aparece
+- Não precisa de chave de API nem serviço externo
 
-#### 3. Add inline validation warnings with "Salvar assim mesmo"
-**File**: `src/pages/NewBooking.tsx`
-- Add a state for `warnings` (non-blocking issues) and `errors` (blocking issues).
-- On submit, run validation and categorize issues:
-  - **Blocking errors** (shown inline in red): missing guest name, missing check-in/check-out, check-out before check-in.
-  - **Soft warnings** (shown inline in amber with "Salvar assim mesmo" button): missing phone, missing payment method, missing total value, date conflicts.
-- Show a summary alert at the bottom of the form with the warnings list and a "Salvar assim mesmo" button that bypasses soft validations.
-- If user clicks "Salvar assim mesmo", submit with current data ignoring warnings.
-
-**Files touched**: 
-- `src/lib/validation.ts` (1 line change)
-- `src/components/forms/BookingDatesFormWithValidation.tsx` (simplify date field)
-- `src/pages/NewBooking.tsx` (add inline warnings + "Salvar assim mesmo" flow)
+### Arquivos tocados
+- `src/hooks/useSpeechToText.ts` (novo)
+- `src/components/forms/VoiceInputButton.tsx` (novo)
+- `src/components/forms/GuestInfoForm.tsx` (adicionar botões de voz)
+- `src/components/forms/NotesForm.tsx` (adicionar botão de voz)
 
