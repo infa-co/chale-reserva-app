@@ -51,10 +51,8 @@ export const BookingDatesFormWithValidation = ({
           id="bookingDate"
           type="date"
           value={formData.bookingDate}
-          onChange={(e) => onInputChange('bookingDate', e.target.value)}
-          min={excludeBookingId ? undefined : currentDate}
-          max={currentDate}
-          className="mt-1"
+          readOnly
+          className="mt-1 bg-muted cursor-default"
         />
       </div>
 
