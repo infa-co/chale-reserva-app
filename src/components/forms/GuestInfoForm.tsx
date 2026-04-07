@@ -91,7 +91,7 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
 
       <div>
         <Label htmlFor="email">E-mail</Label>
-        <div className="flex gap-2 mt-1">
+        <div className="flex items-center gap-1.5 mt-1">
           <Input
             id="email"
             type="email"
@@ -99,6 +99,7 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
             onChange={(e) => onInputChange('email', sanitizeString(e.target.value))}
             placeholder="email@exemplo.com"
             maxLength={255}
+            className="min-w-0"
           />
           <VoiceInputButton
             fieldId="email"
