@@ -12,7 +12,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Error from "./pages/Error";
 import ProtectedRoute from "./components/ProtectedRoute";
-const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import MobileNav from "./components/MobileNav";
 import RootRedirect from "./components/RootRedirect";
 
@@ -20,7 +20,7 @@ import RootRedirect from "./components/RootRedirect";
 import Dashboard from "./pages/Dashboard";
 import HistoricalBookings from "./pages/HistoricalBookings";
 import { FeatureRestriction } from "./components/FeatureRestriction";
-const NewBooking = lazy(() => import("./pages/NewBooking"));
+import NewBooking from "./pages/NewBooking";
 const EditBooking = lazy(() => import("./pages/EditBooking"));
 import OptimizedBookingList from "./pages/OptimizedBookingList";
 const BookingDetails = lazy(() => import("./pages/BookingDetails"));

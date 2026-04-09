@@ -10,7 +10,7 @@ import { useBookings } from '@/contexts/BookingContext';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
 import { HistoricalBookingForm } from '@/components/forms/HistoricalBookingForm';
@@ -201,6 +201,7 @@ const HistoricalBookings = () => {
           <DialogContent className="mx-2 w-[calc(100vw-1rem)] sm:mx-auto sm:w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-lg sm:text-xl">Registrar Reserva Histórica</DialogTitle>
+              <DialogDescription>Registre uma reserva passada para manter seu histórico completo</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <GuestInfoForm 

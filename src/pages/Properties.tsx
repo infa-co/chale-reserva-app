@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -192,6 +193,9 @@ const Properties = () => {
             <DialogTitle className="text-base md:text-lg">
               {editingProperty ? 'Editar' : 'Adicionar'} Chalé
             </DialogTitle>
+            <DialogDescription>
+              {editingProperty ? 'Edite as informações do chalé' : 'Preencha os dados do novo chalé'}
+            </DialogDescription>
           </DialogHeader>
           <PropertyForm
             property={editingProperty}
