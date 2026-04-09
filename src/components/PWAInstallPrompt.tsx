@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download, X } from 'lucide-react';
@@ -20,15 +19,12 @@ const PWAInstallPrompt = () => {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Check if iOS
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     setIsIOS(iOS);
 
-    // Check if already installed (standalone mode)
     const standalone = window.matchMedia('(display-mode: standalone)').matches;
     setIsStandalone(standalone);
 
-    // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -37,7 +33,6 @@ const PWAInstallPrompt = () => {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Show iOS prompt after a delay if not standalone
     if (iOS && !standalone) {
       const timer = setTimeout(() => {
         setShowPrompt(true);
@@ -62,11 +57,9 @@ const PWAInstallPrompt = () => {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Hide for 24 hours
     localStorage.setItem('pwa-prompt-dismissed', Date.now().toString());
   };
 
-  // Don't show if already installed or recently dismissed
   if (isStandalone || !showPrompt) return null;
 
   const dismissedTime = localStorage.getItem('pwa-prompt-dismissed');
