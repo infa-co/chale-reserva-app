@@ -231,7 +231,7 @@ const Settings = () => {
                   <Label htmlFor="name">Nome Completo</Label>
                   <Input
                     id="name"
-                    defaultValue="João Silva"
+                    defaultValue={user?.user_metadata?.name || ''}
                     placeholder="Seu nome completo"
                   />
                 </div>
@@ -241,7 +241,7 @@ const Settings = () => {
                     <Input
                       id="email"
                       type="email"
-                      defaultValue="joao@email.com"
+                      defaultValue={user?.email || ''}
                       disabled
                       className="bg-muted"
                     />
