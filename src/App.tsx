@@ -20,7 +20,7 @@ import RootRedirect from "./components/RootRedirect";
 import Dashboard from "./pages/Dashboard";
 import HistoricalBookings from "./pages/HistoricalBookings";
 import { FeatureRestriction } from "./components/FeatureRestriction";
-const NewBooking = lazy(() => import("./pages/NewBooking"));
+import NewBooking from "./pages/NewBooking";
 const EditBooking = lazy(() => import("./pages/EditBooking"));
 import OptimizedBookingList from "./pages/OptimizedBookingList";
 const BookingDetails = lazy(() => import("./pages/BookingDetails"));
