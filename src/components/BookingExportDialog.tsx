@@ -150,6 +150,7 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount, p
             <FileDown size={16} />
             Exportar Reservas
           </DialogTitle>
+          <DialogDescription>Escolha o formato e filtros para exportar suas reservas</DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
