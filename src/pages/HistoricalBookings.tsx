@@ -10,7 +10,7 @@ import { useBookings } from '@/contexts/BookingContext';
 import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
 import { HistoricalBookingForm } from '@/components/forms/HistoricalBookingForm';
