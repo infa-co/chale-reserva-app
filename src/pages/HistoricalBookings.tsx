@@ -202,6 +202,7 @@ const HistoricalBookings = () => {
             <DialogHeader>
               <DialogTitle className="text-lg sm:text-xl">Registrar Reserva Histórica</DialogTitle>
               <DialogDescription>Registre uma reserva passada para manter seu histórico completo</DialogDescription>
+            </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <GuestInfoForm 
                 formData={formData}
