@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { User, CreditCard, Save, Star, Zap, Crown } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 import { ChangePasswordDialog } from '@/components/dialogs/ChangePasswordDialog';
 import { ChangeEmailDialog } from '@/components/dialogs/ChangeEmailDialog';
 import { ProfilePhotoDialog } from '@/components/dialogs/ProfilePhotoDialog';
@@ -17,6 +18,7 @@ import { PlanLimitationsDisplay } from '@/components/PlanLimitationsDisplay';
 
 const Settings = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
@@ -231,7 +233,7 @@ const Settings = () => {
                   <Label htmlFor="name">Nome Completo</Label>
                   <Input
                     id="name"
-                    defaultValue="João Silva"
+                    defaultValue={user?.user_metadata?.name || ''}
                     placeholder="Seu nome completo"
                   />
                 </div>
@@ -241,7 +243,7 @@ const Settings = () => {
                     <Input
                       id="email"
                       type="email"
-                      defaultValue="joao@email.com"
+                      defaultValue={user?.email || ''}
                       disabled
                       className="bg-muted"
                     />
@@ -309,7 +311,7 @@ const Settings = () => {
                   <div>
                     <h4 className="text-sm font-medium text-green-700 mb-1">📱 iOS (iPhone/iPad):</h4>
                     <ol className="text-xs text-muted-foreground list-decimal list-inside space-y-1 ml-2">
-                      <li>Abra o Ordomo no <strong>Safari</strong></li>
+                      <li>Abra <a href="https://ordomo.com.br" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline">ordomo.com.br</a> no <strong>Safari</strong></li>
                       <li>Toque no botão "Compartilhar" (□↗)</li>
                       <li>Role para baixo e toque em "Adicionar à Tela Inicial"</li>
                       <li>Toque em "Adicionar" no canto superior direito</li>
