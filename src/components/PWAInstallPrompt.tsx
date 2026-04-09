@@ -95,9 +95,10 @@ const PWAInstallPrompt = () => {
           <div className="space-y-2 text-sm text-muted-foreground">
             <p>Para instalar este app:</p>
             <ol className="list-decimal list-inside space-y-1">
+              <li>Abra <a href="https://ordomo.com.br" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline">ordomo.com.br</a> no Safari</li>
               <li>Toque no botão "Compartilhar" (□↗)</li>
-              <li>Role para baixo e toque em "Adicionar à Tela Inicial"</li>
-              <li>Toque em "Adicionar" no canto superior direito</li>
+              <li>Toque em "Adicionar à Tela Inicial"</li>
+              <li>Toque em "Adicionar"</li>
             </ol>
           </div>
         ) : (
