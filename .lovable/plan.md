@@ -1,28 +1,30 @@
 
 
-## Adicionar Botões de Voz em Mais Campos
+## Diagnóstico de Erros e Plano de Correção
 
-### Alterações
+### Erros encontrados
 
-#### 1. `src/components/forms/GuestInfoForm.tsx`
-- Adicionar `VoiceInputButton` no campo **Data de Nascimento** — o usuário dita a data (ex: "15 de março de 1990") e o sistema converte para o formato de data.
+**1. `PWAInstallPrompt` — `useState` retorna null (CRÍTICO — causa tela branca)**
+- O componente é importado com `lazy()` na linha 15 do App.tsx, mas é renderizado na linha 69 do `ProtectedShell` **fora** do `<Suspense>` (que só envolve o `<Outlet />` nas linhas 65-67). Componentes lazy **devem** estar dentro de um `<Suspense>`. Isso causa conflito de instância do React no Vite, resultando no erro de `useState` null.
+- **Correção**: Remover o `lazy()` do PWAInstallPrompt e importá-lo como import estático normal. O componente é pequeno e não justifica code-splitting. Isso elimina o erro definitivamente.
 
-#### 2. `src/components/forms/BookingDatesFormWithValidation.tsx`
-- Adicionar **1 único** `VoiceInputButton` na seção de datas (ao lado do título "Datas e Período"), que permite ditar as datas de check-in e check-out por voz.
-- O botão interpreta o texto falado e tenta preencher as datas (lógica simples de parse de datas em português).
+**2. `NewBooking` — `useNavigate()` fora do contexto do Router (CRÍTICO — causa tela branca)**
+- O componente é lazy-loaded e, durante HMR do Vite, pode resolver com uma instância diferente de `react-router-dom`, perdendo o contexto do `<BrowserRouter>`. Isso é um bug intermitente do Vite com lazy imports e dep optimization (os logs do dev-server mostram chunks faltando: `chunk-FC7KAWTK.js` e `chunk-Y46F3F76.js`).
+- **Correção**: Converter `NewBooking` de lazy para import estático, assim como já foi feito com `Dashboard`, `Settings` e outros. É uma página frequente e o ganho de lazy é mínimo.
 
-#### 3. `src/components/forms/PaymentForm.tsx`
-- Adicionar **1 único** `VoiceInputButton` no campo **Valor Total** — o usuário dita o valor (ex: "trezentos e cinquenta reais") e o sistema preenche o campo numérico.
+**3. Warning: `Missing Description or aria-describedby` em DialogContent (MENOR)**
+- Um ou mais diálogos usam `DialogContent` sem `DialogDescription`. Causa apenas um warning no console.
+- **Correção**: Posso investigar quais diálogos são afetados e adicionar `DialogDescription` ou `aria-describedby` para eliminar o warning. Baixo risco.
 
-### Detalhes Técnicos
-- Os campos de data (nascimento, check-in, check-out) e valor são difíceis de preencher por voz porque o Speech API retorna texto livre, não formatos estruturados. A abordagem será:
-  - **Datas**: Tentar parsear texto como "quinze de março" ou "15/03/1990" para formato `YYYY-MM-DD`
-  - **Valor**: Extrair números do texto falado (ex: "350" → `350`, "mil e duzentos" → funcionalidade básica)
-- Criar uma função auxiliar `parseDateFromSpeech(text)` e `parseValueFromSpeech(text)` em um novo arquivo utilitário `src/lib/voiceParsers.ts`
+### O que posso corrigir com segurança
+
+| Erro | Risco de quebra | Ação |
+|------|-----------------|------|
+| PWAInstallPrompt useState null | Nenhum — só muda de lazy para import direto | Corrigir |
+| NewBooking useNavigate fora do Router | Nenhum — só muda de lazy para import direto | Corrigir |
+| DialogContent sem Description | Nenhum — só adiciona atributo de acessibilidade | Corrigir |
 
 ### Arquivos tocados
-- `src/lib/voiceParsers.ts` (novo — funções de parse de voz)
-- `src/components/forms/GuestInfoForm.tsx` (botão voz na data de nascimento)
-- `src/components/forms/BookingDatesFormWithValidation.tsx` (1 botão voz para datas)
-- `src/components/forms/PaymentForm.tsx` (1 botão voz para valor)
+- `src/App.tsx` — mudar PWAInstallPrompt e NewBooking de `lazy()` para import estático
+- Dialogs afetados — adicionar `DialogDescription` onde faltar
 
