@@ -18,6 +18,7 @@ import { PlanLimitationsDisplay } from '@/components/PlanLimitationsDisplay';
 
 const Settings = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
