@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { User, CreditCard, Save, Star, Zap, Crown } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 import { ChangePasswordDialog } from '@/components/dialogs/ChangePasswordDialog';
 import { ChangeEmailDialog } from '@/components/dialogs/ChangeEmailDialog';
 import { ProfilePhotoDialog } from '@/components/dialogs/ProfilePhotoDialog';
