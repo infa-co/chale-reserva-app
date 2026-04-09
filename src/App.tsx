@@ -12,7 +12,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Error from "./pages/Error";
 import ProtectedRoute from "./components/ProtectedRoute";
-const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import MobileNav from "./components/MobileNav";
 import RootRedirect from "./components/RootRedirect";
 
