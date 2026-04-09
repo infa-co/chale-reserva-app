@@ -309,7 +309,7 @@ const Settings = () => {
                   <div>
                     <h4 className="text-sm font-medium text-green-700 mb-1">📱 iOS (iPhone/iPad):</h4>
                     <ol className="text-xs text-muted-foreground list-decimal list-inside space-y-1 ml-2">
-                      <li>Abra o Ordomo no <strong>Safari</strong></li>
+                      <li>Abra <a href="https://ordomo.com.br" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline">ordomo.com.br</a> no <strong>Safari</strong></li>
                       <li>Toque no botão "Compartilhar" (□↗)</li>
                       <li>Role para baixo e toque em "Adicionar à Tela Inicial"</li>
                       <li>Toque em "Adicionar" no canto superior direito</li>
