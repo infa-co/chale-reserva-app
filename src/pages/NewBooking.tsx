@@ -134,16 +134,22 @@ const NewBooking = () => {
 
   return (
     <div className="p-4">
-      <header className="flex items-center gap-3 mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="p-2"
-        >
-          <ArrowLeft size={20} />
-        </Button>
-        <h1 className="text-xl font-bold text-sage-800">Nova Reserva</h1>
+      <header className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="p-2"
+          >
+            <ArrowLeft size={20} />
+          </Button>
+          <h1 className="text-xl font-bold text-sage-800">Nova Reserva</h1>
+        </div>
+        <FullBookingVoiceButton
+          onFieldsUpdate={handleInputChangeWrapped}
+          disabled={!canCreateBooking}
+        />
       </header>
 
       {!canCreateBooking && (
