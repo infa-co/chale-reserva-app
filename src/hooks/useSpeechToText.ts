@@ -9,8 +9,14 @@ interface SpeechRecognitionErrorEvent {
   error: string;
 }
 
+interface StartListeningOptions {
+  onResult: (text: string) => void;
+  onInterim?: (text: string) => void;
+}
+
 export const useSpeechToText = (language = 'pt-BR') => {
   const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
 
   const SpeechRecognition = typeof window !== 'undefined'
@@ -19,22 +25,47 @@ export const useSpeechToText = (language = 'pt-BR') => {
 
   const isSupported = !!SpeechRecognition;
 
-  const startListening = useCallback((onResult: (text: string) => void) => {
+  const startListening = useCallback((optionsOrCallback: StartListeningOptions | ((text: string) => void)) => {
     if (!SpeechRecognition) return;
+
+    const options: StartListeningOptions = typeof optionsOrCallback === 'function'
+      ? { onResult: optionsOrCallback }
+      : optionsOrCallback;
 
     const recognition = new SpeechRecognition();
     recognition.lang = language;
-    recognition.interimResults = false;
-    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.continuous = true;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const text = event.results[0][0].transcript;
-      onResult(text);
-      setIsListening(false);
+      let interim = '';
+      let final = '';
+
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          final += result[0].transcript;
+        } else {
+          interim += result[0].transcript;
+        }
+      }
+
+      if (interim) {
+        setTranscript(interim);
+        options.onInterim?.(interim);
+      }
+
+      if (final) {
+        setTranscript('');
+        options.onResult(final.trim());
+        // Stop after getting a final result for single-input use
+        recognition.stop();
+      }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       setIsListening(false);
+      setTranscript('');
       if (event.error === 'not-allowed') {
         toast.error('Permissão de microfone negada. Habilite nas configurações do navegador.');
       } else if (event.error !== 'aborted') {
@@ -42,17 +73,22 @@ export const useSpeechToText = (language = 'pt-BR') => {
       }
     };
 
-    recognition.onend = () => setIsListening(false);
+    recognition.onend = () => {
+      setIsListening(false);
+      setTranscript('');
+    };
 
     recognitionRef.current = recognition;
     recognition.start();
     setIsListening(true);
+    setTranscript('');
   }, [SpeechRecognition, language]);
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop();
     setIsListening(false);
+    setTranscript('');
   }, []);
 
-  return { isListening, startListening, stopListening, isSupported };
+  return { isListening, transcript, startListening, stopListening, isSupported };
 };
