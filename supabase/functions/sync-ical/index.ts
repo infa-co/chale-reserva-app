@@ -14,9 +14,7 @@ interface ICalEvent {
 }
 
 function parseICalDate(dateStr: string): Date {
-  // Handle both DATE and DATETIME formats
   if (dateStr.includes('T')) {
-    // DATETIME format: 20241225T140000Z
     const cleanDate = dateStr.replace(/[TZ]/g, '');
     const year = parseInt(cleanDate.substring(0, 4));
     const month = parseInt(cleanDate.substring(4, 6)) - 1;
@@ -25,7 +23,6 @@ function parseICalDate(dateStr: string): Date {
     const minute = parseInt(cleanDate.substring(10, 12)) || 0;
     return new Date(year, month, day, hour, minute);
   } else {
-    // DATE format: 20241225
     const year = parseInt(dateStr.substring(0, 4));
     const month = parseInt(dateStr.substring(4, 6)) - 1;
     const day = parseInt(dateStr.substring(6, 8));
@@ -38,13 +35,10 @@ function parseICalData(icalText: string): ICalEvent[] {
   const lines = icalText.split(/\r?\n/);
   
   let currentEvent: Partial<ICalEvent> | null = null;
-  let currentProperty = '';
-  let currentValue = '';
   
   for (let i = 0; i < lines.length; i++) {
     let line = lines[i].trim();
     
-    // Handle line continuations (lines starting with space or tab)
     while (i + 1 < lines.length && /^[ \t]/.test(lines[i + 1])) {
       i++;
       line += lines[i].trim();
@@ -61,8 +55,6 @@ function parseICalData(icalText: string): ICalEvent[] {
       const colonIndex = line.indexOf(':');
       const property = line.substring(0, colonIndex);
       const value = line.substring(colonIndex + 1);
-      
-      // Handle property parameters (e.g., DTSTART;VALUE=DATE:20241225)
       const propertyName = property.split(';')[0];
       
       switch (propertyName) {
@@ -92,7 +84,6 @@ async function syncICalendar(supabase: any, syncId: string) {
   console.log(`Starting sync for sync_id: ${syncId}`);
   
   try {
-    // Get sync configuration
     const { data: syncConfig, error: syncError } = await supabase
       .from('ical_syncs')
       .select('*')
@@ -111,7 +102,6 @@ async function syncICalendar(supabase: any, syncId: string) {
 
     console.log(`Fetching iCal from: ${syncConfig.ical_url}`);
     
-    // Fetch iCal data
     const response = await fetch(syncConfig.ical_url);
     if (!response.ok) {
       throw new Error(`Failed to fetch iCal: ${response.statusText}`);
@@ -120,53 +110,27 @@ async function syncICalendar(supabase: any, syncId: string) {
     const icalText = await response.text();
     console.log(`Fetched iCal data, length: ${icalText.length}`);
     
-    // Parse iCal events
     const events = parseICalData(icalText);
     console.log(`Parsed ${events.length} events`);
     
-    // Filter events for next 2 years
     const now = new Date();
     const twoYearsFromNow = new Date();
     twoYearsFromNow.setFullYear(now.getFullYear() + 2);
     
-    // Log raw iCal sample for debugging
-    console.log(`Raw iCal sample (first 500 chars): ${icalText.substring(0, 500)}`);
-    
-    // Log parsed events details
-    events.forEach((event, index) => {
-      const startDate = parseICalDate(event.dtstart);
-      const endDate = parseICalDate(event.dtend);
-      console.log(`Event ${index + 1}: ${event.summary} | Start: ${event.dtstart} (parsed: ${startDate.toISOString()}) | End: ${event.dtend} (parsed: ${endDate.toISOString()})`);
-    });
-    
     const relevantEvents = events.filter(event => {
       const startDate = parseICalDate(event.dtstart);
       const endDate = parseICalDate(event.dtend);
-      
-      // Include events that:
-      // 1. Are currently active (started in past but end in future)
-      // 2. Start in the future (up to 2 years)
-      // 3. Ended recently (within last 7 days) to show recent bookings
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       
-      const isRelevant = (
-        (endDate >= now && startDate <= twoYearsFromNow) || // Active or future events
-        (endDate >= sevenDaysAgo && endDate < now) // Recently ended events
+      return (
+        (endDate >= now && startDate <= twoYearsFromNow) ||
+        (endDate >= sevenDaysAgo && endDate < now)
       );
-      
-      if (!isRelevant) {
-        console.log(`Filtering out event "${event.summary}": start ${startDate.toISOString()}, end ${endDate.toISOString()} is outside range (7 days ago: ${sevenDaysAgo.toISOString()}, now: ${now.toISOString()}, limit: ${twoYearsFromNow.toISOString()})`);
-      } else {
-        console.log(`Including event "${event.summary}": start ${startDate.toISOString()}, end ${endDate.toISOString()}`);
-      }
-      
-      return isRelevant;
     });
     
     console.log(`Filtered to ${relevantEvents.length} relevant events`);
     
-    // Delete existing external bookings for this sync
     const { error: deleteError } = await supabase
       .from('external_bookings')
       .delete()
@@ -177,12 +141,10 @@ async function syncICalendar(supabase: any, syncId: string) {
       throw deleteError;
     }
 
-    // Insert new external bookings
     const bookingsToInsert = relevantEvents.map(event => {
       const startDate = parseICalDate(event.dtstart);
       const endDate = parseICalDate(event.dtend);
       
-      // For all-day events, adjust end date to be inclusive
       if (!event.dtstart.includes('T')) {
         endDate.setDate(endDate.getDate() - 1);
       }
@@ -210,7 +172,6 @@ async function syncICalendar(supabase: any, syncId: string) {
       }
     }
 
-    // Update last sync time
     const { error: updateError } = await supabase
       .from('ical_syncs')
       .update({ last_sync_at: new Date().toISOString() })
@@ -231,26 +192,65 @@ async function syncICalendar(supabase: any, syncId: string) {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabase = createClient(
+    // --- Authentication: verify caller owns the sync ---
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create an authenticated client to verify the user
+    const supabaseAuth = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
     );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
 
     const { sync_id } = await req.json();
     
     if (!sync_id) {
       return new Response(
         JSON.stringify({ error: 'sync_id is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use service role client for actual operations
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Verify ownership: caller must own the sync configuration
+    const { data: syncOwnership, error: ownershipError } = await supabase
+      .from('ical_syncs')
+      .select('id')
+      .eq('id', sync_id)
+      .eq('user_id', userId)
+      .single();
+
+    if (ownershipError || !syncOwnership) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: you do not own this sync configuration' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -258,22 +258,14 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify(result),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Function error:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Internal server error' 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Internal server error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
