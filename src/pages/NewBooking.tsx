@@ -15,6 +15,7 @@ import { PaymentForm } from '@/components/forms/PaymentForm';
 import { NotesForm } from '@/components/forms/NotesForm';
 import { PropertySelector } from '@/components/forms/PropertySelector';
 import { PlanUpgradePrompt } from '@/components/PlanUpgradePrompt';
+import { FullBookingVoiceButton } from '@/components/forms/FullBookingVoiceButton';
 
 const NewBooking = () => {
   const navigate = useNavigate();
