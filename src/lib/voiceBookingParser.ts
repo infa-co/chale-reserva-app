@@ -84,12 +84,25 @@ export const parseFullBookingFromSpeech = (text: string): ParsedBooking => {
 
   // --- Check-out ---
   const checkOutPatterns = [
-    /(?:check[\s-]?out|sa[ií]da)\s+(?:dia\s+)?(.+?)(?:\s+valor|\s+total|\s+pagamento|\s+pix|\s+observa|\s+nota|$)/i,
+    /(?:check[\s-]?out|sa[ií]da)\s+(?:dia\s+)?(.+?)(?:\s+valor|\s+total|\s+pagamento|\s+pix|\s+cr[eé]dito|\s+d[eé]bito|\s+dinheiro|\s+transfer|\s+sinal|\s+observa|\s+nota|$)/i,
   ];
   for (const pattern of checkOutPatterns) {
     const match = normalized.match(pattern);
     if (match && match[1]) {
-      const parsed = parseDateFromSpeech(match[1].trim());
+      const dateText = match[1].trim();
+      let parsed = parseDateFromSpeech(dateText);
+      // If just a day number, infer same month as check-in
+      if (!parsed && result.checkIn) {
+        const dayMatch = dateText.match(/^(\d{1,2})$/);
+        if (dayMatch) {
+          const day = parseInt(dayMatch[1]);
+          if (day >= 1 && day <= 31) {
+            const ciMonth = result.checkIn.substring(5, 7);
+            const ciYear = result.checkIn.substring(0, 4);
+            parsed = `${ciYear}-${ciMonth}-${String(day).padStart(2, '0')}`;
+          }
+        }
+      }
       if (parsed) {
         result.checkOut = parsed;
         break;
