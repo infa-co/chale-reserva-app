@@ -43,24 +43,10 @@ export const BookingDatesFormWithValidation = ({
   
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-sage-800 flex items-center gap-2">
-          <CalendarIcon size={18} />
-          Datas e Período
-        </h3>
-        <VoiceInputButton
-          fieldId="checkIn"
-          onResult={(text) => {
-            const parsed = parseDateFromSpeech(text);
-            if (parsed) {
-              onInputChange('checkIn', parsed);
-              toast.success(`Check-in definido para ${format(parseISO(parsed), 'dd/MM/yyyy')}`);
-            } else {
-              toast.info(`Não entendi a data: "${text}". Tente "15 de março".`);
-            }
-          }}
-        />
-      </div>
+      <h3 className="font-semibold text-sage-800 flex items-center gap-2">
+        <CalendarIcon size={18} />
+        Datas e Período
+      </h3>
       
       <div>
         <Label htmlFor="bookingDate">Data da Reserva</Label>
@@ -76,27 +62,55 @@ export const BookingDatesFormWithValidation = ({
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="checkIn">Check-in *</Label>
-          <Input
-            id="checkIn"
-            type="date"
-            value={formData.checkIn}
-            onChange={(e) => onInputChange('checkIn', e.target.value)}
-            min={currentDate}
-            max={`${currentYear + 2}-12-31`}
-            className={`mt-1 ${validation?.hasConflict ? 'border-destructive' : ''}`}
-          />
+          <div className="flex items-center gap-1.5 mt-1">
+            <Input
+              id="checkIn"
+              type="date"
+              value={formData.checkIn}
+              onChange={(e) => onInputChange('checkIn', e.target.value)}
+              min={currentDate}
+              max={`${currentYear + 2}-12-31`}
+              className={`min-w-0 ${validation?.hasConflict ? 'border-destructive' : ''}`}
+            />
+            <VoiceInputButton
+              fieldId="checkIn"
+              onResult={(text) => {
+                const parsed = parseDateFromSpeech(text);
+                if (parsed) {
+                  onInputChange('checkIn', parsed);
+                  toast.success(`Check-in: ${format(parseISO(parsed), 'dd/MM/yyyy')}`);
+                } else {
+                  toast.info(`Não entendi a data: "${text}". Tente "15 de março".`);
+                }
+              }}
+            />
+          </div>
         </div>
         <div>
           <Label htmlFor="checkOut">Check-out *</Label>
-          <Input
-            id="checkOut"
-            type="date"
-            value={formData.checkOut}
-            onChange={(e) => onInputChange('checkOut', e.target.value)}
-            min={formData.checkIn || currentDate}
-            max={`${currentYear + 2}-12-31`}
-            className={`mt-1 ${validation?.hasConflict ? 'border-destructive' : ''}`}
-          />
+          <div className="flex items-center gap-1.5 mt-1">
+            <Input
+              id="checkOut"
+              type="date"
+              value={formData.checkOut}
+              onChange={(e) => onInputChange('checkOut', e.target.value)}
+              min={formData.checkIn || currentDate}
+              max={`${currentYear + 2}-12-31`}
+              className={`min-w-0 ${validation?.hasConflict ? 'border-destructive' : ''}`}
+            />
+            <VoiceInputButton
+              fieldId="checkOut"
+              onResult={(text) => {
+                const parsed = parseDateFromSpeech(text);
+                if (parsed) {
+                  onInputChange('checkOut', parsed);
+                  toast.success(`Check-out: ${format(parseISO(parsed), 'dd/MM/yyyy')}`);
+                } else {
+                  toast.info(`Não entendi a data: "${text}". Tente "18 de março".`);
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
 
