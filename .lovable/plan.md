@@ -1,30 +1,37 @@
 
 
-## Diagnóstico de Erros e Plano de Correção
+## Tornar a Gravação de Voz Mais Rápida e Fluida
 
-### Erros encontrados
+### Problema atual
+O hook `useSpeechToText` usa `interimResults = false` e `continuous = false`. Isso significa que o usuário fala, espera o silêncio, e só então o texto aparece de uma vez. Sensação lenta.
 
-**1. `PWAInstallPrompt` — `useState` retorna null (CRÍTICO — causa tela branca)**
-- O componente é importado com `lazy()` na linha 15 do App.tsx, mas é renderizado na linha 69 do `ProtectedShell` **fora** do `<Suspense>` (que só envolve o `<Outlet />` nas linhas 65-67). Componentes lazy **devem** estar dentro de um `<Suspense>`. Isso causa conflito de instância do React no Vite, resultando no erro de `useState` null.
-- **Correção**: Remover o `lazy()` do PWAInstallPrompt e importá-lo como import estático normal. O componente é pequeno e não justifica code-splitting. Isso elimina o erro definitivamente.
+### Solução
+Ativar **resultados parciais** (interim) para que o texto apareça em tempo real enquanto o usuário fala, e passar tanto o texto parcial quanto o final para o componente.
 
-**2. `NewBooking` — `useNavigate()` fora do contexto do Router (CRÍTICO — causa tela branca)**
-- O componente é lazy-loaded e, durante HMR do Vite, pode resolver com uma instância diferente de `react-router-dom`, perdendo o contexto do `<BrowserRouter>`. Isso é um bug intermitente do Vite com lazy imports e dep optimization (os logs do dev-server mostram chunks faltando: `chunk-FC7KAWTK.js` e `chunk-Y46F3F76.js`).
-- **Correção**: Converter `NewBooking` de lazy para import estático, assim como já foi feito com `Dashboard`, `Settings` e outros. É uma página frequente e o ganho de lazy é mínimo.
+### Alterações
 
-**3. Warning: `Missing Description or aria-describedby` em DialogContent (MENOR)**
-- Um ou mais diálogos usam `DialogContent` sem `DialogDescription`. Causa apenas um warning no console.
-- **Correção**: Posso investigar quais diálogos são afetados e adicionar `DialogDescription` ou `aria-describedby` para eliminar o warning. Baixo risco.
+#### 1. `src/hooks/useSpeechToText.ts`
+- Mudar `interimResults` para `true`
+- Adicionar estado `transcript` (texto parcial visível em tempo real)
+- O callback `onResult` continua sendo chamado apenas com o resultado **final**
+- Adicionar callback `onInterim` para atualizar texto parcial durante a fala
+- Exportar `transcript` para exibição em tempo real
 
-### O que posso corrigir com segurança
+#### 2. `src/components/forms/VoiceInputButton.tsx`
+- Aceitar nova prop `onInterim` (opcional) para mostrar texto parcial
+- Mostrar o texto parcial abaixo do botão enquanto grava (pequeno badge/tooltip com o que está sendo reconhecido)
+- Passar `onInterim` ao hook
+- Melhorar feedback visual: mostrar o texto sendo transcrito em tempo real num pequeno overlay
 
-| Erro | Risco de quebra | Ação |
-|------|-----------------|------|
-| PWAInstallPrompt useState null | Nenhum — só muda de lazy para import direto | Corrigir |
-| NewBooking useNavigate fora do Router | Nenhum — só muda de lazy para import direto | Corrigir |
-| DialogContent sem Description | Nenhum — só adiciona atributo de acessibilidade | Corrigir |
+#### 3. `src/components/forms/GuestInfoForm.tsx`, `BookingDatesFormWithValidation.tsx`, `PaymentForm.tsx`, `NotesForm.tsx`
+- Nenhuma mudança necessária nos forms — o VoiceInputButton já recebe `onResult` e vai funcionar igual, apenas mais rápido visualmente
+
+### Resultado esperado
+- O usuário fala e **vê o texto aparecendo em tempo real** enquanto dita
+- O resultado final é aplicado ao campo quando o reconhecimento termina
+- Sensação muito mais rápida e responsiva no mobile
 
 ### Arquivos tocados
-- `src/App.tsx` — mudar PWAInstallPrompt e NewBooking de `lazy()` para import estático
-- Dialogs afetados — adicionar `DialogDescription` onde faltar
+- `src/hooks/useSpeechToText.ts`
+- `src/components/forms/VoiceInputButton.tsx`
 
