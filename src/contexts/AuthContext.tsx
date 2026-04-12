@@ -222,13 +222,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInAsTestUser = async (email: string, password: string, plan: string) => {
+    if (import.meta.env.PROD) {
+      console.warn('Test users are not available in production');
+      return { error: new Error('Test users are not available in production') };
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
     if (!error && data.user) {
-      // Configurar plano de teste no localStorage
       localStorage.setItem(`test_plan_${data.user.id}`, plan);
       console.log(`Plano ${plan} configurado para usuário de teste ${email}`);
     }
