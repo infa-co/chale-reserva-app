@@ -362,6 +362,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_access: {
+        Row: {
+          created_at: string
+          manual_access: boolean
+          manual_plan: string
+          trial_ends_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          manual_access?: boolean
+          manual_plan?: string
+          trial_ends_at: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          manual_access?: boolean
+          manual_plan?: string
+          trial_ends_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_access_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
