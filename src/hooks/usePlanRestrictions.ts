@@ -1,7 +1,5 @@
 import { useSubscription } from './useSubscription';
-import { useAuth } from '@/contexts/AuthContext';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useAccess } from './useAccess';
 
 export interface PlanLimits {
   maxBookingsPerMonth: number | null; // null = unlimited
@@ -65,70 +63,21 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
 
 export const usePlanRestrictions = () => {
   const { subscriptionData, getCurrentTier } = useSubscription();
-  const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-  
-  // Check if user is admin
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (!user?.id) {
-        setIsAdmin(false);
-        return;
-      }
-      
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-      
-      if (!error && data) {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-      }
-    };
-
-    checkAdminStatus();
-  }, [user?.id]);
-  
-  
-  const getCurrentPlan = (): string => {
-    // Admin users have unlimited access (premium plan features)
-    if (isAdmin) return 'premium';
-    // Durante desenvolvimento, verificar se há plano simulado
-    if (user && typeof window !== 'undefined') {
-      const simulatedPlan = localStorage.getItem(`test_plan_${user.id}`);
-      if (simulatedPlan && ['basic', 'pro', 'premium'].includes(simulatedPlan)) {
-        return simulatedPlan;
-      }
-    }
-    
-    if (!subscriptionData.subscribed) return 'basic';
-    
-    const tier = getCurrentTier();
-    if (!tier) return 'basic';
-    
-    if (tier.name === 'Básico') return 'basic';
-    if (tier.name === 'Pro') return 'pro';
-    if (tier.name === 'Premium') return 'premium';
-    
-    return 'basic';
-  };
+  const { plan, isAdmin, isTrial } = useAccess();
+  const getCurrentPlan = (): string => plan ?? 'basic';
 
   const currentPlan = getCurrentPlan();
   const limits = PLAN_LIMITS[currentPlan];
 
   const checkFeatureAccess = (feature: keyof PlanLimits): boolean => {
     // Admin users have access to all features
-    if (isAdmin) return true;
+    if (isAdmin || isTrial) return true;
     return Boolean(limits[feature]);
   };
 
   const checkBookingLimit = (currentBookingsThisMonth: number): boolean => {
     // Admin users have unlimited bookings
-    if (isAdmin) return true;
+    if (isAdmin || isTrial) return true;
     if (limits.maxBookingsPerMonth === null) return true; // unlimited
     return currentBookingsThisMonth < limits.maxBookingsPerMonth;
   };
@@ -162,7 +111,7 @@ export const usePlanRestrictions = () => {
 
   const checkPropertyLimit = (currentPropertiesCount: number): boolean => {
     // Admin users have unlimited properties
-    if (isAdmin) return true;
+    if (isAdmin || isTrial) return true;
     if (limits.maxProperties === null) return true; // unlimited
     return currentPropertiesCount < limits.maxProperties;
   };

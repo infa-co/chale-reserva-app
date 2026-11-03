@@ -1,15 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useAccess } from './useAccess';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-interface SubscriptionData {
-  subscribed: boolean;
-  product_id?: string;
-  subscription_end?: string;
-  cancel_at_period_end?: boolean;
-  trial_end?: string;
-}
 
 // Planos disponíveis
 export const subscriptionTiers = {
@@ -34,48 +27,23 @@ export const subscriptionTiers = {
 };
 
 export const useSubscription = () => {
-  const [subscriptionData, setSubscriptionData] = useState<SubscriptionData>({
-    subscribed: false
-  });
-  const [loading, setLoading] = useState(true);
   const { user, session } = useAuth();
+  const access = useAccess();
+  const subscriptionData = access;
+  const [actionLoading, setLoading] = useState(false);
+  const loading = access.loading || actionLoading;
+  const checkSubscription = access.refreshAccess;
 
-  const checkSubscription = useCallback(async (retryCount = 0) => {
-    if (!user || !session) {
-      setSubscriptionData({ subscribed: false });
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase.functions.invoke('check-subscription', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (error) {
-        console.error('Error checking subscription:', error);
-        
-        // Retry logic for temporary failures
-        if (retryCount < 2) {
-          console.log(`Retrying subscription check (attempt ${retryCount + 1})`);
-          setTimeout(() => checkSubscription(retryCount + 1), 2000);
-          return;
-        }
-        
-        toast.error('Erro ao verificar assinatura');
-        setSubscriptionData({ subscribed: false });
-        return;
-      }
-
-      // Validate response data
-      if (data && typeof data.subscribed === 'boolean') {
-        // Check for plan changes and send email
+  useEffect(() => {
+    const data = access;
+    if (!session || access.loading) return;
+    const notify = async () => {
+        // Notify once when checkout changes the paid tier
         const oldTierData = localStorage.getItem('ordomo_old_tier');
         if (oldTierData && data.subscribed && data.product_id) {
           try {
             const oldTier = JSON.parse(oldTierData);
+            localStorage.removeItem('ordomo_old_tier');
             const newTier = Object.values(subscriptionTiers).find(
               tier => tier.product_id === data.product_id
             );
@@ -101,7 +69,7 @@ export const useSubscription = () => {
               }
             }
             
-            // Clear stored old tier
+            // The stored tier is only for notification, never access.
             localStorage.removeItem('ordomo_old_tier');
           } catch (e) {
             console.error('Error processing plan change:', e);
@@ -109,27 +77,9 @@ export const useSubscription = () => {
           }
         }
         
-        setSubscriptionData(data);
-      } else {
-        console.error('Invalid subscription data received:', data);
-        setSubscriptionData({ subscribed: false });
-      }
-    } catch (error) {
-      console.error('Error checking subscription:', error);
-      
-      // Retry for network errors
-      if (retryCount < 2) {
-        console.log(`Retrying subscription check after error (attempt ${retryCount + 1})`);
-        setTimeout(() => checkSubscription(retryCount + 1), 2000);
-        return;
-      }
-      
-      toast.error('Erro ao verificar assinatura');
-      setSubscriptionData({ subscribed: false });
-    } finally {
-      setLoading(false);
-    }
-  }, [user, session]);
+    };
+    void notify();
+  }, [access.product_id, access.subscribed, access.loading, session]);
 
   const createCheckout = async (priceId: string) => {
     if (!session) {
@@ -200,32 +150,12 @@ export const useSubscription = () => {
     }
   };
 
-  const getCurrentTier = () => {
+  const getCurrentTier = useCallback(() => {
     if (!subscriptionData.product_id) return null;
-    
-    return Object.values(subscriptionTiers).find(
-      tier => tier.product_id === subscriptionData.product_id
-    );
-  };
+    return Object.values(subscriptionTiers).find(tier => tier.product_id === subscriptionData.product_id);
+  }, [subscriptionData.product_id]);
 
-  useEffect(() => {
-    checkSubscription();
-  }, [checkSubscription]);
-
-  // Auto-refresh assinatura a cada 5 minutos (otimizado)
-  useEffect(() => {
-    if (!user) return;
-
-    const interval = setInterval(() => {
-      checkSubscription();
-    }, 300000); // 5 minutos
-
-    return () => clearInterval(interval);
-  }, [user, checkSubscription]);
-
-  const refreshSubscription = () => {
-    checkSubscription();
-  };
+  const refreshSubscription = checkSubscription;
 
   const cancelSubscription = async () => {
     if (!session) {

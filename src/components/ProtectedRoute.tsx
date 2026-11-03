@@ -1,68 +1,27 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSubscription } from '@/hooks/useSubscription';
-import { supabase } from '@/integrations/supabase/client';
+import { useAccess } from '@/hooks/useAccess';
+import { Button } from '@/components/ui/button';
 
-interface ProtectedRouteProps {
-  children: ReactNode;
-}
-
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
-  const { subscriptionData, loading: subscriptionLoading } = useSubscription();
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
+  const { loading, hasAccess, error, refreshAccess, trialExpired } = useAccess();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminLoading, setAdminLoading] = useState(true);
-
-  // Check if user is admin
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (!user?.id) {
-        setIsAdmin(false);
-        setAdminLoading(false);
-        return;
-      }
-      
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-      
-      if (!error && data) {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-      }
-      setAdminLoading(false);
-    };
-
-    checkAdminStatus();
-  }, [user?.id]);
-
-  if (loading || subscriptionLoading || adminLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-sage-200 border-t-sage-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sage-600">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
-  }
-
-  // Verificar se o usuário tem assinatura ativa OU é admin
-  if (!subscriptionData.subscribed && !isAdmin) {
-    return <Navigate to="/payment" replace />;
-  }
-
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center" role="status">
+      <div className="text-center"><div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">Carregando...</p></div>
+    </div>
+  );
+  if (!user) return <Navigate to="/auth" state={{ from: location }} replace />;
+  if (error) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 text-center">
+      <p role="alert" className="text-foreground">Não foi possível verificar seu acesso. Suas reservas continuam salvas.</p>
+      <Button onClick={() => void refreshAccess()}>Tentar novamente</Button>
+    </div>
+  );
+  if (!hasAccess) return <Navigate to="/payment" state={{ trialExpired }} replace />;
   return <>{children}</>;
 };
-
 export default ProtectedRoute;
