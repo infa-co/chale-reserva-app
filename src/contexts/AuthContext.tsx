@@ -2,14 +2,20 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import { AccessData, deniedAccess } from '@/lib/access';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   hasActiveSubscription: boolean;
+  access: AccessData;
+  accessLoading: boolean;
+  accessError: Error | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, name?: string) => Promise<{ error: any; session?: Session | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (password: string) => Promise<{ error: any }>;
@@ -32,31 +38,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
-
-  const checkSubscription = async () => {
-    if (!session) {
-      setHasActiveSubscription(false);
-      return;
-    }
-
-    try {
+  const accessQuery = useQuery({
+    queryKey: ['access', user?.id],
+    enabled: !loading && Boolean(session),
+    queryFn: async () => {
+      if (!session) throw new Error('Sessão indisponível');
       const { data, error } = await supabase.functions.invoke('check-subscription', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
-
-      if (!error && data) {
-        setHasActiveSubscription(data.subscribed || false);
-      } else {
-        setHasActiveSubscription(false);
+      if (error || !data || typeof data.hasAccess !== 'boolean') {
+        throw new Error('Não foi possível verificar seu acesso. Tente novamente.');
       }
-    } catch (error) {
-      console.error('Error checking subscription:', error);
-      setHasActiveSubscription(false);
-    }
-  };
+      return data as AccessData;
+    },
+    retry: 2,
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
+  });
+  const access = accessQuery.data ?? deniedAccess;
+  const accessLoading = loading || (Boolean(user) && accessQuery.isPending);
+  const checkSubscription = useCallback(async () => {
+    await accessQuery.refetch();
+  }, [accessQuery.refetch]);
 
   useEffect(() => {
     // Set up auth state listener
@@ -89,14 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         }
         
-        // Check subscription after auth state changes
-        if (session?.user) {
-          setTimeout(() => {
-            checkSubscription();
-          }, 0);
-        } else {
-          setHasActiveSubscription(false);
-        }
+
       }
     );
 
@@ -106,12 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Check subscription for initial session
-      if (session?.user) {
-        setTimeout(() => {
-          checkSubscription();
-        }, 0);
-      }
+
     });
 
     return () => subscription.unsubscribe();
@@ -157,7 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    return { error };
+    return { error, session: data.session };
   };
 
   const signOut = async () => {
@@ -232,11 +224,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password,
     });
     
-    if (!error && data.user) {
-      localStorage.setItem(`test_plan_${data.user.id}`, plan);
-      console.log(`Plano ${plan} configurado para usuário de teste ${email}`);
-    }
-    
     return { error };
   };
 
@@ -245,7 +232,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user,
       session,
       loading,
-      hasActiveSubscription,
+      hasActiveSubscription: access.hasAccess,
+      access,
+      accessLoading,
+      accessError: accessQuery.error,
       signIn,
       signUp,
       signOut,

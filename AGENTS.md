@@ -1,0 +1,5 @@
+# Architecture rules
+- AuthProvider owns one user-scoped access query; useAccess, protected routes, and plan restrictions consume it to avoid divergent access decisions.
+- Resolve paid, trial, manual and existing administrator access in check-subscription after JWT verification; never trust client storage for entitlements.
+- Initialize trial access through a protected profile-insert trigger so clients cannot extend their own trial or grant access.
+- Keep access evaluation pure in the edge shared access module and cover entitlement boundaries with executable tests.

@@ -15,6 +15,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import MobileNav from "./components/MobileNav";
 import RootRedirect from "./components/RootRedirect";
+import TrialNotice from "./components/TrialNotice";
 
 // Import das páginas diretamente para resolver problemas de dynamic import
 import Dashboard from "./pages/Dashboard";
@@ -62,6 +63,7 @@ const ProtectedShell = () => (
     <PropertyProvider>
       <BookingProvider>
         <div className="mobile-container pb-16">
+          <TrialNotice />
           <Suspense fallback={<LoadingSpinner />}>
             <Outlet />
           </Suspense>

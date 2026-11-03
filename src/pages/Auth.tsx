@@ -91,7 +91,7 @@ const Auth = () => {
       } else {
         // Type assertion for signup data
         const signupData = validation.data as { email: string; password: string; name: string };
-        const { error } = await signUp(signupData.email, signupData.password, signupData.name);
+        const { error, session: newSession } = await signUp(signupData.email, signupData.password, signupData.name);
         if (error) {
           if (error.message.includes('User already registered')) {
             toast.error('Este email já está cadastrado');
@@ -100,18 +100,11 @@ const Auth = () => {
           }
         } else {
           toast.success('Conta criada com sucesso!');
-          // Verificar se é mobile
-          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-          if (isMobile) {
-            // No mobile, vai direto para o login
-            setIsLogin(true);
-            setEmail('');
-            setPassword('');
-            setName('');
-            toast.info('Agora faça login com suas credenciais');
+          if (newSession) {
+            navigate('/dashboard');
           } else {
-            // No desktop, vai para o pagamento
-            navigate('/payment');
+            setIsLogin(true);
+            toast.info('Confirme seu email para acessar os sete dias de teste grátis.');
           }
         }
       }

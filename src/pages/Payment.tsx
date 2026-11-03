@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, ArrowLeft, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAccess } from '@/hooks/useAccess';
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ import { toast } from "sonner";
 const Payment = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { trialExpired } = useAccess();
   const [loading, setLoading] = useState<string | null>(null);
 
   const plans = [
@@ -128,7 +130,7 @@ const Payment = () => {
             Escolha seu plano para continuar
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Para usar o Ordomo, você precisa escolher um dos nossos planos. Comece organizando suas reservas hoje mesmo.
+            {trialExpired ? 'Seu teste de 7 dias terminou. Escolha um plano para continuar. Suas reservas continuam salvas.' : 'Para usar o Ordomo, você precisa escolher um dos nossos planos. Comece organizando suas reservas hoje mesmo.'}
           </p>
         </div>
 
