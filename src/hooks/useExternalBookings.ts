@@ -85,7 +85,7 @@ export const useExternalBookings = () => {
     return externalBookings.filter(booking => {
       const bookingStart = parseDateOnly(booking.start_date);
       const bookingEnd = parseDateOnly(booking.end_date);
-      const checkDate = new Date(dateStr);
+      const checkDate = parseDateOnly(dateStr);
       
       return checkDate >= bookingStart && checkDate <= bookingEnd;
     });
