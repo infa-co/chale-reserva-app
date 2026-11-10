@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { CalendarIcon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -15,7 +16,7 @@ interface BookingDatesFormProps {
 
 export const BookingDatesForm = ({ formData, onInputChange, nights }: BookingDatesFormProps) => {
   const currentYear = new Date().getFullYear();
-  const currentDate = new Date().toISOString().split('T')[0];
+  const currentDate = todayDateOnly();
   
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border space-y-4">

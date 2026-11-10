@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
@@ -28,11 +29,11 @@ export const useClientExport = () => {
 
   const getClientExportData = (client: ProcessedClient) => {
     const firstBooking = client.bookings.length > 0 
-      ? new Date(Math.min(...client.bookings.map(b => new Date(b.check_in).getTime())))
+      ? new Date(Math.min(...client.bookings.map(b => parseDateOnly(b.check_in).getTime())))
       : null;
     
     const lastBooking = client.bookings.length > 0 
-      ? new Date(Math.max(...client.bookings.map(b => new Date(b.check_in).getTime())))
+      ? new Date(Math.max(...client.bookings.map(b => parseDateOnly(b.check_in).getTime())))
       : null;
 
     return {

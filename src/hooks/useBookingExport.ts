@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
@@ -48,8 +49,8 @@ export const useBookingExport = () => {
     const processedActive = activeBookings.map(booking => ({
       ...booking,
       total_value: Number(booking.total_value),
-      formatted_check_in: format(parseISO(booking.check_in), 'dd/MM/yyyy', { locale: ptBR }),
-      formatted_check_out: format(parseISO(booking.check_out), 'dd/MM/yyyy', { locale: ptBR }),
+      formatted_check_in: format(parseDateOnly(booking.check_in), 'dd/MM/yyyy', { locale: ptBR }),
+      formatted_check_out: format(parseDateOnly(booking.check_out), 'dd/MM/yyyy', { locale: ptBR }),
       formatted_total_value: formatCurrency(Number(booking.total_value)),
       type: 'active' as const
     }));
@@ -57,8 +58,8 @@ export const useBookingExport = () => {
     const processedHistorical = historicalBookings.map(booking => ({
       ...booking,
       total_value: Number(booking.total_value),
-      formatted_check_in: format(parseISO(booking.check_in), 'dd/MM/yyyy', { locale: ptBR }),
-      formatted_check_out: format(parseISO(booking.check_out), 'dd/MM/yyyy', { locale: ptBR }),
+      formatted_check_in: format(parseDateOnly(booking.check_in), 'dd/MM/yyyy', { locale: ptBR }),
+      formatted_check_out: format(parseDateOnly(booking.check_out), 'dd/MM/yyyy', { locale: ptBR }),
       formatted_total_value: formatCurrency(Number(booking.total_value)),
       type: 'historical' as const
     }));

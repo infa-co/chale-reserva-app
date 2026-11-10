@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { Booking } from '@/types/booking';
 import { Property } from '@/types/property';
@@ -189,8 +190,8 @@ Com carinho,
 
     const variables = {
       guest_name: booking.guest_name,
-      check_in_formatted: format(parseISO(booking.check_in), "dd/MM/yyyy (EEEE)", { locale: ptBR }),
-      check_out_formatted: format(parseISO(booking.check_out), "dd/MM/yyyy (EEEE)", { locale: ptBR }),
+      check_in_formatted: format(parseDateOnly(booking.check_in), "dd/MM/yyyy (EEEE)", { locale: ptBR }),
+      check_out_formatted: format(parseDateOnly(booking.check_out), "dd/MM/yyyy (EEEE)", { locale: ptBR }),
       nights: booking.nights.toString(),
       total_value: booking.total_value.toLocaleString('pt-BR'),
       payment_method: booking.payment_method,

@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { useState } from 'react';
 import { differenceInDays, parseISO } from 'date-fns';
@@ -28,8 +29,8 @@ export const useBookingForm = (initialPropertyId?: string) => {
 
   const calculateNights = () => {
     if (formData.checkIn && formData.checkOut) {
-      const checkIn = parseISO(formData.checkIn);
-      const checkOut = parseISO(formData.checkOut);
+      const checkIn = parseDateOnly(formData.checkIn);
+      const checkOut = parseDateOnly(formData.checkOut);
       return Math.max(0, differenceInDays(checkOut, checkIn));
     }
     return 0;

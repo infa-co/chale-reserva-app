@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, Users, Save, AlertCircle } from 'lucide-react';
@@ -169,7 +170,7 @@ const AssignBookings = () => {
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                           <Calendar size={14} />
                           <span>
-                            {format(parseISO(booking.check_in), "dd/MM/yyyy", { locale: ptBR })} → {format(parseISO(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}
+                            {format(parseDateOnly(booking.check_in), "dd/MM/yyyy", { locale: ptBR })} → {format(parseDateOnly(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}
                           </span>
                           <Badge variant="outline" className="text-xs">
                             {booking.nights} noites

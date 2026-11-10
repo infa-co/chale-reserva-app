@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSpeechToText } from '@/hooks/useSpeechToText';
@@ -41,7 +42,7 @@ export const FullBookingVoiceButton = ({ onFieldsUpdate, disabled }: FullBooking
     let summary = `✅ Preenchido: ${filled.join(', ')}`;
     if (parsed.checkIn) {
       try {
-        summary += ` | Check-in: ${format(parseISO(parsed.checkIn), 'dd/MM/yyyy')}`;
+        summary += ` | Check-in: ${format(parseDateOnly(parsed.checkIn), 'dd/MM/yyyy')}`;
       } catch {}
     }
     toast.success(summary, { duration: 4000 });

@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { memo, useState, useMemo, useCallback } from 'react';
 import { Plus } from 'lucide-react';
@@ -24,8 +25,8 @@ const Dashboard = memo(() => {
     const monthEnd = endOfMonth(currentDate);
     
     return bookings.filter(booking => {
-      const checkIn = new Date(booking.check_in);
-      const checkOut = new Date(booking.check_out);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
       return checkIn <= monthEnd && checkOut >= monthStart;
     });
   }, [bookings, currentDate]);
@@ -36,7 +37,7 @@ const Dashboard = memo(() => {
     return bookings.filter((booking) => {
       const dateStr = booking.booking_date || booking.created_at?.slice(0, 10);
       if (!dateStr) return false;
-      const d = new Date(dateStr);
+      const d = parseDateOnly(dateStr);
       return d >= billingStart && d < billingEnd;
     }).length;
   }, [bookings, getBillingPeriod]);

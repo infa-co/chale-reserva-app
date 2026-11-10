@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,8 +45,8 @@ export const usePropertyStats = (propertyId?: string, selectedMonth?: Date) => {
       const confirmedStatuses = new Set(['confirmed', 'checked_in', 'active', 'checked_out', 'completed']);
       const confirmedBookings = bookings.filter(b => confirmedStatuses.has(b.status));
       const monthlyBookings = confirmedBookings.filter(booking => {
-        const checkIn = parseISO(booking.check_in);
-        const checkOut = parseISO(booking.check_out);
+        const checkIn = parseDateOnly(booking.check_in);
+        const checkOut = parseDateOnly(booking.check_out);
         return checkIn <= monthEnd && checkOut >= monthStart;
       });
 
@@ -57,8 +58,8 @@ export const usePropertyStats = (propertyId?: string, selectedMonth?: Date) => {
 
       const daysInMonth = monthEnd.getDate();
       const occupiedNights = monthlyBookings.reduce((sum, booking) => {
-        const checkIn = parseISO(booking.check_in);
-        const checkOut = parseISO(booking.check_out);
+        const checkIn = parseDateOnly(booking.check_in);
+        const checkOut = parseDateOnly(booking.check_out);
         
         const overlapStart = checkIn < monthStart ? monthStart : checkIn;
         const overlapEnd = checkOut > monthEnd ? monthEnd : checkOut;

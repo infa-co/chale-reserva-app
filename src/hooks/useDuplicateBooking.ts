@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useNavigate } from 'react-router-dom';
 import { useBookings } from '@/contexts/BookingContext';
 import { Booking } from '@/types/booking';
@@ -44,7 +45,7 @@ export const useDuplicateBooking = () => {
   const duplicateWithSuggestedDates = async (originalBooking: Booking) => {
     try {
       // Sugerir datas uma semana após o check-out original
-      const originalCheckOut = new Date(originalBooking.check_out);
+      const originalCheckOut = parseDateOnly(originalBooking.check_out);
       const suggestedCheckIn = format(addDays(originalCheckOut, 7), 'yyyy-MM-dd');
       const suggestedCheckOut = format(addDays(originalCheckOut, 7 + originalBooking.nights), 'yyyy-MM-dd');
 

@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState } from 'react';
 import { differenceInDays, parseISO, subDays } from 'date-fns';
 import { openWhatsApp as openWhatsAppUtil } from '@/lib/whatsapp';
@@ -25,8 +26,8 @@ export const useHistoricalBookingForm = () => {
 
   const calculateNights = () => {
     if (formData.checkIn && formData.checkOut) {
-      const checkIn = parseISO(formData.checkIn);
-      const checkOut = parseISO(formData.checkOut);
+      const checkIn = parseDateOnly(formData.checkIn);
+      const checkOut = parseDateOnly(formData.checkOut);
       return Math.max(0, differenceInDays(checkOut, checkIn));
     }
     return 0;
@@ -40,7 +41,7 @@ export const useHistoricalBookingForm = () => {
 
   // For historical bookings, we allow dates up to today but not future dates
   const getMaxDate = () => {
-    return new Date().toISOString().split('T')[0];
+    return todayDateOnly();
   };
 
   return {

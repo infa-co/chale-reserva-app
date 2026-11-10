@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -29,7 +30,7 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount, p
     [...activeBookings, ...historicalBookings].forEach(booking => {
       if (booking.check_in) {
         try {
-          const date = parseISO(booking.check_in);
+          const date = parseDateOnly(booking.check_in);
           months.add(format(date, 'yyyy-MM'));
         } catch (error) {
           // Ignorar datas inválidas
@@ -45,7 +46,7 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount, p
         count: [...activeBookings, ...historicalBookings].filter(booking => {
           if (!booking.check_in) return false;
           try {
-            return format(parseISO(booking.check_in), 'yyyy-MM') === monthKey;
+            return format(parseDateOnly(booking.check_in), 'yyyy-MM') === monthKey;
           } catch (error) {
             return false;
           }
@@ -75,7 +76,7 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount, p
         active: filtered.active.filter(booking => {
           if (!booking.check_in) return false;
           try {
-            return isWithinInterval(parseISO(booking.check_in), { start: monthStart, end: monthEnd });
+            return isWithinInterval(parseDateOnly(booking.check_in), { start: monthStart, end: monthEnd });
           } catch (error) {
             return false;
           }
@@ -83,7 +84,7 @@ const BookingExportDialog = ({ activeBookings, historicalBookings, totalCount, p
         historical: filtered.historical.filter(booking => {
           if (!booking.check_in) return false;
           try {
-            return isWithinInterval(parseISO(booking.check_in), { start: monthStart, end: monthEnd });
+            return isWithinInterval(parseDateOnly(booking.check_in), { start: monthStart, end: monthEnd });
           } catch (error) {
             return false;
           }

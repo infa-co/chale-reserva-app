@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { Bell, Clock, AlertTriangle, CheckCircle, X, Cake } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -110,7 +111,7 @@ export const NotificationCenter = () => {
               
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>
-                  Check-in: {format(parseISO(notification.booking.check_in), 'dd/MM', { locale: ptBR })}
+                  Check-in: {format(parseDateOnly(notification.booking.check_in), 'dd/MM', { locale: ptBR })}
                 </span>
                 <span>•</span>
                 <span>R$ {notification.booking.total_value.toLocaleString('pt-BR')}</span>

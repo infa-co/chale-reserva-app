@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState, memo, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, TrendingUp, Calendar, ChevronDown, ChevronRight, Users } from 'lucide-react';
@@ -29,7 +30,7 @@ const ClientCard = memo(({ client }: { client: ProcessedClient }) => {
 
   const sortedBookings = useMemo(() => 
     client.bookings
-      .sort((a, b) => new Date(b.check_in).getTime() - new Date(a.check_in).getTime())
+      .sort((a, b) => parseDateOnly(b.check_in).getTime() - parseDateOnly(a.check_in).getTime())
       .slice(0, 2),
     [client.bookings]
   );
@@ -133,7 +134,7 @@ const ClientCard = memo(({ client }: { client: ProcessedClient }) => {
               className="flex items-center justify-between p-2 bg-white rounded-lg hover:bg-sage-100 transition-colors"
             >
               <span className="text-sm">
-                {new Date(booking.check_in).toLocaleDateString('pt-BR')}
+                {parseDateOnly(booking.check_in).toLocaleDateString('pt-BR')}
               </span>
               <span className="text-sm font-medium">
                 R$ {booking.total_value.toLocaleString('pt-BR')}
@@ -238,9 +239,9 @@ const ClientsByMonthOptimized = memo(({ clients, searchTerm }: ClientsByMonthPro
 
       // Get the client's most recent booking
       const mostRecentBooking = client.bookings
-        .sort((a, b) => new Date(b.check_in).getTime() - new Date(a.check_in).getTime())[0];
+        .sort((a, b) => parseDateOnly(b.check_in).getTime() - parseDateOnly(a.check_in).getTime())[0];
       
-      const bookingDate = parseISO(mostRecentBooking.check_in);
+      const bookingDate = parseDateOnly(mostRecentBooking.check_in);
       const monthKey = format(bookingDate, 'yyyy-MM');
       const monthLabel = format(bookingDate, 'MMMM yyyy', { locale: ptBR });
 

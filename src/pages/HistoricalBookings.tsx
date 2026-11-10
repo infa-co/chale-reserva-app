@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState, useMemo } from 'react';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { useOptimizedBookings } from '@/hooks/useOptimizedBookings';
@@ -50,7 +51,7 @@ const HistoricalBookings = () => {
   const bookingsThisMonth = optimizedBookings.filter(booking => {
     const dateStr = booking.booking_date || booking.created_at?.slice(0, 10);
     if (!dateStr) return false;
-    const d = new Date(dateStr);
+    const d = parseDateOnly(dateStr);
     return d >= billingStart && d < billingEnd;
   }).length;
 
@@ -78,7 +79,7 @@ const HistoricalBookings = () => {
     const groups: { [key: string]: MonthGroup } = {};
 
     allBookings.forEach(booking => {
-      const checkInDate = parseISO(booking.check_in);
+      const checkInDate = parseDateOnly(booking.check_in);
       const year = getYear(checkInDate);
       const month = getMonth(checkInDate); // 0-indexed
       const key = `${year}-${month}`;
@@ -354,7 +355,7 @@ const HistoricalBookings = () => {
                       <CardContent className="pt-0">
                         <div className="space-y-3">
                           {monthGroup.bookings
-                            .sort((a, b) => new Date(a.check_in).getTime() - new Date(b.check_in).getTime())
+                            .sort((a, b) => parseDateOnly(a.check_in).getTime() - parseDateOnly(b.check_in).getTime())
                             .map((booking) => (
                             <div 
                               key={booking.id} 
@@ -397,13 +398,13 @@ const HistoricalBookings = () => {
                                 <div>
                                   <span className="text-muted-foreground">Check-in:</span>
                                   <div className="font-medium">
-                                    {format(new Date(booking.check_in), 'dd/MM/yyyy', { locale: ptBR })}
+                                    {format(parseDateOnly(booking.check_in), 'dd/MM/yyyy', { locale: ptBR })}
                                   </div>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">Check-out:</span>
                                   <div className="font-medium">
-                                    {format(new Date(booking.check_out), 'dd/MM/yyyy', { locale: ptBR })}
+                                    {format(parseDateOnly(booking.check_out), 'dd/MM/yyyy', { locale: ptBR })}
                                   </div>
                                 </div>
                               </div>

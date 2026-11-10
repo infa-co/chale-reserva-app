@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { useState } from 'react';
 import { useBookings } from '@/contexts/BookingContext';
@@ -111,7 +112,7 @@ export const useBookingWorkflow = () => {
           nextState: 'checked_in',
           description: 'Check-in automático no dia',
           requiresConfirmation: false,
-          autoTrigger: (booking) => isToday(parseISO(booking.check_in))
+          autoTrigger: (booking) => isToday(parseDateOnly(booking.check_in))
         }
       ]
     },
@@ -168,7 +169,7 @@ export const useBookingWorkflow = () => {
           nextState: 'checked_out',
           description: 'Check-out automático no dia',
           requiresConfirmation: false,
-          autoTrigger: (booking) => isToday(parseISO(booking.check_out))
+          autoTrigger: (booking) => isToday(parseDateOnly(booking.check_out))
         }
       ]
     },
@@ -194,7 +195,7 @@ export const useBookingWorkflow = () => {
           description: 'Finalizar após 1 dia do checkout',
           requiresConfirmation: false,
           autoTrigger: (booking) => {
-            const checkoutDate = parseISO(booking.check_out);
+            const checkoutDate = parseDateOnly(booking.check_out);
             return differenceInDays(new Date(), checkoutDate) >= 1;
           }
         }

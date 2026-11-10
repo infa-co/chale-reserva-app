@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString, stayPosition } from '@/lib/dates';
 
 import { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -38,8 +39,8 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
   // Memoize filtered bookings
   const currentMonthBookings = useMemo(() => {
     return bookings.filter(booking => {
-      const checkIn = parseISO(booking.check_in);
-      const checkOut = parseISO(booking.check_out);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
       
       const hasOverlap = checkIn <= dateInfo.monthEnd && checkOut >= dateInfo.monthStart;
       
@@ -53,8 +54,8 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
   // Memoize filtered external bookings
   const currentMonthExternalBookings = useMemo(() => {
     return externalBookings.filter(booking => {
-      const startDate = new Date(booking.start_date);
-      const endDate = new Date(booking.end_date);
+      const startDate = parseDateOnly(booking.start_date);
+      const endDate = parseDateOnly(booking.end_date);
       
       return startDate <= dateInfo.monthEnd && endDate >= dateInfo.monthStart;
     });
@@ -62,14 +63,14 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
   
   const getBookingsForDate = useCallback((date: Date) => {
     return currentMonthBookings.filter(booking => {
-      const checkIn = parseISO(booking.check_in);
-      const checkOut = parseISO(booking.check_out);
-      return isSameDay(checkIn, date) || isSameDay(checkOut, date);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
+      return stayPosition(date, booking.check_in, booking.check_out) !== null;
     });
   }, [currentMonthBookings]);
 
   const getExternalBookingsForDate = useCallback((date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = toDateOnlyString(date);
     return currentMonthExternalBookings.filter(booking => {
       return dateStr >= booking.start_date && dateStr <= booking.end_date;
     });
@@ -83,6 +84,15 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
       cancelled: 'border-danger'
     };
     return `${baseClass} ${colors[status as keyof typeof colors] || 'border-sage-500'}`;
+  }, []);
+
+  const getStatusFillClass = useCallback((status: string) => {
+    const colors: Record<string, string> = {
+      confirmed: "bg-success/25 hover:bg-success/35",
+      pending: "bg-warning/25 hover:bg-warning/35",
+      cancelled: "bg-danger/20 hover:bg-danger/30",
+    };
+    return colors[status] || "bg-sage-200/80 hover:bg-sage-300";
   }, []);
 
   const previousMonth = useCallback(() => {
@@ -139,12 +149,13 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
           const dayBookings = getBookingsForDate(day);
           const dayExternalBookings = getExternalBookingsForDate(day);
           const checkInBookings = dayBookings.filter(booking => 
-            isSameDay(parseISO(booking.check_in), day)
+            isSameDay(parseDateOnly(booking.check_in), day)
           );
           const checkOutBookings = dayBookings.filter(booking => 
-            isSameDay(parseISO(booking.check_out), day)
+            isSameDay(parseDateOnly(booking.check_out), day)
           );
           
+          const nightBookings = dayBookings.filter(b => stayPosition(day, b.check_in, b.check_out) === "night");
           const hasBookings = dayBookings.length > 0;
           const hasExternalBookings = dayExternalBookings.length > 0;
           const isCurrentMonth = day >= dateInfo.monthStart && day <= dateInfo.monthEnd;
@@ -154,8 +165,10 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
           
           if (hasExternalBookings) {
             backgroundClass = 'bg-orange-100 hover:bg-orange-200';
+          } else if (nightBookings.length > 0) {
+            backgroundClass = getStatusFillClass(nightBookings[0].status);
           } else if (hasBookings) {
-            backgroundClass = 'bg-sage-200/80 hover:bg-sage-300';
+            backgroundClass = "bg-sage-200/80 hover:bg-sage-300";
           } else {
             backgroundClass = 'hover:bg-sage-100';
           }
@@ -226,6 +239,10 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
               <div className="flex items-center gap-3 justify-center">
                 <div className="w-8 h-5 border-r-4 border-success bg-sage-200/60 rounded-sm flex-shrink-0"></div>
                 <span className="text-sm text-muted-foreground">Check-out</span>
+              </div>
+              <div className="flex items-center gap-3 justify-center">
+                <div className="w-8 h-5 bg-success/25 rounded-sm flex-shrink-0"></div>
+                <span className="text-sm text-muted-foreground">Noite ocupada</span>
               </div>
               <div className="flex items-center gap-3 justify-center">
                 <div className="w-8 h-5 bg-orange-100 rounded-sm flex-shrink-0 relative">
