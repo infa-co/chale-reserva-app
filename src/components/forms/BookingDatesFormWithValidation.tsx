@@ -3,8 +3,8 @@ import { CalendarIcon, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useBookingValidation } from '@/hooks/useBookingValidation';
-import { useEffect, useState } from 'react';
+import type { StayConflictState } from '@/hooks/useStayConflict';
+import { conflictMessage } from '@/lib/bookingConflicts';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { VoiceInputButton } from './VoiceInputButton';
@@ -20,28 +20,20 @@ interface BookingDatesFormWithValidationProps {
   onInputChange: (field: string, value: string) => void;
   nights: number;
   excludeBookingId?: string; // Para edição
+  conflict: StayConflictState;
 }
 
 export const BookingDatesFormWithValidation = ({ 
   formData, 
   onInputChange, 
   nights,
-  excludeBookingId 
+  excludeBookingId,
+  conflict
 }: BookingDatesFormWithValidationProps) => {
   const currentYear = new Date().getFullYear();
   const currentDate = todayDateOnly();
-  const { checkDateConflict } = useBookingValidation();
-  const [validation, setValidation] = useState<any>(null);
+  const hasConflict = conflict.invalidDates || conflict.conflicts.length > 0;
 
-  useEffect(() => {
-    if (formData.checkIn && formData.checkOut) {
-      const result = checkDateConflict(formData.checkIn, formData.checkOut, excludeBookingId);
-      setValidation(result);
-    } else {
-      setValidation(null);
-    }
-  }, [formData.checkIn, formData.checkOut, excludeBookingId, checkDateConflict]);
-  
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border space-y-4">
       <h3 className="font-semibold text-sage-800 flex items-center gap-2">
@@ -95,7 +87,7 @@ export const BookingDatesFormWithValidation = ({
               type="date"
               value={formData.checkOut}
               onChange={(e) => onInputChange('checkOut', e.target.value)}
-              min={formData.checkIn || currentDate}
+              min={formData.checkIn ? toDateOnlyString(new Date(parseDateOnly(formData.checkIn).getTime() + 86400000)) : currentDate}
               max={`${currentYear + 2}-12-31`}
               className={`min-w-0 ${validation?.hasConflict ? 'border-destructive' : ''}`}
             />
@@ -116,29 +108,19 @@ export const BookingDatesFormWithValidation = ({
       </div>
 
       {/* Validação de datas */}
-      {validation && (
-        <Alert variant={validation.hasConflict ? "destructive" : "default"}>
-          {validation.hasConflict ? (
-            <AlertTriangle className="h-4 w-4" />
-          ) : (
-            <CheckCircle className="h-4 w-4 text-success" />
-          )}
-          <AlertDescription>
-            {validation.message}
-            {validation.conflictingBookings && validation.conflictingBookings.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {validation.conflictingBookings.map((booking: any) => (
-                  <div key={booking.id} className="text-xs p-2 bg-destructive/10 rounded">
-                    <strong>{booking.guest_name}</strong>: {format(parseDateOnly(booking.check_in), 'dd/MM/yyyy', { locale: ptBR })} até {format(parseDateOnly(booking.check_out), 'dd/MM/yyyy', { locale: ptBR })}
-                  </div>
-                ))}
-              </div>
-            )}
+      {hasConflict && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="space-y-1">
+            {conflict.invalidDates && <p>O check-out precisa ser depois do check-in (mínimo 1 noite).</p>}
+            {conflict.conflicts.map((c) => (
+              <p key={`${c.source}-${c.id}`}>{conflictMessage(c)}</p>
+            ))}
           </AlertDescription>
         </Alert>
       )}
 
-      {formData.checkIn && formData.checkOut && !validation?.hasConflict && (
+      {formData.checkIn && formData.checkOut && !hasConflict && !conflict.checking && (
         <div className="bg-sage-50 p-3 rounded-lg">
           <p className="text-sm text-sage-700">
             <strong>{nights} noites</strong>
