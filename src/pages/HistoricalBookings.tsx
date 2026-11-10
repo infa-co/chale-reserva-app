@@ -51,7 +51,7 @@ const HistoricalBookings = () => {
   const bookingsThisMonth = optimizedBookings.filter(booking => {
     const dateStr = booking.booking_date || booking.created_at?.slice(0, 10);
     if (!dateStr) return false;
-    const d = new Date(dateStr);
+    const d = parseDateOnly(dateStr);
     return d >= billingStart && d < billingEnd;
   }).length;
 

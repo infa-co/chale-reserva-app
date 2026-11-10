@@ -1,3 +1,4 @@
+import { parseDateOnly } from '@/lib/dates';
 
 import { Home, Plus, Calendar, Users, Building, History } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -15,7 +16,7 @@ const MobileNav = () => {
   const bookingsThisMonth = bookings.filter(booking => {
     const dateStr = booking.booking_date || booking.created_at?.slice(0, 10);
     if (!dateStr) return false;
-    const d = new Date(dateStr);
+    const d = parseDateOnly(dateStr);
     return d >= billingStart && d < billingEnd;
   }).length;
 
