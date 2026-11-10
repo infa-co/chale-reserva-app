@@ -63,7 +63,7 @@ export const BookingDatesFormWithValidation = ({
               onChange={(e) => onInputChange('checkIn', e.target.value)}
               min={currentDate}
               max={`${currentYear + 2}-12-31`}
-              className={`min-w-0 ${validation?.hasConflict ? 'border-destructive' : ''}`}
+              className={`min-w-0 ${hasConflict ? 'border-destructive' : ''}`}
             />
             <VoiceInputButton
               fieldId="checkIn"
@@ -89,7 +89,7 @@ export const BookingDatesFormWithValidation = ({
               onChange={(e) => onInputChange('checkOut', e.target.value)}
               min={formData.checkIn ? toDateOnlyString(new Date(parseDateOnly(formData.checkIn).getTime() + 86400000)) : currentDate}
               max={`${currentYear + 2}-12-31`}
-              className={`min-w-0 ${validation?.hasConflict ? 'border-destructive' : ''}`}
+              className={`min-w-0 ${hasConflict ? 'border-destructive' : ''}`}
             />
             <VoiceInputButton
               fieldId="checkOut"
