@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Home } from 'lucide-react';
@@ -53,8 +54,8 @@ const PropertyDashboard = () => {
     const filteredBookings = allBookings.filter(booking => {
       if (booking.property_id !== id) return false;
       if (!nonCanceledStatuses.has(booking.status)) return false;
-      const checkIn = parseISO(booking.check_in);
-      const checkOut = parseISO(booking.check_out);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
       return checkIn <= monthEnd && checkOut >= monthStart;
     });
     
@@ -91,14 +92,14 @@ const PropertyDashboard = () => {
     
     // Reservas do mês atual que se sobrepõem (mesma lógica da lista)
     const monthlyNonCanceled = nonCanceledBookings.filter(booking => {
-      const checkIn = parseISO(booking.check_in);
-      const checkOut = parseISO(booking.check_out);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
       return checkIn <= monthEnd && checkOut >= monthStart;
     });
     
     const monthlyConfirmed = confirmedBookings.filter(booking => {
-      const checkIn = parseISO(booking.check_in);
-      const checkOut = parseISO(booking.check_out);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
       return checkIn <= monthEnd && checkOut >= monthStart;
     });
 
@@ -111,8 +112,8 @@ const PropertyDashboard = () => {
     // Taxa de ocupação baseada nas noites sobrepostas de reservas não canceladas
     const daysInMonth = monthEnd.getDate();
     const occupiedNights = monthlyNonCanceled.reduce((sum, booking) => {
-      const checkIn = parseISO(booking.check_in);
-      const checkOut = parseISO(booking.check_out);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
       
       const overlapStart = checkIn < monthStart ? monthStart : checkIn;
       const overlapEnd = checkOut > monthEnd ? monthEnd : checkOut;

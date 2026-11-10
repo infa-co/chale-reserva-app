@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -33,7 +34,7 @@ const NewBooking = () => {
 
   // Verificar limite de reservas do mês atual
   const currentMonthBookingCount = bookings.filter(booking => {
-    const checkIn = new Date(booking.check_in);
+    const checkIn = parseDateOnly(booking.check_in);
     const now = new Date();
     return checkIn.getMonth() === now.getMonth() && checkIn.getFullYear() === now.getFullYear();
   }).length;

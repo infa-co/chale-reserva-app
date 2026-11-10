@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -38,8 +39,8 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
   // Memoize filtered bookings
   const currentMonthBookings = useMemo(() => {
     return bookings.filter(booking => {
-      const checkIn = parseISO(booking.check_in);
-      const checkOut = parseISO(booking.check_out);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
       
       const hasOverlap = checkIn <= dateInfo.monthEnd && checkOut >= dateInfo.monthStart;
       
@@ -53,8 +54,8 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
   // Memoize filtered external bookings
   const currentMonthExternalBookings = useMemo(() => {
     return externalBookings.filter(booking => {
-      const startDate = new Date(booking.start_date);
-      const endDate = new Date(booking.end_date);
+      const startDate = parseDateOnly(booking.start_date);
+      const endDate = parseDateOnly(booking.end_date);
       
       return startDate <= dateInfo.monthEnd && endDate >= dateInfo.monthStart;
     });
@@ -62,14 +63,14 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
   
   const getBookingsForDate = useCallback((date: Date) => {
     return currentMonthBookings.filter(booking => {
-      const checkIn = parseISO(booking.check_in);
-      const checkOut = parseISO(booking.check_out);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
       return isSameDay(checkIn, date) || isSameDay(checkOut, date);
     });
   }, [currentMonthBookings]);
 
   const getExternalBookingsForDate = useCallback((date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = toDateOnlyString(date);
     return currentMonthExternalBookings.filter(booking => {
       return dateStr >= booking.start_date && dateStr <= booking.end_date;
     });
@@ -139,10 +140,10 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
           const dayBookings = getBookingsForDate(day);
           const dayExternalBookings = getExternalBookingsForDate(day);
           const checkInBookings = dayBookings.filter(booking => 
-            isSameDay(parseISO(booking.check_in), day)
+            isSameDay(parseDateOnly(booking.check_in), day)
           );
           const checkOutBookings = dayBookings.filter(booking => 
-            isSameDay(parseISO(booking.check_out), day)
+            isSameDay(parseDateOnly(booking.check_out), day)
           );
           
           const hasBookings = dayBookings.length > 0;

@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { CalendarIcon, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -28,7 +29,7 @@ export const BookingDatesFormWithValidation = ({
   excludeBookingId 
 }: BookingDatesFormWithValidationProps) => {
   const currentYear = new Date().getFullYear();
-  const currentDate = new Date().toISOString().split('T')[0];
+  const currentDate = todayDateOnly();
   const { checkDateConflict } = useBookingValidation();
   const [validation, setValidation] = useState<any>(null);
 
@@ -128,7 +129,7 @@ export const BookingDatesFormWithValidation = ({
               <div className="mt-2 space-y-1">
                 {validation.conflictingBookings.map((booking: any) => (
                   <div key={booking.id} className="text-xs p-2 bg-destructive/10 rounded">
-                    <strong>{booking.guest_name}</strong>: {format(parseISO(booking.check_in), 'dd/MM/yyyy', { locale: ptBR })} até {format(parseISO(booking.check_out), 'dd/MM/yyyy', { locale: ptBR })}
+                    <strong>{booking.guest_name}</strong>: {format(parseDateOnly(booking.check_in), 'dd/MM/yyyy', { locale: ptBR })} até {format(parseDateOnly(booking.check_out), 'dd/MM/yyyy', { locale: ptBR })}
                   </div>
                 ))}
               </div>

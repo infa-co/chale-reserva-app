@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -71,8 +72,8 @@ export const useExternalBookings = () => {
 
   const getExternalBookingsForDateRange = useCallback((startDate: Date, endDate: Date) => {
     return externalBookings.filter(booking => {
-      const bookingStart = new Date(booking.start_date);
-      const bookingEnd = new Date(booking.end_date);
+      const bookingStart = parseDateOnly(booking.start_date);
+      const bookingEnd = parseDateOnly(booking.end_date);
       
       // Check if booking overlaps with the date range
       return bookingStart <= endDate && bookingEnd >= startDate;
@@ -80,10 +81,10 @@ export const useExternalBookings = () => {
   }, [externalBookings]);
 
   const getExternalBookingsForDate = useCallback((date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = toDateOnlyString(date);
     return externalBookings.filter(booking => {
-      const bookingStart = new Date(booking.start_date);
-      const bookingEnd = new Date(booking.end_date);
+      const bookingStart = parseDateOnly(booking.start_date);
+      const bookingEnd = parseDateOnly(booking.end_date);
       const checkDate = new Date(dateStr);
       
       return checkDate >= bookingStart && checkDate <= bookingEnd;

@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -147,7 +148,7 @@ export const GuestInfoForm = ({ formData, onInputChange, onOpenWhatsApp }: Guest
             type="date"
             value={formData.birthDate}
             onChange={(e) => onInputChange('birthDate', e.target.value)}
-            max={new Date().toISOString().split('T')[0]}
+            max={todayDateOnly()}
             className="min-w-0"
           />
           <VoiceInputButton

@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Copy, MessageCircle, Calendar, DollarSign, User, Phone, Mail, MapPin, FileText, Trash2, CreditCard, Cake, Home } from 'lucide-react';
@@ -84,7 +85,7 @@ const BookingDetails = () => {
     }
     
     if (booking.phone) {
-      const message = `Olá ${booking.guest_name}! Confirmando sua reserva:\n\nCheck-in: ${format(parseISO(booking.check_in), "dd/MM/yyyy", { locale: ptBR })}\nCheck-out: ${format(parseISO(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}\nValor: R$ ${booking.total_value.toLocaleString('pt-BR')}\n\nQualquer dúvida, estarei aqui!`;
+      const message = `Olá ${booking.guest_name}! Confirmando sua reserva:\n\nCheck-in: ${format(parseDateOnly(booking.check_in), "dd/MM/yyyy", { locale: ptBR })}\nCheck-out: ${format(parseDateOnly(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}\nValor: R$ ${booking.total_value.toLocaleString('pt-BR')}\n\nQualquer dúvida, estarei aqui!`;
       
       if (isInIframe()) {
         const url = getWhatsAppUrl({ phone: booking.phone, message });
@@ -212,20 +213,20 @@ const BookingDetails = () => {
             <div className="text-center p-3 bg-success/10 rounded-lg">
               <p className="text-sm text-muted-foreground mb-1">Check-in</p>
               <p className="font-semibold text-sage-800">
-                {format(parseISO(booking.check_in), "dd/MM/yyyy", { locale: ptBR })}
+                {format(parseDateOnly(booking.check_in), "dd/MM/yyyy", { locale: ptBR })}
               </p>
               <p className="text-xs text-muted-foreground">
-                {format(parseISO(booking.check_in), "EEEE", { locale: ptBR })}
+                {format(parseDateOnly(booking.check_in), "EEEE", { locale: ptBR })}
               </p>
             </div>
             
             <div className="text-center p-3 bg-danger/10 rounded-lg">
               <p className="text-sm text-muted-foreground mb-1">Check-out</p>
               <p className="font-semibold text-sage-800">
-                {format(parseISO(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}
+                {format(parseDateOnly(booking.check_out), "dd/MM/yyyy", { locale: ptBR })}
               </p>
               <p className="text-xs text-muted-foreground">
-                {format(parseISO(booking.check_out), "EEEE", { locale: ptBR })}
+                {format(parseDateOnly(booking.check_out), "EEEE", { locale: ptBR })}
               </p>
             </div>
           </div>
@@ -239,10 +240,10 @@ const BookingDetails = () => {
             <div className="text-center p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-muted-foreground">Data da reserva</p>
               <p className="font-semibold text-sage-800">
-                {format(parseISO(booking.booking_date), "dd/MM/yyyy", { locale: ptBR })}
+                {format(parseDateOnly(booking.booking_date), "dd/MM/yyyy", { locale: ptBR })}
               </p>
               <p className="text-xs text-muted-foreground">
-                {format(parseISO(booking.booking_date), "EEEE", { locale: ptBR })}
+                {format(parseDateOnly(booking.booking_date), "EEEE", { locale: ptBR })}
               </p>
             </div>
           </div>

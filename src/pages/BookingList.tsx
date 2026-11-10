@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -26,15 +27,15 @@ const BookingList = () => {
 
   const filteredBookings = bookings
     .filter(booking => {
-      const checkInDate = parseISO(booking.check_in);
+      const checkInDate = parseDateOnly(booking.check_in);
       const isInCurrentMonth = isWithinInterval(checkInDate, { start: monthStart, end: monthEnd });
       const matchesSearch = booking.guest_name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
       return isInCurrentMonth && matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
-      const dateA = parseISO(a.check_in);
-      const dateB = parseISO(b.check_in);
+      const dateA = parseDateOnly(a.check_in);
+      const dateB = parseDateOnly(b.check_in);
       return sortOrder === 'asc' 
         ? dateA.getTime() - dateB.getTime()
         : dateB.getTime() - dateA.getTime();
@@ -194,7 +195,7 @@ const BookingList = () => {
                     <Calendar size={12} className="md:hidden flex-shrink-0" />
                     <Calendar size={14} className="hidden md:block flex-shrink-0" />
                     <span className="whitespace-nowrap">
-                      {format(parseISO(booking.check_in), "dd/MM", { locale: ptBR })} → {format(parseISO(booking.check_out), "dd/MM", { locale: ptBR })}
+                      {format(parseDateOnly(booking.check_in), "dd/MM", { locale: ptBR })} → {format(parseDateOnly(booking.check_out), "dd/MM", { locale: ptBR })}
                     </span>
                     <span className="text-xs whitespace-nowrap">({booking.nights} noites)</span>
                   </div>

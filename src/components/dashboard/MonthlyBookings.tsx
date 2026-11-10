@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -60,7 +61,7 @@ const MonthlyBookings = memo(({ bookings, month, title }: MonthlyBookingsProps) 
                   {booking.guest_name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {format(new Date(booking.check_in), 'dd/MM')} - {format(new Date(booking.check_out), 'dd/MM')}
+                  {format(parseDateOnly(booking.check_in), 'dd/MM')} - {format(parseDateOnly(booking.check_out), 'dd/MM')}
                 </p>
               </div>
               <div className={`status-badge ${getStatusColor(booking.status)}`}>

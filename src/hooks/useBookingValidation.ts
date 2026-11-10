@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useBookings } from '@/contexts/BookingContext';
 import { parseISO, isWithinInterval, isBefore, isAfter } from 'date-fns';
 
@@ -34,8 +35,8 @@ export const useBookingValidation = () => {
         return false;
       }
 
-      const existingCheckIn = parseISO(booking.check_in);
-      const existingCheckOut = parseISO(booking.check_out);
+      const existingCheckIn = parseDateOnly(booking.check_in);
+      const existingCheckOut = parseDateOnly(booking.check_out);
 
       // Verificar sobreposição de datas
       const hasOverlap = (

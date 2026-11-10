@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useMemo } from 'react';
 import { Booking } from '@/types/booking';
 import { startOfMonth, endOfMonth, parseISO } from 'date-fns';
@@ -9,8 +10,8 @@ export const useMonthlyStats = (allBookings: Booking[], currentBookings: Booking
 
     // Determine if a booking overlaps the selected month (by check-in/check-out)
     const overlapsMonth = (booking: Booking) => {
-      const checkIn = parseISO(booking.check_in);
-      const checkOut = parseISO(booking.check_out);
+      const checkIn = parseDateOnly(booking.check_in);
+      const checkOut = parseDateOnly(booking.check_out);
       return checkIn <= monthEnd && checkOut >= monthStart;
     };
 

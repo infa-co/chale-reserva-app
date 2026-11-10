@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
 import { useState, useEffect } from 'react';
 import { useBookings } from '@/contexts/BookingContext';
@@ -23,8 +24,8 @@ export const useNotifications = () => {
       const newNotifications: Notification[] = [];
 
       bookings.forEach(booking => {
-        const checkInDate = parseISO(booking.check_in);
-        const checkOutDate = parseISO(booking.check_out);
+        const checkInDate = parseDateOnly(booking.check_in);
+        const checkOutDate = parseDateOnly(booking.check_out);
         const today = new Date();
 
         // Check-in hoje

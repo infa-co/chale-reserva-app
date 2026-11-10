@@ -1,3 +1,4 @@
+import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 import { useState, useMemo, useCallback, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, MessageCircle, Calendar, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -63,12 +64,12 @@ const BookingCard = memo(({ booking, properties }: { booking: Booking; propertie
   );
 
   const checkInDate = useMemo(() => 
-    parseISO(booking.check_in),
+    parseDateOnly(booking.check_in),
     [booking.check_in]
   );
 
   const checkOutDate = useMemo(() => 
-    parseISO(booking.check_out),
+    parseDateOnly(booking.check_out),
     [booking.check_out]
   );
 
@@ -143,15 +144,15 @@ const OptimizedBookingList = memo(({ bookings }: OptimizedBookingListProps) => {
   const filteredBookings = useMemo(() => {
     return bookings
       .filter(booking => {
-        const checkInDate = parseISO(booking.check_in);
+        const checkInDate = parseDateOnly(booking.check_in);
         const isInCurrentMonth = isWithinInterval(checkInDate, { start: monthStart, end: monthEnd });
         const matchesSearch = booking.guest_name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
         return isInCurrentMonth && matchesSearch && matchesStatus;
       })
       .sort((a, b) => {
-        const dateA = parseISO(a.check_in);
-        const dateB = parseISO(b.check_in);
+        const dateA = parseDateOnly(a.check_in);
+        const dateB = parseDateOnly(b.check_in);
         return sortOrder === 'asc' 
           ? dateA.getTime() - dateB.getTime()
           : dateB.getTime() - dateA.getTime();
