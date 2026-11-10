@@ -5,6 +5,8 @@ import { useBookings } from '@/contexts/BookingContext';
 import { toast } from 'sonner';
 import { useEditBookingForm } from '@/hooks/useEditBookingForm';
 import { useBookingValidation } from '@/hooks/useBookingValidation';
+import { useStayConflict } from '@/hooks/useStayConflict';
+import { conflictMessage } from '@/lib/bookingConflicts';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
 import { BookingDatesFormWithValidation } from '@/components/forms/BookingDatesFormWithValidation';
 import { PaymentForm } from '@/components/forms/PaymentForm';
@@ -27,6 +29,8 @@ const EditBooking = () => {
     updateOriginalData
   } = useEditBookingForm(booking);
   const { checkDateConflict, validateBookingData } = useBookingValidation();
+  const stayConflict = useStayConflict(booking?.property_id, formData.checkIn, formData.checkOut, booking?.id);
+  const blockedByConflict = formData.status !== 'cancelled' && (stayConflict.checking || stayConflict.invalidDates || stayConflict.conflicts.length > 0);
 
   if (!booking) {
     return (
@@ -65,9 +69,8 @@ const EditBooking = () => {
       }
 
       // Verificar conflitos de data (excluindo a própria reserva)
-      const dateConflict = checkDateConflict(formData.checkIn, formData.checkOut, booking.id);
-      if (dateConflict?.hasConflict) {
-        toast.error(dateConflict.message);
+      if (blockedByConflict) {
+        toast.error(stayConflict.conflicts[0] ? conflictMessage(stayConflict.conflicts[0]) : 'O check-out precisa ser depois do check-in (mínimo 1 noite)');
         return;
       }
 
@@ -146,6 +149,7 @@ const EditBooking = () => {
           onInputChange={handleInputChange}
           nights={calculateNights()}
           excludeBookingId={booking.id}
+          conflict={stayConflict}
         />
 
         <PaymentForm
@@ -174,7 +178,7 @@ const EditBooking = () => {
           <Button
             type="submit"
             className="flex-1 bg-sage-600 hover:bg-sage-700"
-            disabled={!hasChanges || isLoading}
+            disabled={!hasChanges || isLoading || blockedByConflict}
           >
             {isLoading ? 'Salvando...' : 'Salvar Alterações'}
           </Button>

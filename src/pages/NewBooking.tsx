@@ -9,6 +9,8 @@ import { useBookings } from '@/contexts/BookingContext';
 import { toast } from 'sonner';
 import { useBookingForm } from '@/hooks/useBookingForm';
 import { useBookingValidation } from '@/hooks/useBookingValidation';
+import { useStayConflict } from '@/hooks/useStayConflict';
+import { conflictMessage } from '@/lib/bookingConflicts';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
 import { BookingDatesFormWithValidation } from '@/components/forms/BookingDatesFormWithValidation';
@@ -26,6 +28,8 @@ const NewBooking = () => {
   const { addBooking, bookings } = useBookings();
   const { formData, handleInputChange, calculateNights, openWhatsApp } = useBookingForm(propertyIdFromUrl || undefined);
   const { checkDateConflict, validateBookingData } = useBookingValidation();
+  const stayConflict = useStayConflict(formData.propertyId, formData.checkIn, formData.checkOut);
+  const blockedByConflict = stayConflict.checking || stayConflict.invalidDates || stayConflict.conflicts.length > 0;
   const { checkBookingLimit, limits } = usePlanRestrictions();
 
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -51,14 +55,8 @@ const NewBooking = () => {
     if (!formData.checkOut) newErrors.push('Data de check-out é obrigatória');
     if (!formData.propertyId) newErrors.push('Selecione uma propriedade');
 
-    if (formData.checkIn && formData.checkOut) {
-      const dateConflict = checkDateConflict(formData.checkIn, formData.checkOut);
-      if (dateConflict?.hasConflict && dateConflict.type === 'invalid_dates') {
-        newErrors.push(dateConflict.message);
-      } else if (dateConflict?.hasConflict && dateConflict.type === 'date_overlap') {
-        newWarnings.push(dateConflict.message);
-      }
-    }
+    if (stayConflict.invalidDates) newErrors.push('O check-out precisa ser depois do check-in (mínimo 1 noite)');
+    stayConflict.conflicts.forEach((c) => newErrors.push(conflictMessage(c)));
 
     // Soft warnings
     if (!formData.phone.trim()) newWarnings.push('Telefone não preenchido');
@@ -118,7 +116,7 @@ const NewBooking = () => {
     // Re-check only blocking errors
     const { errors: newErrors } = runValidation();
     setErrors(newErrors);
-    if (newErrors.length > 0) return;
+    if (newErrors.length > 0 || blockedByConflict) return;
     
     await doSubmit();
   };
@@ -193,6 +191,7 @@ const NewBooking = () => {
           }}
           onInputChange={handleInputChangeWrapped}
           nights={calculateNights()}
+          conflict={stayConflict}
         />
 
         <PaymentForm
@@ -238,6 +237,7 @@ const NewBooking = () => {
                 size="sm"
                 className="border-amber-400 text-amber-700 hover:bg-amber-100"
                 onClick={handleForceSubmit}
+                disabled={blockedByConflict}
               >
                 Salvar assim mesmo
               </Button>
@@ -257,6 +257,7 @@ const NewBooking = () => {
           <Button
             type="submit"
             className="flex-1 bg-sage-600 hover:bg-sage-700"
+            disabled={blockedByConflict}
           >
             Salvar Reserva
           </Button>
