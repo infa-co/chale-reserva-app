@@ -84,7 +84,7 @@ export const useOptimizedBookings = () => {
     },
     onError: (error) => {
       console.error('Error adding booking:', error);
-      toast.error('Erro ao criar reserva');
+      toast.error((error as any)?.code === '23P01' ? 'Esse chalé já está ocupado nessas noites.' : 'Erro ao criar reserva');
     }
   });
 
@@ -113,7 +113,7 @@ export const useOptimizedBookings = () => {
     onError: (error: any) => {
       console.error('Error updating booking:', error);
       const errorMessage = error?.message || 'Erro desconhecido';
-      toast.error(`Erro ao atualizar reserva: ${errorMessage}`);
+      toast.error((error as any)?.code === '23P01' ? 'Esse chalé já está ocupado nessas noites.' : `Erro ao atualizar reserva: ${errorMessage}`);
     }
   });
 
