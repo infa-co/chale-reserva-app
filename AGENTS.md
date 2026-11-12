@@ -4,3 +4,6 @@
 - Initialize trial access through a protected profile-insert trigger so clients cannot extend their own trial or grant access.
 - Keep access evaluation pure in the edge shared access module and cover entitlement boundaries with executable tests.- Booking dates are date-only strings; read/format them only via src/lib/dates (never new Date('YYYY-MM-DD') or toISOString) to avoid UTC day shifts.
 - Stay overlap rules ([check_in, check_out), cancelled ignored, Airbnb iCal included) live in src/lib/bookingConflicts; forms check via useStayConflict so UI and DB stay consistent.
+- Privileged role lookup lives in the non-exposed private schema; public wrappers are invoker-only and privileged trigger functions deny browser execution to prevent role escalation.
+- Calendar exports require a property-bound HMAC link and expose availability only; calendar imports allow recognized HTTPS provider hosts and validate every redirect to prevent data exposure and SSRF.
+- Edge diagnostics never serialize personal data; payment return origins and email HTML use shared security helpers to prevent untrusted redirects and markup injection.

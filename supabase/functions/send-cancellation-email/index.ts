@@ -1,3 +1,4 @@
+import { safeLog, trustedOrigin, escapeHtml } from "../_shared/security.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
@@ -9,10 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CANCELLATION-EMAIL] ${step}${detailsStr}`);
-};
+const logStep = (step: string, details?: unknown) => safeLog("SEND-CANCELLATION-EMAIL", step, details);
 
 interface CancellationEmailRequest {
   currentPeriodEnd: string;
@@ -22,13 +20,13 @@ const validateCancellationEmailInput = (data: any): CancellationEmailRequest => 
   if (!data || typeof data !== 'object') {
     throw new Error('Invalid request body');
   }
-  
+
   const { currentPeriodEnd } = data;
-  
+
   if (!currentPeriodEnd || typeof currentPeriodEnd !== 'string') {
     throw new Error('Invalid current period end date');
   }
-  
+
   return { currentPeriodEnd: currentPeriodEnd.trim() };
 };
 
@@ -52,10 +50,10 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    
+
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
-    
+
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const requestBody = await req.json();
@@ -70,7 +68,7 @@ serve(async (req) => {
 
     const userName = profile?.name || user.email.split('@')[0];
     const endDate = new Date(currentPeriodEnd).toLocaleDateString('pt-BR');
-    
+
     logStep("Sending cancellation email", { to: user.email, endDate });
 
     const emailResponse = await resend.emails.send({
@@ -86,9 +84,9 @@ serve(async (req) => {
           <title>Assinatura Cancelada</title>
         </head>
         <body style="font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #1F1F1F; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #F9F9F9;">
-          
+
           <div style="background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
-            
+
             <!-- Header com logo -->
             <div style="text-align: center; margin-bottom: 32px;">
               <div style="background: linear-gradient(135deg, #8B5A3C, #A0522D); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
@@ -103,7 +101,7 @@ serve(async (req) => {
                 😔 Assinatura Cancelada
               </h2>
               <p style="color: #666666; font-size: 16px; margin: 0;">
-                Olá, ${userName}. Confirmamos o cancelamento da sua assinatura do Ordomo.
+                Olá, ${escapeHtml(userName)}. Confirmamos o cancelamento da sua assinatura do Ordomo.
               </p>
             </div>
 
@@ -147,7 +145,7 @@ serve(async (req) => {
               <p style="color: #666666; margin: 0 0 16px 0;">
                 Seu feedback é muito importante para nós. O que podemos fazer melhor?
               </p>
-              <a href="https://wa.me/5511999999999?text=Cancelei%20minha%20assinatura%20do%20Ordomo%20porque..." 
+              <a href="https://wa.me/5511999999999?text=Cancelei%20minha%20assinatura%20do%20Ordomo%20porque..."
                  style="display: inline-block; background: linear-gradient(135deg, #8B5A3C, #A0522D); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">
                 💬 Enviar Feedback
               </a>
@@ -169,12 +167,12 @@ serve(async (req) => {
 
             <!-- Botões de ação -->
             <div style="text-align: center; margin-bottom: 32px;">
-              <a href="${req.headers.get("origin")}" 
+              <a href="${trustedOrigin(req.headers.get("origin"))}"
                  style="display: inline-block; background: linear-gradient(135deg, #8B5A3C, #A0522D); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 0 8px 12px 8px;">
                 🔄 Reativar Assinatura
               </a>
               <br>
-              <a href="${req.headers.get("origin")}/dashboard" 
+              <a href="${trustedOrigin(req.headers.get("origin"))}/dashboard"
                  style="display: inline-block; background-color: transparent; color: #8B5A3C; padding: 12px 24px; text-decoration: none; border: 2px solid #8B5A3C; border-radius: 8px; font-weight: 600; margin: 0 8px;">
                 📊 Acessar Dashboard
               </a>
@@ -194,7 +192,7 @@ serve(async (req) => {
             <div style="border-top: 1px solid #E5E7EB; padding-top: 24px; margin-bottom: 24px;">
               <h4 style="color: #1F1F1F; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">📞 Fale conosco:</h4>
               <ul style="color: #666666; padding-left: 20px; margin: 0;">
-                <li><a href="${req.headers.get("origin")}/legal/support" style="color: #8B5A3C; text-decoration: none;">Central de Ajuda</a></li>
+                <li><a href="${trustedOrigin(req.headers.get("origin"))}/legal/support" style="color: #8B5A3C; text-decoration: none;">Central de Ajuda</a></li>
                 <li><a href="mailto:support@ordomo.com" style="color: #8B5A3C; text-decoration: none;">Email: support@ordomo.com</a></li>
                 <li><a href="https://wa.me/5511999999999?text=Olá!%20Cancelei%20minha%20assinatura%20e%20gostaria%20de%20conversar." style="color: #8B5A3C; text-decoration: none;">WhatsApp: (11) 99999-9999</a></li>
               </ul>
@@ -208,8 +206,8 @@ serve(async (req) => {
               <p style="margin: 0; font-size: 12px; color: #999999;">
                 <strong>Ordomo</strong> - Gestão inteligente de hospedagem
                 <br>
-                <a href="${req.headers.get("origin")}/legal/privacy" style="color: #8B5A3C; text-decoration: none;">Política de Privacidade</a> | 
-                <a href="${req.headers.get("origin")}/legal/terms" style="color: #8B5A3C; text-decoration: none;">Termos de Uso</a>
+                <a href="${trustedOrigin(req.headers.get("origin"))}/legal/privacy" style="color: #8B5A3C; text-decoration: none;">Política de Privacidade</a> |
+                <a href="${trustedOrigin(req.headers.get("origin"))}/legal/terms" style="color: #8B5A3C; text-decoration: none;">Termos de Uso</a>
               </p>
             </div>
 
@@ -229,7 +227,7 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in send-cancellation-email", { message: errorMessage });
-    
+
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

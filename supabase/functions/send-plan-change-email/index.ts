@@ -1,3 +1,4 @@
+import { safeLog, trustedOrigin, escapeHtml } from "../_shared/security.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
@@ -9,10 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[PLAN-CHANGE-EMAIL] ${step}${detailsStr}`);
-};
+const logStep = (step: string, details?: unknown) => safeLog("SEND-PLAN-CHANGE-EMAIL", step, details);
 
 interface PlanChangeEmailRequest {
   oldPlan: string;
@@ -25,28 +23,28 @@ const validatePlanChangeEmailInput = (data: any): PlanChangeEmailRequest => {
   if (!data || typeof data !== 'object') {
     throw new Error('Invalid request body');
   }
-  
+
   const { oldPlan, newPlan, newPrice, changeType } = data;
-  
+
   if (!oldPlan || typeof oldPlan !== 'string' || oldPlan.length > 50) {
     throw new Error('Invalid old plan name');
   }
-  
+
   if (!newPlan || typeof newPlan !== 'string' || newPlan.length > 50) {
     throw new Error('Invalid new plan name');
   }
-  
+
   if (!newPrice || typeof newPrice !== 'string' || newPrice.length > 20) {
     throw new Error('Invalid new plan price');
   }
-  
+
   if (!changeType || !['upgrade', 'downgrade'].includes(changeType)) {
     throw new Error('Invalid change type');
   }
-  
-  return { 
-    oldPlan: oldPlan.trim(), 
-    newPlan: newPlan.trim(), 
+
+  return {
+    oldPlan: oldPlan.trim(),
+    newPlan: newPlan.trim(),
     newPrice: newPrice.trim(),
     changeType
   };
@@ -72,10 +70,10 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    
+
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
-    
+
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const requestBody = await req.json();
@@ -89,7 +87,7 @@ serve(async (req) => {
       .single();
 
     const userName = profile?.name || user.email.split('@')[0];
-    
+
     logStep("Sending plan change email", { to: user.email, changeType, oldPlan, newPlan });
 
     const isUpgrade = changeType === 'upgrade';
@@ -109,9 +107,9 @@ serve(async (req) => {
           <title>Mudança de Plano</title>
         </head>
         <body style="font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #1F1F1F; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #F9F9F9;">
-          
+
           <div style="background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
-            
+
             <!-- Header com logo -->
             <div style="text-align: center; margin-bottom: 32px;">
               <div style="background: linear-gradient(135deg, #8B5A3C, #A0522D); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
@@ -126,7 +124,7 @@ serve(async (req) => {
                 ${changeIcon} ${changeText} de Plano Confirmado!
               </h2>
               <p style="color: #666666; font-size: 16px; margin: 0;">
-                Olá, ${userName}! Sua mudança de plano foi processada com sucesso.
+                Olá, ${escapeHtml(userName)}! Sua mudança de plano foi processada com sucesso.
               </p>
             </div>
 
@@ -134,9 +132,9 @@ serve(async (req) => {
             <div style="background-color: #F8F9FA; padding: 24px; border-radius: 8px; margin-bottom: 32px; border-left: 4px solid ${isUpgrade ? '#10B981' : '#F59E0B'};">
               <h3 style="color: #1F1F1F; margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">📋 Detalhes da mudança:</h3>
               <div style="margin-bottom: 16px;">
-                <p style="margin: 4px 0; color: #666666;"><strong>Plano anterior:</strong> ${oldPlan}</p>
-                <p style="margin: 4px 0; color: #666666;"><strong>Novo plano:</strong> ${newPlan}</p>
-                <p style="margin: 4px 0; color: #666666;"><strong>Novo valor:</strong> ${newPrice}</p>
+                <p style="margin: 4px 0; color: #666666;"><strong>Plano anterior:</strong> ${escapeHtml(oldPlan)}</p>
+                <p style="margin: 4px 0; color: #666666;"><strong>Novo plano:</strong> ${escapeHtml(newPlan)}</p>
+                <p style="margin: 4px 0; color: #666666;"><strong>Novo valor:</strong> ${escapeHtml(newPrice)}</p>
                 <p style="margin: 4px 0; color: #666666;"><strong>Data da mudança:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
               </div>
             </div>
@@ -174,12 +172,12 @@ serve(async (req) => {
 
             <!-- Botões de ação -->
             <div style="text-align: center; margin-bottom: 32px;">
-              <a href="${req.headers.get("origin")}/dashboard" 
+              <a href="${trustedOrigin(req.headers.get("origin"))}/dashboard"
                  style="display: inline-block; background: linear-gradient(135deg, #8B5A3C, #A0522D); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 0 8px 12px 8px;">
                 🏠 Acessar Dashboard
               </a>
               <br>
-              <a href="${req.headers.get("origin")}/settings" 
+              <a href="${trustedOrigin(req.headers.get("origin"))}/settings"
                  style="display: inline-block; background-color: transparent; color: #8B5A3C; padding: 12px 24px; text-decoration: none; border: 2px solid #8B5A3C; border-radius: 8px; font-weight: 600; margin: 0 8px;">
                 ⚙️ Gerenciar Assinatura
               </a>
@@ -189,8 +187,8 @@ serve(async (req) => {
             <div style="border-top: 1px solid #E5E7EB; padding-top: 24px; margin-bottom: 24px;">
               <h4 style="color: #1F1F1F; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">🔗 Links úteis:</h4>
               <ul style="color: #666666; padding-left: 20px; margin: 0;">
-                <li><a href="${req.headers.get("origin")}/legal/support" style="color: #8B5A3C; text-decoration: none;">Central de Ajuda</a></li>
-                <li><a href="${req.headers.get("origin")}/settings" style="color: #8B5A3C; text-decoration: none;">Configurações da Conta</a></li>
+                <li><a href="${trustedOrigin(req.headers.get("origin"))}/legal/support" style="color: #8B5A3C; text-decoration: none;">Central de Ajuda</a></li>
+                <li><a href="${trustedOrigin(req.headers.get("origin"))}/settings" style="color: #8B5A3C; text-decoration: none;">Configurações da Conta</a></li>
                 <li><a href="https://wa.me/5511999999999?text=Olá!%20Preciso%20de%20ajuda%20com%20mudança%20de%20plano." style="color: #8B5A3C; text-decoration: none;">Suporte via WhatsApp</a></li>
               </ul>
             </div>
@@ -203,8 +201,8 @@ serve(async (req) => {
               <p style="margin: 0; font-size: 12px; color: #999999;">
                 <strong>Ordomo</strong> - Gestão inteligente de hospedagem
                 <br>
-                <a href="${req.headers.get("origin")}/legal/privacy" style="color: #8B5A3C; text-decoration: none;">Política de Privacidade</a> | 
-                <a href="${req.headers.get("origin")}/legal/terms" style="color: #8B5A3C; text-decoration: none;">Termos de Uso</a>
+                <a href="${trustedOrigin(req.headers.get("origin"))}/legal/privacy" style="color: #8B5A3C; text-decoration: none;">Política de Privacidade</a> |
+                <a href="${trustedOrigin(req.headers.get("origin"))}/legal/terms" style="color: #8B5A3C; text-decoration: none;">Termos de Uso</a>
               </p>
             </div>
 
@@ -224,7 +222,7 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in send-plan-change-email", { message: errorMessage });
-    
+
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

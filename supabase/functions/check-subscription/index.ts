@@ -1,3 +1,4 @@
+import { safeLog, trustedOrigin, escapeHtml } from "../_shared/security.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
@@ -8,10 +9,7 @@ const corsHeaders = {
 };
 
 // Helper logging function for enhanced debugging
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
-};
+const logStep = (step: string, details?: unknown) => safeLog("CHECK-SUBSCRIPTION", step, details);
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {

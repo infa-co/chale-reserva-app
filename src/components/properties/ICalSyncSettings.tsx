@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,17 +24,17 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
   const activeSyncs = syncs.filter(sync => sync.is_active);
   const totalSyncs = syncs.length;
 
-  const generateExportUrl = (propertyId: string) => {
-    return `https://lwmwwsthduvmuyhynwol.supabase.co/functions/v1/export-ical?property_id=${propertyId}`;
-  };
-
-  const copyToClipboard = async (text: string, propertyName: string) => {
+  const [copyingProperty, setCopyingProperty] = useState<string | null>(null);
+  const copyExportUrl = async (propertyId: string, propertyName: string) => {
+    setCopyingProperty(propertyId);
     try {
-      await navigator.clipboard.writeText(text);
+      const { data, error } = await supabase.functions.invoke(`export-ical?property_id=${propertyId}`, { method: 'POST' });
+      if (error || !data?.url) throw new Error('Link indisponível');
+      await navigator.clipboard.writeText(data.url);
       toast.success(`URL copiada para ${propertyName}!`);
-    } catch (err) {
-      toast.error('Erro ao copiar URL');
-    }
+    } catch {
+      toast.error('Não foi possível copiar o link seguro');
+    } finally { setCopyingProperty(null); }
   };
 
   if (loading) {
@@ -76,7 +78,7 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
               <div className="space-y-3">
                 {properties.length > 0 ? (
                   properties.map((property) => {
-                    const exportUrl = generateExportUrl(property.id);
+
                     return (
                       <div key={property.id} className={`${isMobile ? 'p-3' : 'p-3'} border rounded-lg bg-card`}>
                         <div className={`flex items-center justify-between mb-2 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
@@ -87,10 +89,11 @@ const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
                         </div>
                         <div className={`${isMobile ? 'space-y-2' : 'flex gap-2'}`}>
                           <div className={`${isMobile ? 'w-full' : 'flex-1'} p-2 bg-muted rounded text-xs font-mono ${isMobile ? 'break-all' : 'truncate'}`}>
-                            {exportUrl}
+                            Link seguro do calendário
                           </div>
                           <Button
-                            onClick={() => copyToClipboard(exportUrl, property.name)}
+                            onClick={() => copyExportUrl(property.id, property.name)}
+                            disabled={copyingProperty !== null}
                             size={isMobile ? "default" : "sm"}
                             variant="outline"
                             className={isMobile ? "w-full" : ""}

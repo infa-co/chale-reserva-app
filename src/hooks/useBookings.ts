@@ -118,15 +118,7 @@ export const useBookings = () => {
 
           await supabase.functions.invoke('send-booking-confirmation-guest', {
             body: {
-              guestEmail: bookingData.guest_email,
-              guestName: bookingData.guest_name,
-              propertyName: propertyData?.name || 'Propriedade',
-              checkIn: bookingData.check_in,
-              checkOut: bookingData.check_out,
-              nights: bookingData.nights,
-              totalValue: bookingData.total_value,
-              notes: bookingData.notes || '',
-              hostPhone: bookingData.phone || '' // Using guest phone as contact
+              bookingId: data.id
             },
             headers: {
               Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,

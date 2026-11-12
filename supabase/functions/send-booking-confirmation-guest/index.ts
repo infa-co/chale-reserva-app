@@ -1,3 +1,5 @@
+import { ownedBookingRecipient, formatBookingDate } from "../_shared/security.ts";
+import { safeLog, trustedOrigin, escapeHtml } from "../_shared/security.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
@@ -9,10 +11,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[BOOKING-CONFIRMATION-GUEST] ${step}${detailsStr}`);
-};
+const logStep = (step: string, details?: unknown) => safeLog("SEND-BOOKING-CONFIRMATION-GUEST", step, details);
 
 interface BookingConfirmationRequest {
   guestEmail: string;
@@ -85,15 +84,15 @@ serve(async (req) => {
     );
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header");
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Não autorizado' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     logStep("Authorization header found");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     
-    if (userError) throw userError;
+    if (userError) return new Response(JSON.stringify({ error: 'Não autorizado' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     const user = userData.user;
     if (!user) {
       throw new Error("User not found");
@@ -101,33 +100,18 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id });
 
     const body = await req.json();
-    const { 
-      guestEmail, 
-      guestName, 
-      propertyName, 
-      checkIn, 
-      checkOut, 
-      nights, 
-      totalValue, 
-      notes,
-      hostPhone 
-    } = validateBookingConfirmationInput(body);
-    
-    logStep("Request validated", { guestEmail, propertyName });
-
-    const checkInDate = new Date(checkIn).toLocaleDateString('pt-BR', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+    if (typeof body.bookingId !== 'string') return new Response(JSON.stringify({ error: 'bookingId obrigatório' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    const ownedClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', { global: { headers: { Authorization: authHeader } } });
+    const { data: booking, error: bookingError } = await ownedClient.from('bookings').select('*').eq('id', body.bookingId).eq('user_id', user.id).single();
+    if (bookingError || !booking) return new Response(JSON.stringify({ error: 'Reserva indisponível' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    const guestEmail = ownedBookingRecipient(booking, user.id);
+    const { data: property } = await ownedClient.from('properties').select('name').eq('id', booking.property_id ?? '').eq('user_id', user.id).maybeSingle();
+    const { guestName, propertyName, checkIn, checkOut, nights, totalValue, notes, hostPhone } = validateBookingConfirmationInput({
+      guestEmail, guestName: booking.guest_name, propertyName: property?.name || 'Propriedade', checkIn: booking.check_in, checkOut: booking.check_out,
+      nights: booking.nights, totalValue: Number(booking.total_value), notes: booking.notes || '', hostPhone: ''
     });
-
-    const checkOutDate = new Date(checkOut).toLocaleDateString('pt-BR', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    });
+    const checkInDate = formatBookingDate(checkIn);
+    const checkOutDate = formatBookingDate(checkOut);
 
     const formattedValue = new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -137,7 +121,7 @@ serve(async (req) => {
     const { error: emailError, data: emailData } = await resend.emails.send({
       from: "Ordomo <reservas@ordomo.com.br>",
       to: [guestEmail],
-      subject: `✅ Confirmação de Reserva - ${propertyName}`,
+      subject: `✅ Confirmação de Reserva - ${propertyName.replace(/[\r\n]/g, " ")}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -152,7 +136,7 @@ serve(async (req) => {
             </div>
             
             <div style="background: #ffffff; padding: 40px 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 10px 10px;">
-              <p style="font-size: 16px; margin-bottom: 20px;">Olá ${guestName},</p>
+              <p style="font-size: 16px; margin-bottom: 20px;">Olá ${escapeHtml(guestName)},</p>
               
               <p style="font-size: 16px; margin-bottom: 25px;">
                 Sua reserva foi confirmada com sucesso! 🎉 Estamos ansiosos para recebê-lo(a).
@@ -160,7 +144,7 @@ serve(async (req) => {
 
               <div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 30px 0; border-radius: 5px;">
                 <h2 style="margin: 0 0 15px 0; font-size: 18px; color: #667eea;">📋 Detalhes da Reserva</h2>
-                <p style="margin: 8px 0;"><strong>Propriedade:</strong> ${propertyName}</p>
+                <p style="margin: 8px 0;"><strong>Propriedade:</strong> ${escapeHtml(propertyName)}</p>
                 <p style="margin: 8px 0;"><strong>Check-in:</strong> ${checkInDate}</p>
                 <p style="margin: 8px 0;"><strong>Check-out:</strong> ${checkOutDate}</p>
                 <p style="margin: 8px 0;"><strong>Noites:</strong> ${nights}</p>
@@ -170,7 +154,7 @@ serve(async (req) => {
               ${notes ? `
                 <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 15px; margin: 30px 0;">
                   <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #856404;">📝 Observações Importantes:</h3>
-                  <p style="margin: 0; font-size: 14px; color: #856404; white-space: pre-line;">${notes}</p>
+                  <p style="margin: 0; font-size: 14px; color: #856404; white-space: pre-line;">${escapeHtml(notes)}</p>
                 </div>
               ` : ''}
 
@@ -197,7 +181,7 @@ serve(async (req) => {
                     <strong>💬 Contato do Anfitrião</strong>
                   </p>
                   <p style="margin: 0; font-size: 14px; color: #2e7d32;">
-                    WhatsApp: <a href="https://wa.me/${hostPhone.replace(/\D/g, '')}" style="color: #2e7d32; font-weight: bold;">${hostPhone}</a>
+                    WhatsApp: <a href="https://wa.me/${hostPhone.replace(/\D/g, '')}" style="color: #2e7d32; font-weight: bold;">${escapeHtml(hostPhone)}</a>
                   </p>
                   <p style="margin: 10px 0 0 0; font-size: 12px; color: #2e7d32;">
                     Entre em contato para dúvidas ou informações adicionais

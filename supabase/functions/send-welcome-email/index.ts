@@ -1,3 +1,4 @@
+import { safeLog, trustedOrigin, escapeHtml } from "../_shared/security.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@4.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
@@ -9,10 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[WELCOME-EMAIL] ${step}${detailsStr}`);
-};
+const logStep = (step: string, details?: unknown) => safeLog("SEND-WELCOME-EMAIL", step, details);
 
 interface WelcomeEmailRequest {
   planName: string;
@@ -24,17 +22,17 @@ const validateWelcomeEmailInput = (data: any): WelcomeEmailRequest => {
   if (!data || typeof data !== 'object') {
     throw new Error('Invalid request body');
   }
-  
+
   const { planName, planPrice } = data;
-  
+
   if (!planName || typeof planName !== 'string' || planName.length > 50) {
     throw new Error('Invalid plan name');
   }
-  
+
   if (!planPrice || typeof planPrice !== 'string' || planPrice.length > 20) {
     throw new Error('Invalid plan price');
   }
-  
+
   return { planName: planName.trim(), planPrice: planPrice.trim() };
 };
 
@@ -58,10 +56,10 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    
+
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
-    
+
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const requestBody = await req.json();
@@ -75,13 +73,13 @@ serve(async (req) => {
       .single();
 
     const userName = profile?.name || user.email.split('@')[0];
-    
+
     logStep("Sending welcome email", { to: user.email, plan: planName });
 
     const emailResponse = await resend.emails.send({
       from: "Ordomo <welcome@ordomo.com.br>",
       to: [user.email],
-      subject: `🎉 Bem-vindo ao Ordomo ${planName}!`,
+      subject: `🎉 Bem-vindo ao Ordomo ${escapeHtml(planName)}!`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -91,9 +89,9 @@ serve(async (req) => {
           <title>Bem-vindo ao Ordomo</title>
         </head>
         <body style="font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #1F1F1F; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #F9F9F9;">
-          
+
           <div style="background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
-            
+
             <!-- Header com logo -->
             <div style="text-align: center; margin-bottom: 32px;">
               <div style="background: linear-gradient(135deg, #8B5A3C, #A0522D); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
@@ -105,18 +103,18 @@ serve(async (req) => {
             <!-- Mensagem principal -->
             <div style="text-align: center; margin-bottom: 32px;">
               <h2 style="color: #1F1F1F; margin: 0 0 16px 0; font-size: 24px; font-weight: 600;">
-                🎉 Parabéns, ${userName}!
+                🎉 Parabéns, ${escapeHtml(userName)}!
               </h2>
               <p style="color: #666666; font-size: 16px; margin: 0;">
-                Sua assinatura do <strong>Ordomo ${planName}</strong> foi ativada com sucesso!
+                Sua assinatura do <strong>Ordomo ${escapeHtml(planName)}</strong> foi ativada com sucesso!
               </p>
             </div>
 
             <!-- Detalhes do plano -->
             <div style="background-color: #F8F9FA; padding: 24px; border-radius: 8px; margin-bottom: 32px; border-left: 4px solid #8B5A3C;">
               <h3 style="color: #1F1F1F; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;">Detalhes da sua assinatura:</h3>
-              <p style="margin: 4px 0; color: #666666;"><strong>Plano:</strong> ${planName}</p>
-              <p style="margin: 4px 0; color: #666666;"><strong>Valor:</strong> ${planPrice}</p>
+              <p style="margin: 4px 0; color: #666666;"><strong>Plano:</strong> ${escapeHtml(planName)}</p>
+              <p style="margin: 4px 0; color: #666666;"><strong>Valor:</strong> ${escapeHtml(planPrice)}</p>
               <p style="margin: 4px 0; color: #666666;"><strong>Status:</strong> ✅ Ativo</p>
             </div>
 
@@ -133,12 +131,12 @@ serve(async (req) => {
 
             <!-- Botões de ação -->
             <div style="text-align: center; margin-bottom: 32px;">
-              <a href="${req.headers.get("origin")}/dashboard" 
+              <a href="${trustedOrigin(req.headers.get("origin"))}/dashboard"
                  style="display: inline-block; background: linear-gradient(135deg, #8B5A3C, #A0522D); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 0 8px 12px 8px;">
                 🏠 Acessar Dashboard
               </a>
               <br>
-              <a href="${req.headers.get("origin")}/properties" 
+              <a href="${trustedOrigin(req.headers.get("origin"))}/properties"
                  style="display: inline-block; background-color: transparent; color: #8B5A3C; padding: 12px 24px; text-decoration: none; border: 2px solid #8B5A3C; border-radius: 8px; font-weight: 600; margin: 0 8px;">
                 ⚙️ Configurar Propriedades
               </a>
@@ -148,8 +146,8 @@ serve(async (req) => {
             <div style="border-top: 1px solid #E5E7EB; padding-top: 24px; margin-bottom: 24px;">
               <h4 style="color: #1F1F1F; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">🔗 Links úteis:</h4>
               <ul style="color: #666666; padding-left: 20px; margin: 0;">
-                <li><a href="${req.headers.get("origin")}/legal/support" style="color: #8B5A3C; text-decoration: none;">Central de Ajuda</a></li>
-                <li><a href="${req.headers.get("origin")}/settings" style="color: #8B5A3C; text-decoration: none;">Configurações da Conta</a></li>
+                <li><a href="${trustedOrigin(req.headers.get("origin"))}/legal/support" style="color: #8B5A3C; text-decoration: none;">Central de Ajuda</a></li>
+                <li><a href="${trustedOrigin(req.headers.get("origin"))}/settings" style="color: #8B5A3C; text-decoration: none;">Configurações da Conta</a></li>
                 <li><a href="https://wa.me/5511999999999?text=Olá!%20Preciso%20de%20ajuda%20com%20o%20Ordomo." style="color: #8B5A3C; text-decoration: none;">Suporte via WhatsApp</a></li>
               </ul>
             </div>
@@ -162,8 +160,8 @@ serve(async (req) => {
               <p style="margin: 0; font-size: 12px; color: #999999;">
                 <strong>Ordomo</strong> - Gestão inteligente de hospedagem
                 <br>
-                <a href="${req.headers.get("origin")}/legal/privacy" style="color: #8B5A3C; text-decoration: none;">Política de Privacidade</a> | 
-                <a href="${req.headers.get("origin")}/legal/terms" style="color: #8B5A3C; text-decoration: none;">Termos de Uso</a>
+                <a href="${trustedOrigin(req.headers.get("origin"))}/legal/privacy" style="color: #8B5A3C; text-decoration: none;">Política de Privacidade</a> |
+                <a href="${trustedOrigin(req.headers.get("origin"))}/legal/terms" style="color: #8B5A3C; text-decoration: none;">Termos de Uso</a>
               </p>
             </div>
 
@@ -183,7 +181,7 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in send-welcome-email", { message: errorMessage });
-    
+
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

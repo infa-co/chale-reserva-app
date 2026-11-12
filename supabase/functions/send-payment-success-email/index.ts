@@ -1,3 +1,4 @@
+import { safeLog, trustedOrigin, escapeHtml } from "../_shared/security.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
@@ -9,10 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[PAYMENT-SUCCESS-EMAIL] ${step}${detailsStr}`);
-};
+const logStep = (step: string, details?: unknown) => safeLog("SEND-PAYMENT-SUCCESS-EMAIL", step, details);
 
 interface PaymentSuccessEmailRequest {
   planName: string;
@@ -99,7 +97,7 @@ serve(async (req) => {
     const { error: emailError, data: emailData } = await resend.emails.send({
       from: "Ordomo <billing@ordomo.com.br>",
       to: [user.email],
-      subject: `✅ Pagamento Confirmado - Bem-vindo ao Plano ${planName}!`,
+      subject: `✅ Pagamento Confirmado - Bem-vindo ao Plano ${escapeHtml(planName)}!`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -114,16 +112,16 @@ serve(async (req) => {
             </div>
             
             <div style="background: #ffffff; padding: 40px 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 10px 10px;">
-              <p style="font-size: 16px; margin-bottom: 20px;">Olá ${userName},</p>
+              <p style="font-size: 16px; margin-bottom: 20px;">Olá ${escapeHtml(userName)},</p>
               
               <p style="font-size: 16px; margin-bottom: 25px;">
-                Seu pagamento foi processado com sucesso! 🎊 Bem-vindo ao <strong>Plano ${planName}</strong> do Ordomo.
+                Seu pagamento foi processado com sucesso! 🎊 Bem-vindo ao <strong>Plano ${escapeHtml(planName)}</strong> do Ordomo.
               </p>
 
               <div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 30px 0; border-radius: 5px;">
                 <h2 style="margin: 0 0 15px 0; font-size: 18px; color: #667eea;">📋 Detalhes da Assinatura</h2>
-                <p style="margin: 8px 0;"><strong>Plano:</strong> ${planName}</p>
-                <p style="margin: 8px 0;"><strong>Valor:</strong> ${planPrice}</p>
+                <p style="margin: 8px 0;"><strong>Plano:</strong> ${escapeHtml(planName)}</p>
+                <p style="margin: 8px 0;"><strong>Valor:</strong> ${escapeHtml(planPrice)}</p>
                 <p style="margin: 8px 0;"><strong>Renovação:</strong> ${formattedDate}</p>
               </div>
 

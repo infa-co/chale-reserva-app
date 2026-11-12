@@ -1,3 +1,4 @@
+import { fetchCalendar } from "../_shared/security.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -100,16 +101,8 @@ async function syncICalendar(supabase: any, syncId: string) {
       return;
     }
 
-    console.log(`Fetching iCal from: ${syncConfig.ical_url}`);
-    
-    const response = await fetch(syncConfig.ical_url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch iCal: ${response.statusText}`);
-    }
-    
-    const icalText = await response.text();
-    console.log(`Fetched iCal data, length: ${icalText.length}`);
-    
+    const icalText = await fetchCalendar(syncConfig.ical_url);
+
     const events = parseICalData(icalText);
     console.log(`Parsed ${events.length} events`);
     
@@ -145,17 +138,14 @@ async function syncICalendar(supabase: any, syncId: string) {
       const startDate = parseICalDate(event.dtstart);
       const endDate = parseICalDate(event.dtend);
       
-      if (!event.dtstart.includes('T')) {
-        endDate.setDate(endDate.getDate() - 1);
-      }
       
       return {
         user_id: syncConfig.user_id,
         ical_sync_id: syncId,
         external_id: event.uid,
         summary: event.summary || 'Reserva via ' + syncConfig.platform_name,
-        start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
+        start_date: `${event.dtstart.slice(0,4)}-${event.dtstart.slice(4,6)}-${event.dtstart.slice(6,8)}`,
+        end_date: `${event.dtend.slice(0,4)}-${event.dtend.slice(4,6)}-${event.dtend.slice(6,8)}`,
         platform_name: syncConfig.platform_name,
         raw_ical_data: JSON.stringify(event)
       };
@@ -206,27 +196,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create an authenticated client to verify the user
-    const supabaseAuth = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    const token = authHeader.slice(7);
+    const internal = token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    let userId: string | undefined;
+    if (!internal) {
+      const auth = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '');
+      const { data, error } = await auth.auth.getUser(token);
+      if (error || !data.user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      userId = data.user.id;
     }
-
-    const userId = claimsData.claims.sub;
 
     const { sync_id } = await req.json();
     
-    if (!sync_id) {
+    if (typeof sync_id !== 'string' || !/^[0-9a-f-]{36}$/i.test(sync_id)) {
       return new Response(
         JSON.stringify({ error: 'sync_id is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -239,19 +221,9 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Verify ownership: caller must own the sync configuration
-    const { data: syncOwnership, error: ownershipError } = await supabase
-      .from('ical_syncs')
-      .select('id')
-      .eq('id', sync_id)
-      .eq('user_id', userId)
-      .single();
-
-    if (ownershipError || !syncOwnership) {
-      return new Response(
-        JSON.stringify({ error: 'Forbidden: you do not own this sync configuration' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!internal) {
+      const { data: owned, error } = await supabase.from('ical_syncs').select('id').eq('id', sync_id).eq('user_id', userId).maybeSingle();
+      if (error || !owned) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     const result = await syncICalendar(supabase, sync_id);

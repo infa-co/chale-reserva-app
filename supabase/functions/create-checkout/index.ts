@@ -1,3 +1,4 @@
+import { trustedOrigin, safeLog } from "../_shared/security.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
@@ -18,56 +19,56 @@ serve(async (req) => {
   );
 
   try {
-    console.log("Create checkout function started");
+    safeLog("CREATE-CHECKOUT", "Create checkout function started");
     
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      console.log("No authorization header provided");
+      safeLog("CREATE-CHECKOUT", "No authorization header provided");
       throw new Error("Authorization header is required");
     }
     
     const token = authHeader.replace("Bearer ", "");
-    console.log("Getting user with token");
+    safeLog("CREATE-CHECKOUT", "Getting user with token");
     
     const { data, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) {
-      console.log("User authentication error:", userError);
+      safeLog("CREATE-CHECKOUT", "User authentication error:");
       throw new Error(`Authentication failed: ${userError.message}`);
     }
     
     const user = data.user;
     if (!user?.email) {
-      console.log("User not found or email missing");
+      safeLog("CREATE-CHECKOUT", "User not found or email missing");
       throw new Error("User not authenticated or email not available");
     }
     
-    console.log("User authenticated:", user.email);
+    safeLog("CREATE-CHECKOUT", "User authenticated:");
 
     const requestBody = await req.json();
     const { priceId } = requestBody;
-    console.log("Request body:", requestBody);
+    safeLog("CREATE-CHECKOUT", "Request body:");
     
     if (!priceId) {
-      console.log("Price ID missing from request");
+      safeLog("CREATE-CHECKOUT", "Price ID missing from request");
       throw new Error("Price ID is required");
     }
     
-    console.log("Creating Stripe client");
+    safeLog("CREATE-CHECKOUT", "Creating Stripe client");
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { 
       apiVersion: "2025-08-27.basil" 
     });
 
-    console.log("Checking for existing customer:", user.email);
+    safeLog("CREATE-CHECKOUT", "Checking for existing customer:");
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
-      console.log("Found existing customer:", customerId);
+      safeLog("CREATE-CHECKOUT", "Found existing customer:");
     } else {
-      console.log("No existing customer found");
+      safeLog("CREATE-CHECKOUT", "No existing customer found");
     }
 
-    console.log("Creating checkout session with priceId:", priceId);
+    safeLog("CREATE-CHECKOUT", "Creating checkout session with priceId:");
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -81,17 +82,17 @@ serve(async (req) => {
       subscription_data: {
         trial_period_days: 7,
       },
-      success_url: `${req.headers.get("origin")}/onboarding?from_payment=true`,
-      cancel_url: `${req.headers.get("origin")}/payment-canceled`,
+      success_url: `${trustedOrigin(req.headers.get("origin"))}/onboarding?from_payment=true`,
+      cancel_url: `${trustedOrigin(req.headers.get("origin"))}/payment-canceled`,
     });
 
-    console.log("Checkout session created successfully:", session.id);
+    safeLog("CREATE-CHECKOUT", "Checkout session created successfully:");
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    console.error("Error in create-checkout:", error);
+    safeLog("CREATE-CHECKOUT", "Error in create-checkout:");
     return new Response(JSON.stringify({ error: error instanceof Error ? error.message : String(error) }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
