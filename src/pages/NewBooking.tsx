@@ -69,7 +69,8 @@ const NewBooking = () => {
   const doSubmit = async () => {
     const nights = calculateNights();
 
-    await addBooking({
+    try {
+      await addBooking({
       property_id: formData.propertyId,
       guest_name: formData.guestName.trim(),
       phone: formData.phone.trim(),
@@ -86,7 +87,11 @@ const NewBooking = () => {
       payment_method: formData.paymentMethod || 'Não informado',
       status: formData.status,
       notes: formData.notes?.trim() || undefined
-    });
+      });
+    } catch {
+      // Not saved (the hook already explained why); stay on the form so nothing is lost.
+      return;
+    }
 
     navigate('/dashboard');
   };

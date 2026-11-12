@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
 }
 
 async function triggerScheduledSyncs(supabase: any) {
@@ -36,8 +36,9 @@ async function triggerScheduledSyncs(supabase: any) {
 
     console.log(`${syncsToTrigger.length} syncs need to be triggered`);
 
-    // Trigger sync for each qualifying sync
-    const syncPromises = syncsToTrigger.map(async (sync: any) => {
+    // Trigger sync for each qualifying sync, a few at a time so one slow calendar
+    // cannot make the whole run time out.
+    const runSync = async (sync: any) => {
       try {
         console.log(`Triggering sync for sync_id: ${sync.id}`);
         
@@ -46,18 +47,21 @@ async function triggerScheduledSyncs(supabase: any) {
         });
 
         if (syncError) {
-          console.error(`Error triggering sync for ${sync.id}:`, syncError);
+          console.error(`Error triggering sync for ${sync.id}:`, syncError.message);
           return { sync_id: sync.id, success: false, error: syncError.message };
         }
 
         return { sync_id: sync.id, success: true };
       } catch (error) {
-        console.error(`Exception triggering sync for ${sync.id}:`, error);
+        console.error(`Exception triggering sync for ${sync.id}`);
         return { sync_id: sync.id, success: false, error: error instanceof Error ? error.message : String(error) };
       }
-    });
+    };
 
-    const results = await Promise.allSettled(syncPromises);
+    const results: PromiseSettledResult<{ sync_id: string; success: boolean; error?: string }>[] = [];
+    for (let i = 0; i < syncsToTrigger.length; i += 5) {
+      results.push(...await Promise.allSettled(syncsToTrigger.slice(i, i + 5).map(runSync)));
+    }
     
     const successCount = results.filter(r => 
       r.status === 'fulfilled' && r.value.success
@@ -88,15 +92,26 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const authorization = req.headers.get('Authorization');
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    if (!serviceKey || authorization !== `Bearer ${serviceKey}`) {
+    if (!serviceKey) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      serviceKey
     );
+
+    // Callers are either internal (service role key) or the database scheduler, which proves
+    // itself with a secret that only exists inside the database (see verify_ical_cron_secret).
+    let authorized = req.headers.get('Authorization') === `Bearer ${serviceKey}`;
+    const cronSecret = req.headers.get('x-cron-secret');
+    if (!authorized && cronSecret && /^[a-f0-9]{64}$/.test(cronSecret)) {
+      const { data: valid, error: secretError } = await supabase.rpc('verify_ical_cron_secret', { _secret: cronSecret });
+      authorized = !secretError && valid === true;
+    }
+    if (!authorized) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     const result = await triggerScheduledSyncs(supabase);
 

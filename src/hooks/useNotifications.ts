@@ -68,7 +68,7 @@ export const useNotifications = () => {
         }
 
         // Check-out em atraso
-        if (isPast(checkOutDate) && booking.status === 'confirmed') {
+        if (booking.check_out.slice(0, 10) < todayDateOnly() && booking.status === 'confirmed') {
           const daysOverdue = differenceInDays(today, checkOutDate);
           newNotifications.push({
             id: `overdue-${booking.id}`,
@@ -107,7 +107,7 @@ export const useNotifications = () => {
           
           if (todayMonth === birthMonth && todayDay === birthDay) {
             // Verificar se a reserva está ativa ou futura
-            const isCurrentOrFuture = !isPast(checkOutDate);
+            const isCurrentOrFuture = booking.check_out.slice(0, 10) >= todayDateOnly();
             if (isCurrentOrFuture) {
               newNotifications.push({
                 id: `birthday-${booking.id}`,

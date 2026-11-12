@@ -6,7 +6,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProperties } from '@/hooks/useProperties';
-import { useBookings } from '@/contexts/BookingContext';
+import { useAllBookingsQuery } from '@/hooks/useOptimizedBookings';
 import PropertyStatsCard from '@/components/properties/PropertyStatsCard';
 import MonthlyBookings from '@/components/dashboard/MonthlyBookings';
 import CalendarNavigation from '@/components/dashboard/CalendarNavigation';
@@ -20,7 +20,8 @@ const PropertyDashboard = () => {
   const { id } = useParams<{ id: string }>();
   const { getPropertyById, loading: propertiesLoading } = useProperties();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { bookings, allBookings, loading: bookingsLoading } = useBookings();
+  // Not the context list: that one only holds the chalé selected in the switcher.
+  const { data: allBookings = [], isLoading: bookingsLoading } = useAllBookingsQuery();
 
   const emptyStats: PropertyStats = {
     totalBookings: 0,
@@ -57,19 +58,6 @@ const PropertyDashboard = () => {
       const checkIn = parseDateOnly(booking.check_in);
       const checkOut = parseDateOnly(booking.check_out);
       return checkIn <= monthEnd && checkOut >= monthStart;
-    });
-    
-    // Debug telemetry
-    console.log('PropertyDashboard Debug:', {
-      propertyId: property.id,
-      propertyName: property.name,
-      totalBookings: allBookings.length,
-      monthlyBookings: filteredBookings.length,
-      monthStart: monthStart.toISOString(),
-      monthEnd: monthEnd.toISOString(),
-      unassignedBookings: allBookings.filter(b => !b.property_id).length,
-      currentDate,
-      bookingsForThisProperty: allBookings.filter(b => b.property_id === id).length
     });
     
     return filteredBookings;

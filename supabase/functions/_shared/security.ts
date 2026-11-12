@@ -14,8 +14,10 @@ export function calendarUrl(value: unknown): URL {
   if (typeof value !== 'string') throw new Error('Link de calendário inválido');
   const url = new URL(value);
   const host = url.hostname.toLowerCase();
-  const airbnb = /^www\.airbnb\.(com|com\.br|co\.uk|fr|de|es|it|pt|ca|com\.au)$/.test(host);
-  const booking = host === 'admin.booking.com';
+  // Airbnb serves the same calendar path on its regional domains (www.airbnb.com.br, .pt, ...).
+  const airbnb = /^(www\.)?airbnb\.(com|com\.(br|au|ar|co|pe|tr|hk|sg|mt|ec|bo|py|uy|ve)|co\.(uk|in|nz|kr|cr|ve|id|za)|fr|de|es|it|pt|ca|ie|nl|be|ch|at|se|dk|no|fi|pl|cz|gr|hu|ru|jp|cn|mx|cl|cat)$/.test(host);
+  // Booking.com publishes calendars on ical.booking.com (admin.booking.com is the extranet).
+  const booking = host === 'ical.booking.com' || host === 'admin.booking.com';
   const vrbo = host === 'www.vrbo.com' || host === 'www.homeaway.com';
   if (url.protocol !== 'https:' || url.username || url.password || (url.port && url.port !== '443') || !(airbnb || booking || vrbo)) {
     throw new Error('Use um link HTTPS de calendário do Airbnb, Booking.com ou Vrbo');
@@ -25,7 +27,7 @@ export function calendarUrl(value: unknown): URL {
 export async function fetchCalendar(value: unknown): Promise<string> {
   let url = calendarUrl(value);
   for (let hop = 0; hop < 4; hop++) {
-    const response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15000) });
+    const response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15000), headers: { 'Accept': 'text/calendar, text/plain;q=0.9, */*;q=0.5', 'User-Agent': 'Mozilla/5.0 (compatible; OrdomoCalendarSync/1.0)' } });
     if ([301,302,303,307,308].includes(response.status)) {
       const target = response.headers.get('location');
       await response.body?.cancel();
@@ -33,7 +35,12 @@ export async function fetchCalendar(value: unknown): Promise<string> {
       url = calendarUrl(new URL(target, url).href);
       continue;
     }
-    if (!response.ok) throw new Error('Não foi possível importar o calendário');
+    if (!response.ok) {
+      await response.body?.cancel();
+      throw new Error(response.status === 404 || response.status === 403
+        ? 'A plataforma recusou o link do calendário. Gere um novo link de exportação e atualize a sincronização'
+        : 'Não foi possível importar o calendário');
+    }
     const reader = response.body?.getReader();
     if (!reader) throw new Error('Calendário vazio');
     const chunks: Uint8Array[] = [];

@@ -55,6 +55,7 @@ export const useDuplicateBooking = () => {
         email: originalBooking.email,
         city: originalBooking.city,
         state: originalBooking.state,
+        property_id: originalBooking.property_id,
         booking_date: format(new Date(), 'yyyy-MM-dd'),
         check_in: suggestedCheckIn,
         check_out: suggestedCheckOut,
@@ -73,8 +74,8 @@ export const useDuplicateBooking = () => {
 
       navigate('/reservas');
     } catch (error) {
+      // addBooking already told the user why (for example, the suggested dates are taken).
       console.error('Erro ao duplicar reserva:', error);
-      toast.error('Erro ao duplicar reserva');
     }
   };
 

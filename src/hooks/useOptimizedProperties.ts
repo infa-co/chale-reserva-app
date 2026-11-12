@@ -4,21 +4,21 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Property } from '@/types/property';
 
-const QUERY_KEYS = {
-  properties: ['properties'] as const,
-};
+// Scoped by user so one account never sees another account's cached chalés after a login switch.
+const propertiesKey = (userId?: string) => ['properties', userId] as const;
 
 const usePropertiesQuery = () => {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: QUERY_KEYS.properties,
+    queryKey: propertiesKey(user?.id),
     queryFn: async () => {
       if (!user) return [];
       
       const { data, error } = await supabase
         .from('properties')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -37,6 +37,7 @@ const usePropertiesQuery = () => {
 export const useOptimizedProperties = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const QUERY_KEYS = { properties: propertiesKey(user?.id) };
   
   const { data: properties = [], isLoading: loading, refetch } = usePropertiesQuery();
 
@@ -87,9 +88,9 @@ export const useOptimizedProperties = () => {
     },
     onSuccess: (data) => {
       queryClient.setQueryData<Property[]>(QUERY_KEYS.properties, (old = []) => 
-        old.map(property => 
-          property.id.startsWith('temp-') ? data : property
-        )
+        old.some(property => property.id.startsWith('temp-'))
+          ? old.map(property => property.id.startsWith('temp-') ? data : property)
+          : [data, ...old.filter(property => property.id !== data.id)]
       );
       toast.success('Propriedade criada com sucesso!');
     },
@@ -198,9 +199,9 @@ export const useOptimizedProperties = () => {
   return {
     properties,
     loading,
-    addProperty: addPropertyMutation.mutate,
+    addProperty: addPropertyMutation.mutateAsync,
     updateProperty: (id: string, propertyData: Partial<Property>) => 
-      updatePropertyMutation.mutate({ id, propertyData }),
+      updatePropertyMutation.mutateAsync({ id, propertyData }),
     deleteProperty: deletePropertyMutation.mutate,
     getPropertyById,
     refetch,

@@ -17,5 +17,5 @@ export function availabilityICS(bookings: { id: string; check_in: string; check_
     'BEGIN:VEVENT', `UID:ordomo-${b.id}@ordomo.app`, `DTSTAMP:${stamp}`,
     `DTSTART;VALUE=DATE:${b.check_in.replace(/-/g, '')}`, `DTEND;VALUE=DATE:${b.check_out.replace(/-/g, '')}`,
     'SUMMARY:Reservado', 'STATUS:CONFIRMED','TRANSP:OPAQUE','END:VEVENT'
-  ]),'END:VCALENDAR'].join('\r\n');
+  ]),'END:VCALENDAR'].join('\r\n') + '\r\n';
 }

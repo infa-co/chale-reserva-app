@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { useBookings } from '@/contexts/BookingContext';
 import { toast } from 'sonner';
 import { useEditBookingForm } from '@/hooks/useEditBookingForm';
-import { useBookingValidation } from '@/hooks/useBookingValidation';
 import { useStayConflict } from '@/hooks/useStayConflict';
 import { conflictMessage } from '@/lib/bookingConflicts';
 import { GuestInfoForm } from '@/components/forms/GuestInfoForm';
@@ -15,7 +14,7 @@ import { NotesForm } from '@/components/forms/NotesForm';
 const EditBooking = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { updateBooking, getBookingById } = useBookings();
+  const { updateBooking, getBookingById, loading: bookingsLoading } = useBookings();
   const booking = id ? getBookingById(id) : undefined;
   
   const { 
@@ -28,9 +27,25 @@ const EditBooking = () => {
     setIsLoading,
     updateOriginalData
   } = useEditBookingForm(booking);
-  const { checkDateConflict, validateBookingData } = useBookingValidation();
   const stayConflict = useStayConflict(booking?.property_id, formData.checkIn, formData.checkOut, booking?.id);
-  const blockedByConflict = formData.status !== 'cancelled' && (stayConflict.checking || stayConflict.invalidDates || stayConflict.conflicts.length > 0);
+  // An existing overlap only blocks saving when this edit creates or changes the stay;
+  // otherwise the guest's phone, value or notes could never be corrected.
+  const stayChanged = !!booking && (
+    formData.checkIn !== booking.check_in ||
+    formData.checkOut !== booking.check_out ||
+    (booking.status === 'cancelled' && formData.status !== 'cancelled')
+  );
+  const blockedByConflict = formData.status !== 'cancelled' && (
+    stayConflict.invalidDates || (stayChanged && (stayConflict.checking || stayConflict.conflicts.length > 0))
+  );
+
+  if (!booking && bookingsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]" role="status">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage-600"></div>
+      </div>
+    );
+  }
 
   if (!booking) {
     return (
@@ -54,17 +69,15 @@ const EditBooking = () => {
     setIsLoading(true);
     
     try {
-      // Validar dados básicos
-      const validation = validateBookingData({
-        guestName: formData.guestName,
-        phone: formData.phone,
-        checkIn: formData.checkIn,
-        checkOut: formData.checkOut,
-        totalValue: formData.totalValue
-      });
+      // Same required fields as the creation form: phone and value are optional there,
+      // so requiring them here made those bookings impossible to edit.
+      const missing = !formData.guestName.trim() ? 'Nome do hóspede é obrigatório'
+        : !formData.checkIn ? 'Data de check-in é obrigatória'
+        : !formData.checkOut ? 'Data de check-out é obrigatória'
+        : null;
 
-      if (!validation.isValid) {
-        toast.error(validation.errors[0]);
+      if (missing) {
+        toast.error(missing);
         return;
       }
 
@@ -92,8 +105,8 @@ const EditBooking = () => {
         check_in: formData.checkIn,
         check_out: formData.checkOut,
         nights,
-        total_value: parseFloat(formData.totalValue),
-        payment_method: formData.paymentMethod,
+        total_value: parseFloat(formData.totalValue) || 0,
+        payment_method: formData.paymentMethod || 'Não informado',
         status: safeStatus as any,
         notes: formData.notes || undefined
       });
@@ -101,11 +114,10 @@ const EditBooking = () => {
       // Update original data to reflect the saved state
       updateOriginalData();
       
-      toast.success('Reserva atualizada com sucesso!');
       navigate(`/reserva/${booking.id}`);
     } catch (error) {
+      // The hook already showed the reason.
       console.error('Error updating booking:', error);
-      toast.error('Erro ao atualizar reserva');
     } finally {
       setIsLoading(false);
     }

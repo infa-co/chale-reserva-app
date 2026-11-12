@@ -8,8 +8,8 @@ interface BookingContextType {
   allBookings: Booking[];
   historicalBookings: Booking[];
   loading: boolean;
-  addBooking: (booking: Omit<Booking, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
-  updateBooking: (id: string, booking: Partial<Booking>) => void;
+  addBooking: (booking: Omit<Booking, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<Booking>;
+  updateBooking: (id: string, booking: Partial<Booking>) => Promise<Booking>;
   deleteBooking: (id: string) => void;
   addHistoricalBooking: (booking: Omit<Booking, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'is_historical' | 'historical_registration_date'>) => void;
   updateHistoricalBooking: (id: string, booking: Partial<Booking>) => void;
@@ -63,7 +63,7 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
         ...booking,
         property_id: booking.property_id || activePropertyId || null,
       };
-      bookingHook.addBooking(bookingWithProperty);
+      return bookingHook.addBooking(bookingWithProperty);
     };
   }, [bookingHook.addBooking, activePropertyId]);
 

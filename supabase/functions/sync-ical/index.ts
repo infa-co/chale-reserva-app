@@ -1,4 +1,5 @@
 import { fetchCalendar } from "../_shared/security.ts";
+import { addDays, isEchoOfOwnBookings, parseICalEvents, withinSyncWindow } from "../_shared/ical.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -6,179 +7,110 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface ICalEvent {
-  uid: string;
-  summary: string;
-  dtstart: string;
-  dtend: string;
-  description?: string;
-}
-
-function parseICalDate(dateStr: string): Date {
-  if (dateStr.includes('T')) {
-    const cleanDate = dateStr.replace(/[TZ]/g, '');
-    const year = parseInt(cleanDate.substring(0, 4));
-    const month = parseInt(cleanDate.substring(4, 6)) - 1;
-    const day = parseInt(cleanDate.substring(6, 8));
-    const hour = parseInt(cleanDate.substring(8, 10)) || 0;
-    const minute = parseInt(cleanDate.substring(10, 12)) || 0;
-    return new Date(year, month, day, hour, minute);
-  } else {
-    const year = parseInt(dateStr.substring(0, 4));
-    const month = parseInt(dateStr.substring(4, 6)) - 1;
-    const day = parseInt(dateStr.substring(6, 8));
-    return new Date(year, month, day);
-  }
-}
-
-function parseICalData(icalText: string): ICalEvent[] {
-  const events: ICalEvent[] = [];
-  const lines = icalText.split(/\r?\n/);
-  
-  let currentEvent: Partial<ICalEvent> | null = null;
-  
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i].trim();
-    
-    while (i + 1 < lines.length && /^[ \t]/.test(lines[i + 1])) {
-      i++;
-      line += lines[i].trim();
-    }
-    
-    if (line === 'BEGIN:VEVENT') {
-      currentEvent = {};
-    } else if (line === 'END:VEVENT' && currentEvent) {
-      if (currentEvent.uid && currentEvent.summary && currentEvent.dtstart && currentEvent.dtend) {
-        events.push(currentEvent as ICalEvent);
-      }
-      currentEvent = null;
-    } else if (currentEvent && line.includes(':')) {
-      const colonIndex = line.indexOf(':');
-      const property = line.substring(0, colonIndex);
-      const value = line.substring(colonIndex + 1);
-      const propertyName = property.split(';')[0];
-      
-      switch (propertyName) {
-        case 'UID':
-          currentEvent.uid = value;
-          break;
-        case 'SUMMARY':
-          currentEvent.summary = value;
-          break;
-        case 'DTSTART':
-          currentEvent.dtstart = value;
-          break;
-        case 'DTEND':
-          currentEvent.dtend = value;
-          break;
-        case 'DESCRIPTION':
-          currentEvent.description = value;
-          break;
-      }
-    }
-  }
-  
-  return events;
-}
-
 async function syncICalendar(supabase: any, syncId: string) {
   console.log(`Starting sync for sync_id: ${syncId}`);
-  
-  try {
-    const { data: syncConfig, error: syncError } = await supabase
-      .from('ical_syncs')
-      .select('*')
-      .eq('id', syncId)
-      .single();
 
-    if (syncError) {
-      console.error('Error fetching sync config:', syncError);
-      throw syncError;
+  const { data: syncConfig, error: syncError } = await supabase
+    .from('ical_syncs')
+    .select('*')
+    .eq('id', syncId)
+    .single();
+
+  if (syncError) {
+    console.error('Error fetching sync config:', syncError.message);
+    throw new Error('Sincronização não encontrada');
+  }
+
+  if (!syncConfig.is_active) {
+    console.log('Sync is not active, skipping');
+    return { success: true, synced_count: 0, skipped: true };
+  }
+
+  const icalText = await fetchCalendar(syncConfig.ical_url);
+
+  const events = parseICalEvents(icalText);
+  console.log(`Parsed ${events.length} events`);
+
+  const today = new Date().toISOString().slice(0, 10);
+  let relevantEvents = events.filter((event) => withinSyncWindow(event, today));
+
+  // Blocks that only mirror this chalé's own Ordomo bookings (exported to the platform and
+  // sent back in its feed) are not external bookings.
+  if (syncConfig.property_id && relevantEvents.length > 0) {
+    const { data: ownBookings, error: ownError } = await supabase
+      .from('bookings')
+      .select('check_in, check_out')
+      .eq('property_id', syncConfig.property_id)
+      .neq('status', 'cancelled')
+      .gte('check_out', addDays(today, -8));
+    if (ownError) {
+      console.error('Error fetching own bookings:', ownError.message);
+      throw new Error('Não foi possível comparar com as reservas do chalé');
     }
+    relevantEvents = relevantEvents.filter((event) => !isEchoOfOwnBookings(event, ownBookings ?? []));
+  }
 
-    if (!syncConfig.is_active) {
-      console.log('Sync is not active, skipping');
-      return;
+  console.log(`Filtered to ${relevantEvents.length} relevant events`);
+
+  const bookingsToUpsert = relevantEvents.map((event) => ({
+    user_id: syncConfig.user_id,
+    ical_sync_id: syncId,
+    external_id: event.uid,
+    summary: event.summary || 'Reserva via ' + syncConfig.platform_name,
+    start_date: event.startDate,
+    end_date: event.endDate,
+    platform_name: syncConfig.platform_name,
+    raw_ical_data: JSON.stringify(event),
+  }));
+
+  // Write the new state first and only then remove what left the feed, so a failed write
+  // never leaves the chalé looking free.
+  if (bookingsToUpsert.length > 0) {
+    const { error: upsertError } = await supabase
+      .from('external_bookings')
+      .upsert(bookingsToUpsert, { onConflict: 'ical_sync_id,external_id' });
+
+    if (upsertError) {
+      console.error('Error saving bookings:', upsertError.message);
+      throw new Error('Não foi possível salvar as reservas importadas');
     }
+  }
 
-    const icalText = await fetchCalendar(syncConfig.ical_url);
+  const { data: stored, error: storedError } = await supabase
+    .from('external_bookings')
+    .select('id, external_id')
+    .eq('ical_sync_id', syncId);
 
-    const events = parseICalData(icalText);
-    console.log(`Parsed ${events.length} events`);
-    
-    const now = new Date();
-    const twoYearsFromNow = new Date();
-    twoYearsFromNow.setFullYear(now.getFullYear() + 2);
-    
-    const relevantEvents = events.filter(event => {
-      const startDate = parseICalDate(event.dtstart);
-      const endDate = parseICalDate(event.dtend);
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      
-      return (
-        (endDate >= now && startDate <= twoYearsFromNow) ||
-        (endDate >= sevenDaysAgo && endDate < now)
-      );
-    });
-    
-    console.log(`Filtered to ${relevantEvents.length} relevant events`);
-    
+  if (storedError) {
+    console.error('Error reading stored bookings:', storedError.message);
+    throw new Error('Não foi possível atualizar as reservas importadas');
+  }
+
+  const currentIds = new Set(bookingsToUpsert.map((b) => b.external_id));
+  const staleIds = (stored ?? []).filter((row: any) => !currentIds.has(row.external_id)).map((row: any) => row.id);
+  for (let i = 0; i < staleIds.length; i += 100) {
     const { error: deleteError } = await supabase
       .from('external_bookings')
       .delete()
-      .eq('ical_sync_id', syncId);
-
+      .in('id', staleIds.slice(i, i + 100));
     if (deleteError) {
-      console.error('Error deleting existing bookings:', deleteError);
-      throw deleteError;
+      console.error('Error deleting stale bookings:', deleteError.message);
+      throw new Error('Não foi possível remover reservas canceladas');
     }
-
-    const bookingsToInsert = relevantEvents.map(event => {
-      const startDate = parseICalDate(event.dtstart);
-      const endDate = parseICalDate(event.dtend);
-      
-      
-      return {
-        user_id: syncConfig.user_id,
-        ical_sync_id: syncId,
-        external_id: event.uid,
-        summary: event.summary || 'Reserva via ' + syncConfig.platform_name,
-        start_date: `${event.dtstart.slice(0,4)}-${event.dtstart.slice(4,6)}-${event.dtstart.slice(6,8)}`,
-        end_date: `${event.dtend.slice(0,4)}-${event.dtend.slice(4,6)}-${event.dtend.slice(6,8)}`,
-        platform_name: syncConfig.platform_name,
-        raw_ical_data: JSON.stringify(event)
-      };
-    });
-
-    if (bookingsToInsert.length > 0) {
-      const { error: insertError } = await supabase
-        .from('external_bookings')
-        .insert(bookingsToInsert);
-
-      if (insertError) {
-        console.error('Error inserting bookings:', insertError);
-        throw insertError;
-      }
-    }
-
-    const { error: updateError } = await supabase
-      .from('ical_syncs')
-      .update({ last_sync_at: new Date().toISOString() })
-      .eq('id', syncId);
-
-    if (updateError) {
-      console.error('Error updating sync time:', updateError);
-      throw updateError;
-    }
-
-    console.log(`Successfully synced ${bookingsToInsert.length} bookings`);
-    return { success: true, synced_count: bookingsToInsert.length };
-
-  } catch (error) {
-    console.error('Sync error:', error);
-    throw error;
   }
+
+  const { error: updateError } = await supabase
+    .from('ical_syncs')
+    .update({ last_sync_at: new Date().toISOString() })
+    .eq('id', syncId);
+
+  if (updateError) {
+    console.error('Error updating sync time:', updateError.message);
+    throw new Error('Não foi possível registrar a sincronização');
+  }
+
+  console.log(`Successfully synced ${bookingsToUpsert.length} bookings`);
+  return { success: true, synced_count: bookingsToUpsert.length };
 }
 
 Deno.serve(async (req) => {
@@ -206,7 +138,7 @@ Deno.serve(async (req) => {
       userId = data.user.id;
     }
 
-    const { sync_id } = await req.json();
+    const { sync_id } = await req.json().catch(() => ({}));
     
     if (typeof sync_id !== 'string' || !/^[0-9a-f-]{36}$/i.test(sync_id)) {
       return new Response(
@@ -234,7 +166,7 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Function error:', error);
+    console.error('Function error:', error instanceof Error ? error.message : 'unknown');
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

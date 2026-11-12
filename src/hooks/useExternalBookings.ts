@@ -76,7 +76,7 @@ export const useExternalBookings = () => {
       const bookingEnd = parseDateOnly(booking.end_date);
       
       // Check if booking overlaps with the date range
-      return bookingStart <= endDate && bookingEnd >= startDate;
+      return bookingStart <= endDate && bookingEnd > startDate;
     });
   }, [externalBookings]);
 
@@ -87,7 +87,7 @@ export const useExternalBookings = () => {
       const bookingEnd = parseDateOnly(booking.end_date);
       const checkDate = parseDateOnly(dateStr);
       
-      return checkDate >= bookingStart && checkDate <= bookingEnd;
+      return checkDate >= bookingStart && checkDate < bookingEnd;
     });
   }, [externalBookings]);
 

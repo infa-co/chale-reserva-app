@@ -199,7 +199,6 @@ export const useOptimizedBookings = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('Realtime booking change:', payload);
           
           // Force refetch after real-time update
           queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.allBookings, user.id] });
@@ -249,7 +248,7 @@ export const useOptimizedBookings = () => {
     loading: allBookingsQuery.isLoading,
     
     // Actions
-    addBooking: addBookingMutation.mutate,
+    addBooking: addBookingMutation.mutateAsync,
     updateBooking: useCallback((id: string, bookingData: Partial<Booking>) => {
       return updateBookingMutation.mutateAsync({ id, bookingData });
     }, [updateBookingMutation.mutateAsync]),

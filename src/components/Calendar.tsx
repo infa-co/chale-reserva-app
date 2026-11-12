@@ -63,8 +63,6 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
   
   const getBookingsForDate = useCallback((date: Date) => {
     return currentMonthBookings.filter(booking => {
-      const checkIn = parseDateOnly(booking.check_in);
-      const checkOut = parseDateOnly(booking.check_out);
       return stayPosition(date, booking.check_in, booking.check_out) !== null;
     });
   }, [currentMonthBookings]);
@@ -72,7 +70,8 @@ const Calendar = memo(({ currentMonth, statusFilter = 'all' }: CalendarProps) =>
   const getExternalBookingsForDate = useCallback((date: Date) => {
     const dateStr = toDateOnlyString(date);
     return currentMonthExternalBookings.filter(booking => {
-      return dateStr >= booking.start_date && dateStr <= booking.end_date;
+      // Same half-open rule as Ordomo stays: the check-out day is free for a new check-in.
+      return dateStr >= booking.start_date && dateStr < booking.end_date;
     });
   }, [currentMonthExternalBookings]);
 

@@ -127,7 +127,7 @@ const HistoricalBookings = () => {
     });
 
     if (!validation.isValid) {
-      validation.errors.forEach(error => console.error(error));
+      toast.error(validation.errors[0]);
       return;
     }
 

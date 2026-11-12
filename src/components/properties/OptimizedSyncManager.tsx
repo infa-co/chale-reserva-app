@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useOptimizedICalSyncs } from '@/hooks/useOptimizedICalSyncs';
+import { useOptimizedICalSyncs, validateCalendarUrl } from '@/hooks/useOptimizedICalSyncs';
+import { toast } from 'sonner';
 import { Property } from '@/types/property';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -43,8 +44,16 @@ const SyncFormCard = memo(({
   }, [selectedPropertyId]);
 
   const handleSubmit = () => {
-    if (!newSync.property_id || !newSync.ical_url) return;
-    onAdd(newSync);
+    if (!newSync.property_id) {
+      toast.error('Selecione a propriedade');
+      return;
+    }
+    const urlProblem = validateCalendarUrl(newSync.ical_url);
+    if (urlProblem) {
+      toast.error(urlProblem);
+      return;
+    }
+    onAdd({ ...newSync, ical_url: newSync.ical_url.trim() });
   };
 
   return (
@@ -89,7 +98,6 @@ const SyncFormCard = memo(({
               <SelectItem value="Airbnb">Airbnb</SelectItem>
               <SelectItem value="Booking.com">Booking.com</SelectItem>
               <SelectItem value="VRBO">VRBO</SelectItem>
-              <SelectItem value="Outros">Outros</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -98,10 +106,13 @@ const SyncFormCard = memo(({
           <Label htmlFor="ical_url">URL do Calendário iCal</Label>
           <Input
             id="ical_url"
-            placeholder="https://calendar.airbnb.com/calendar/ics/..."
+            placeholder="https://www.airbnb.com.br/calendar/ical/....ics?s=..."
             value={newSync.ical_url}
             onChange={(e) => setNewSync(prev => ({ ...prev, ical_url: e.target.value }))}
           />
+          <p className="text-xs text-muted-foreground">
+            No Airbnb: Calendário → Disponibilidade → Conectar calendários → copie o link de exportação.
+          </p>
         </div>
 
         <div className="space-y-2">
@@ -142,7 +153,8 @@ const SyncCard = memo(({
   selectedPropertyId, 
   onToggleActive, 
   onManualSync, 
-  onDelete 
+  onDelete,
+  syncing
 }: any) => {
   const isMobile = useIsMobile();
   
@@ -184,15 +196,16 @@ const SyncCard = memo(({
                 size={isMobile ? "sm" : "sm"}
                 variant="outline"
                 onClick={() => onManualSync(sync.id)}
+                disabled={syncing}
                 className={isMobile ? "flex-1" : ""}
               >
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
                 {isMobile && <span className="ml-1">Sync</span>}
               </Button>
               <Button
                 size={isMobile ? "sm" : "sm"}
                 variant="outline"
-                onClick={() => window.open(sync.ical_url, '_blank')}
+                onClick={() => window.open(sync.ical_url, '_blank', 'noopener,noreferrer')}
                 className={isMobile ? "flex-1" : ""}
               >
                 <ExternalLink className="h-4 w-4" />
@@ -218,7 +231,7 @@ const SyncCard = memo(({
 SyncCard.displayName = 'SyncCard';
 
 const OptimizedSyncManager = memo(({ properties, selectedPropertyId }: SyncManagerProps) => {
-  const { syncs, loading, addSync, updateSync, deleteSync, manualSync, getSyncsForProperty } = useOptimizedICalSyncs();
+  const { syncs, loading, addSync, updateSync, deleteSync, manualSync, getSyncsForProperty, syncingId } = useOptimizedICalSyncs();
   const [showAddForm, setShowAddForm] = useState(false);
   const isMobile = useIsMobile();
 
@@ -294,6 +307,7 @@ const OptimizedSyncManager = memo(({ properties, selectedPropertyId }: SyncManag
               selectedPropertyId={selectedPropertyId}
               onToggleActive={updateSync}
               onManualSync={manualSync}
+              syncing={syncingId === sync.id}
               onDelete={deleteSync}
             />
           );

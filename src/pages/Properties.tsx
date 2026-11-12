@@ -54,7 +54,11 @@ const Properties = () => {
   };
 
   const handleToggleActive = async (property: Property) => {
-    await updateProperty(property.id, { is_active: !property.is_active });
+    try {
+      await updateProperty(property.id, { is_active: !property.is_active });
+    } catch {
+      // The hook already showed the error.
+    }
   };
 
   const handleDeleteProperty = (property: Property) => {
@@ -80,6 +84,8 @@ const Properties = () => {
         await addProperty(data);
       }
       setIsDialogOpen(false);
+    } catch {
+      // The hook already showed the error; keep the form open so nothing typed is lost.
     } finally {
       setIsSubmitting(false);
     }

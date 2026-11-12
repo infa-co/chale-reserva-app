@@ -29,13 +29,21 @@ import { CommunicationTemplates } from '@/components/CommunicationTemplates';
 const BookingDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getBookingById, deleteBooking, updateBooking } = useBookings();
+  const { getBookingById, deleteBooking, updateBooking, loading: bookingsLoading } = useBookings();
   const { duplicateWithSuggestedDates } = useDuplicateBooking();
   const { getPropertyById } = useOptimizedProperties();
   const { checkFeatureAccess } = usePlanRestrictions();
   
   const booking = id ? getBookingById(id) : undefined;
   const property = booking?.property_id ? getPropertyById(booking.property_id) : null;
+
+  if (!booking && bookingsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]" role="status">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage-600"></div>
+      </div>
+    );
+  }
 
   if (!booking) {
     return (
@@ -97,8 +105,8 @@ const BookingDetails = () => {
   };
 
   const handleDelete = () => {
+    // The hook reports the result; a second toast here claimed success even when it failed.
     deleteBooking(booking.id);
-    toast.success('Reserva excluída com sucesso!');
     navigate('/reservas');
   };
 

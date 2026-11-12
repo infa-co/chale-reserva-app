@@ -16,21 +16,48 @@ interface ICalSync {
   updated_at?: string;
 }
 
-const QUERY_KEYS = {
-  syncs: ['ical-syncs'] as const,
+const syncsKey = (userId?: string) => ['ical-syncs', userId] as const;
+
+// Mirrors the hosts the import function accepts, so a wrong link is refused before it is saved.
+const CALENDAR_HOST = /^((www\.)?airbnb\.[a-z.]{2,6}|ical\.booking\.com|admin\.booking\.com|www\.vrbo\.com|www\.homeaway\.com)$/;
+
+export const validateCalendarUrl = (value: string): string | null => {
+  let url: URL;
+  try {
+    url = new URL(value.trim());
+  } catch {
+    return 'Cole o link completo do calendário (começa com https://)';
+  }
+  if (url.protocol !== 'https:') return 'O link do calendário precisa começar com https://';
+  if (!CALENDAR_HOST.test(url.hostname.toLowerCase())) {
+    return 'Use o link de exportação de calendário do Airbnb, Booking.com ou Vrbo';
+  }
+  return null;
+};
+
+// supabase-js hides the function's JSON body behind a generic error; read the real message.
+const functionErrorMessage = async (error: unknown, fallback: string): Promise<string> => {
+  try {
+    const body = await (error as { context?: Response })?.context?.clone().json();
+    if (body && typeof body.error === 'string' && body.error.length < 200) return body.error;
+  } catch {
+    // not a JSON response
+  }
+  return fallback;
 };
 
 const useSyncsQuery = () => {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: QUERY_KEYS.syncs,
+    queryKey: syncsKey(user?.id),
     queryFn: async () => {
       if (!user) return [];
       
       const { data, error } = await supabase
         .from('ical_syncs')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -49,6 +76,7 @@ const useSyncsQuery = () => {
 export const useOptimizedICalSyncs = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const QUERY_KEYS = { syncs: syncsKey(user?.id) };
   
   const { data: syncs = [], isLoading: loading, refetch } = useSyncsQuery();
 
@@ -56,10 +84,14 @@ export const useOptimizedICalSyncs = () => {
     mutationFn: async (syncData: Omit<ICalSync, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'last_sync_at'>) => {
       if (!user) throw new Error('User not authenticated');
 
+      const urlProblem = validateCalendarUrl(syncData.ical_url);
+      if (urlProblem) throw new Error(urlProblem);
+
       const { data, error } = await supabase
         .from('ical_syncs')
         .insert([{
           ...syncData,
+          ical_url: syncData.ical_url.trim(),
           user_id: user.id
         }])
         .select()
@@ -75,9 +107,11 @@ export const useOptimizedICalSyncs = () => {
     onSuccess: (data) => {
       queryClient.setQueryData<ICalSync[]>(QUERY_KEYS.syncs, (old = []) => [data, ...old]);
       toast.success('Sincronização adicionada com sucesso!');
+      // Import right away instead of waiting for the next scheduled run.
+      manualSyncMutation.mutate(data.id);
     },
-    onError: () => {
-      toast.error('Erro ao adicionar sincronização');
+    onError: (error) => {
+      toast.error(error instanceof Error && error.message ? error.message : 'Erro ao adicionar sincronização');
     },
   });
 
@@ -162,18 +196,22 @@ export const useOptimizedICalSyncs = () => {
 
       if (error) {
         console.error('Error triggering manual sync:', error);
-        throw new Error('Erro ao executar sincronização manual');
+        throw new Error(await functionErrorMessage(error, 'Erro ao executar sincronização manual'));
       }
 
       return data;
     },
     onSuccess: (data) => {
-      const syncedCount = data?.synced_count || 0;
-      toast.success(`Sincronização concluída! ${syncedCount} eventos importados.`);
-      refetch();
+      if (data?.skipped) {
+        toast.info('Sincronização inativa. Ative-a para importar o calendário.');
+      } else {
+        const syncedCount = data?.synced_count || 0;
+        toast.success(`Sincronização concluída! ${syncedCount} eventos importados.`);
+      }
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.syncs });
     },
-    onError: () => {
-      toast.error('Erro ao executar sincronização manual');
+    onError: (error) => {
+      toast.error(error instanceof Error && error.message ? error.message : 'Erro ao executar sincronização manual');
     },
   });
 
@@ -184,7 +222,8 @@ export const useOptimizedICalSyncs = () => {
   return {
     syncs,
     loading,
-    addSync: addSyncMutation.mutate,
+    addSync: addSyncMutation.mutateAsync,
+    syncingId: manualSyncMutation.isPending ? manualSyncMutation.variables : undefined,
     updateSync: (id: string, updates: Partial<ICalSync>) => 
       updateSyncMutation.mutate({ id, updates }),
     deleteSync: deleteSyncMutation.mutate,
