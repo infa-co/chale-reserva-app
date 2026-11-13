@@ -84,7 +84,8 @@ export const useOptimizedBookings = () => {
     },
     onError: (error) => {
       console.error('Error adding booking:', error);
-      toast.error((error as any)?.code === '23P01' ? 'Esse chalé já está ocupado nessas noites.' : 'Erro ao criar reserva');
+      const code = (error as any)?.code as string | undefined;
+      toast.error(code === '23P01' ? 'Esse chalé já está ocupado nessas noites.' : code?.startsWith('ORD') ? (error as any).message : 'Erro ao criar reserva');
     }
   });
 

@@ -39,7 +39,7 @@ async function syncICalendar(supabase: any, syncId: string) {
   if (syncConfig.property_id && relevantEvents.length > 0) {
     const { data: ownBookings, error: ownError } = await supabase
       .from('bookings')
-      .select('check_in, check_out')
+      .select('check_in, check_out, external_uid')
       .eq('property_id', syncConfig.property_id)
       .neq('status', 'cancelled')
       .gte('check_out', addDays(today, -8));
@@ -47,7 +47,10 @@ async function syncICalendar(supabase: any, syncId: string) {
       console.error('Error fetching own bookings:', ownError.message);
       throw new Error('Não foi possível comparar com as reservas do chalé');
     }
-    relevantEvents = relevantEvents.filter((event) => !isEchoOfOwnBookings(event, ownBookings ?? []));
+    // A reservation the owner already registered as an Ordomo booking (it keeps the iCal UID)
+    // is that booking, not a second occupation of the same nights.
+    const registered = new Set((ownBookings ?? []).map((b: { external_uid: string | null }) => b.external_uid).filter(Boolean));
+    relevantEvents = relevantEvents.filter((event) => !registered.has(event.uid) && !isEchoOfOwnBookings(event, ownBookings ?? []));
   }
 
   console.log(`Filtered to ${relevantEvents.length} relevant events`);

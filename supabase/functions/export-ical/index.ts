@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.119.0';
+import { planAllows } from '../_shared/planFeatures.ts';
 import { calendarSignature, validCalendarSignature, availabilityICS } from '../_shared/calendarExport.ts';
 const headers = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Cache-Control': 'no-store' };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...headers, 'Content-Type': 'application/json' } });
@@ -20,6 +21,8 @@ Deno.serve(async req => {
       const { data: property, error: propertyError } = await admin.from('properties').select('id').eq('id', propertyId).eq('user_id', data.user.id).maybeSingle();
       if (propertyError || !property) return json({ error: 'Chalé indisponível' }, 403);
       if (req.method === 'POST') {
+        const { data: plan } = await admin.rpc('effective_plan_for', { _user_id: data.user.id });
+        if (!planAllows(typeof plan === 'string' ? plan : null, 'icalExport')) return json({ error: 'A exportação de calendário faz parte dos planos Pro e Premium' }, 403);
         const token = await calendarSignature(propertyId, secret);
         const link = new URL(`${Deno.env.get('SUPABASE_URL')}/functions/v1/export-ical`);
         link.searchParams.set('property_id', propertyId);

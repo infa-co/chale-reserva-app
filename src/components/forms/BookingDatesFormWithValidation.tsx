@@ -21,6 +21,7 @@ interface BookingDatesFormWithValidationProps {
   nights: number;
   excludeBookingId?: string; // Para edição
   conflict: StayConflictState;
+  allowPastDates?: boolean; // reservas vindas de plataforma podem já ter começado
 }
 
 export const BookingDatesFormWithValidation = ({ 
@@ -28,10 +29,11 @@ export const BookingDatesFormWithValidation = ({
   onInputChange, 
   nights,
   excludeBookingId,
-  conflict
+  conflict,
+  allowPastDates = false
 }: BookingDatesFormWithValidationProps) => {
   const currentYear = new Date().getFullYear();
-  const currentDate = todayDateOnly();
+  const currentDate = allowPastDates ? undefined : todayDateOnly();
   const hasConflict = conflict.invalidDates || conflict.conflicts.length > 0;
 
   return (

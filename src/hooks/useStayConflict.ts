@@ -9,7 +9,7 @@ export interface StayConflictState {
 }
 
 /** Checks the chosen chalé + dates against Ordomo bookings and imported Airbnb (iCal) bookings. */
-export function useStayConflict(propertyId?: string | null, checkIn?: string, checkOut?: string, excludeId?: string): StayConflictState {
+export function useStayConflict(propertyId?: string | null, checkIn?: string, checkOut?: string, excludeId?: string, excludeExternalId?: string): StayConflictState {
   const [state, setState] = useState<StayConflictState>({ checking: false, invalidDates: false, conflicts: [] });
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export function useStayConflict(propertyId?: string | null, checkIn?: string, ch
       ]);
       const existing: StayLike[] = [
         ...((own.data as any[]) || []).map((b) => ({ ...b, source: 'ordomo' as const })),
-        ...((ext.data as any[]) || []).map((e) => ({
+        ...((ext.data as any[]) || []).filter((e) => e.id !== excludeExternalId).map((e) => ({
           id: e.id,
           property_id: propertyId,
           check_in: e.start_date,
@@ -61,7 +61,7 @@ export function useStayConflict(propertyId?: string | null, checkIn?: string, ch
     return () => {
       cancelled = true;
     };
-  }, [propertyId, checkIn, checkOut, excludeId]);
+  }, [propertyId, checkIn, checkOut, excludeId, excludeExternalId]);
 
   return state;
 }

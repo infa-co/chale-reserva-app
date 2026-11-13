@@ -56,7 +56,7 @@ export const useOptimizedProperties = () => {
 
       if (error) {
         console.error('Error adding property:', error);
-        throw new Error('Erro ao criar propriedade');
+        throw new Error(error.code?.startsWith('ORD') ? error.message : 'Erro ao criar propriedade');
       }
 
       return data;
@@ -84,7 +84,7 @@ export const useOptimizedProperties = () => {
     },
     onError: (error, variables, context) => {
       queryClient.setQueryData(QUERY_KEYS.properties, context?.previousProperties);
-      toast.error('Erro ao criar propriedade');
+      toast.error(error.message || 'Erro ao criar propriedade');
     },
     onSuccess: (data) => {
       queryClient.setQueryData<Property[]>(QUERY_KEYS.properties, (old = []) => 

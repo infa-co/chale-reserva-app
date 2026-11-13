@@ -10,3 +10,7 @@
 
 - iCal import parsing, the sync window and the "echo" rule (a platform block fully covered by the chalé's own bookings is not imported) live in supabase/functions/_shared/ical.ts and are covered by src/lib/icalSync.test.ts; sync-ical upserts by UID and only then deletes what left the feed.
 - The hourly pg_cron job authenticates to trigger-sync with the database-only secret checked by verify_ical_cron_secret; never put the service role key in a migration.
+- Plan limits are enforced by database triggers (error codes ORD00–ORD03) reading private.effective_plan; check-subscription and the WhatsApp assistant persist the paid plan through supabase/functions/_shared/userAccess.ts. Client checks are only for display.
+- Server-side booking writers go through supabase/functions/_shared/bookingService.ts (ownership, date rules, Ordomo + imported conflicts); pure rules live in bookingRules.ts and are unit-tested from src/lib/whatsappAssistant.test.ts.
+- The WhatsApp assistant (whatsapp-webhook + _shared/assistant.ts) may only propose changes; the summary is built by code and a change runs only after an explicit confirmation handled in code, never by the model. Numbers are linked by a code sent from the phone itself (whatsapp-link); WhatsApp tables have RLS with no client policies.
+- A booking registered from an imported reservation stores that reservation's iCal UID in bookings.external_uid; sync-ical skips events whose UID is already a booking.

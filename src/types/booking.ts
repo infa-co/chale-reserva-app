@@ -23,6 +23,9 @@ export interface Booking {
   is_historical?: boolean;
   historical_registration_date?: string;
   guest_email?: string; // Email para enviar confirmação ao hóspede
+  external_uid?: string | null; // UID iCal da reserva da plataforma que originou esta reserva
+  external_platform?: string | null;
+  created_via?: string; // 'app' | 'whatsapp'
 }
 
 export interface Client {

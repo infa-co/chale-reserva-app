@@ -99,7 +99,7 @@ export const useOptimizedICalSyncs = () => {
 
       if (error) {
         console.error('Error adding sync:', error);
-        throw new Error('Erro ao adicionar sincronização');
+        throw new Error(error.code?.startsWith('ORD') ? error.message : 'Erro ao adicionar sincronização');
       }
 
       return data;

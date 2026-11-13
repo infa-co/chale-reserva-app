@@ -50,7 +50,10 @@ export type Database = {
           city: string | null
           cpf: string | null
           created_at: string | null
+          created_via: string
           email: string | null
+          external_platform: string | null
+          external_uid: string | null
           guest_email: string | null
           guest_name: string
           historical_registration_date: string | null
@@ -75,7 +78,10 @@ export type Database = {
           city?: string | null
           cpf?: string | null
           created_at?: string | null
+          created_via?: string
           email?: string | null
+          external_platform?: string | null
+          external_uid?: string | null
           guest_email?: string | null
           guest_name: string
           historical_registration_date?: string | null
@@ -100,7 +106,10 @@ export type Database = {
           city?: string | null
           cpf?: string | null
           created_at?: string | null
+          created_via?: string
           email?: string | null
+          external_platform?: string | null
+          external_uid?: string | null
           guest_email?: string | null
           guest_name?: string
           historical_registration_date?: string | null
@@ -367,6 +376,8 @@ export type Database = {
           created_at: string
           manual_access: boolean
           manual_plan: string
+          paid_plan: string | null
+          plan_checked_at: string | null
           trial_ends_at: string
           updated_at: string
           user_id: string
@@ -375,6 +386,8 @@ export type Database = {
           created_at?: string
           manual_access?: boolean
           manual_plan?: string
+          paid_plan?: string | null
+          plan_checked_at?: string | null
           trial_ends_at: string
           updated_at?: string
           user_id: string
@@ -383,6 +396,8 @@ export type Database = {
           created_at?: string
           manual_access?: boolean
           manual_plan?: string
+          paid_plan?: string | null
+          plan_checked_at?: string | null
           trial_ends_at?: string
           updated_at?: string
           user_id?: string

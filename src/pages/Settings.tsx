@@ -1,3 +1,4 @@
+import { WhatsAppLinkCard } from '@/components/WhatsAppLinkCard';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -338,6 +339,8 @@ const Settings = () => {
               </div>
             </CardContent>
           </Card>
+
+          <WhatsAppLinkCard />
 
           {/* Plan Status Card */}
           <PlanLimitationsDisplay />

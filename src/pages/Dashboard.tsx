@@ -11,6 +11,7 @@ import OptimizedQuickStats from '@/components/dashboard/OptimizedQuickStats';
 import CalendarNavigation from '@/components/dashboard/CalendarNavigation';
 import CalendarWithFilters from '@/components/dashboard/CalendarWithFilters';
 import MonthlyBookings from '@/components/dashboard/MonthlyBookings';
+import ExternalBookingsList from '@/components/dashboard/ExternalBookingsList';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { PlanUpgradePrompt } from '@/components/PlanUpgradePrompt';
 import { FeatureRestriction } from '@/components/FeatureRestriction';
@@ -96,6 +97,8 @@ const Dashboard = memo(() => {
         />
 
         <CalendarWithFilters currentMonth={currentDate} />
+
+        <ExternalBookingsList />
 
         <MonthlyBookings 
           bookings={currentMonthBookings}

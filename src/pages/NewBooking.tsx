@@ -1,6 +1,7 @@
 import { parseDateOnly, todayDateOnly, toDateOnlyString } from '@/lib/dates';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,15 +25,47 @@ const NewBooking = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const propertyIdFromUrl = searchParams.get('property_id');
+  const externalId = searchParams.get('external');
+  const [externalSource, setExternalSource] = useState<{ id: string; uid: string; platform: string } | null>(null);
   
   const { addBooking, bookings } = useBookings();
   const { formData, handleInputChange, calculateNights, openWhatsApp } = useBookingForm(propertyIdFromUrl || undefined);
   const { checkDateConflict, validateBookingData } = useBookingValidation();
-  const stayConflict = useStayConflict(formData.propertyId, formData.checkIn, formData.checkOut);
+  const stayConflict = useStayConflict(formData.propertyId, formData.checkIn, formData.checkOut, undefined, externalSource?.id);
   const blockedByConflict = stayConflict.checking || stayConflict.invalidDates || stayConflict.conflicts.length > 0;
   const { checkBookingLimit, limits } = usePlanRestrictions();
 
   const [warnings, setWarnings] = useState<string[]>([]);
+
+  // Registering the guest of a reservation imported from Airbnb (or another calendar):
+  // start from its chalé and dates, and keep its UID so the import stops listing it apart.
+  useEffect(() => {
+    if (!externalId) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('external_bookings')
+        .select('id, external_id, platform_name, start_date, end_date, ical_syncs!inner(property_id)')
+        .eq('id', externalId)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error || !data) {
+        toast.error('Não encontrei essa reserva externa. Ela pode ter sido cancelada na plataforma.');
+        return;
+      }
+      const propertyId = (data as any).ical_syncs?.property_id as string | null;
+      if (propertyId) handleInputChange('propertyId', propertyId);
+      handleInputChange('checkIn', data.start_date);
+      handleInputChange('checkOut', data.end_date);
+      handleInputChange('notes', `Reserva via ${data.platform_name}`);
+      setExternalSource({ id: data.id, uid: data.external_id, platform: data.platform_name });
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // handleInputChange only wraps a state setter
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalId]);
   const [errors, setErrors] = useState<string[]>([]);
   const [forceSubmit, setForceSubmit] = useState(false);
 
@@ -86,11 +119,18 @@ const NewBooking = () => {
       total_value: parseFloat(formData.totalValue) || 0,
       payment_method: formData.paymentMethod || 'Não informado',
       status: formData.status,
-      notes: formData.notes?.trim() || undefined
+      notes: formData.notes?.trim() || undefined,
+      ...(externalSource ? { external_uid: externalSource.uid, external_platform: externalSource.platform } : {})
       });
     } catch {
       // Not saved (the hook already explained why); stay on the form so nothing is lost.
       return;
+    }
+
+    if (externalSource) {
+      // The dates now live in the Ordomo booking; drop the imported copy. If this fails the
+      // next calendar sync removes it anyway, because the booking carries the reservation's UID.
+      await supabase.from('external_bookings').delete().eq('id', externalSource.id);
     }
 
     navigate('/dashboard');
@@ -165,6 +205,14 @@ const NewBooking = () => {
         </div>
       )}
 
+      {externalSource && (
+        <Alert className="mb-6 border-orange-300 bg-orange-50 text-orange-900">
+          <AlertDescription>
+            Você está registrando o hóspede de uma reserva do {externalSource.platform}. O chalé e as datas já vieram do calendário.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-6"
             style={{ opacity: canCreateBooking ? 1 : 0.6, pointerEvents: canCreateBooking ? 'auto' : 'none' }}>
         <PropertySelector
@@ -197,6 +245,7 @@ const NewBooking = () => {
           onInputChange={handleInputChangeWrapped}
           nights={calculateNights()}
           conflict={stayConflict}
+          allowPastDates={!!externalSource}
         />
 
         <PaymentForm
