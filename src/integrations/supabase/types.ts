@@ -460,6 +460,87 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_conversations: {
+        Row: {
+          history: Json
+          pending_action: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          history?: Json
+          pending_action?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          history?: Json
+          pending_action?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_events: {
+        Row: {
+          kind: string
+          phone: string
+          received_at: string
+          wa_message_id: string
+        }
+        Insert: {
+          kind?: string
+          phone: string
+          received_at?: string
+          wa_message_id: string
+        }
+        Update: {
+          kind?: string
+          phone?: string
+          received_at?: string
+          wa_message_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_links: {
+        Row: {
+          created_at: string
+          daily_summary: boolean
+          last_inbound_at: string | null
+          last_summary_on: string | null
+          link_code_expires_at: string | null
+          link_code_hash: string | null
+          linked_at: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_summary?: boolean
+          last_inbound_at?: string | null
+          last_summary_on?: string | null
+          link_code_expires_at?: string | null
+          link_code_hash?: string | null
+          linked_at?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_summary?: boolean
+          last_inbound_at?: string | null
+          last_summary_on?: string | null
+          link_code_expires_at?: string | null
+          link_code_hash?: string | null
+          linked_at?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -467,6 +548,7 @@ export type Database = {
     Functions: {
       assign_admin_role: { Args: { _user_id: string }; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
+      effective_plan_for: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -474,6 +556,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      verify_cron_secret: {
+        Args: { _name: string; _secret: string }
+        Returns: boolean
+      }
+      verify_ical_cron_secret: { Args: { _secret: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
