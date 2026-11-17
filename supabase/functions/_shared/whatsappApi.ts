@@ -15,9 +15,21 @@ async function post(payload: Record<string, unknown>): Promise<boolean> {
     body: JSON.stringify({ messaging_product: 'whatsapp', ...payload }),
     signal: AbortSignal.timeout(15000),
   });
-  if (!response.ok) console.error(`[WHATSAPP] send failed with status ${response.status}`);
+  if (!response.ok) {
+    // Only Meta's numeric error codes are logged: they say why (expired token, recipient not
+    // allowed, outside the 24h window) without exposing the message or the phone number.
+    let detail = '';
+    try {
+      const body = await response.json() as { error?: { code?: number; error_subcode?: number } };
+      detail = ` code=${body.error?.code ?? '-'} subcode=${body.error?.error_subcode ?? '-'}`;
+    } catch {
+      await response.body?.cancel();
+    }
+    console.error(`[WHATSAPP] send failed with status ${response.status}${detail}`);
+    return false;
+  }
   await response.body?.cancel();
-  return response.ok;
+  return true;
 }
 
 export async function sendText(to: string, text: string): Promise<boolean> {

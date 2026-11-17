@@ -22,6 +22,13 @@ interface LinkStatus {
 export const WhatsAppLinkCard = () => {
   const [status, setStatus] = useState<LinkStatus | null>(null);
   const [busy, setBusy] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+
+  // Re-render every 30s so an expired code is noticed without reloading the page.
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   const call = useCallback(async (action: string, extra: Record<string, unknown> = {}) => {
     const { data, error } = await supabase.functions.invoke('whatsapp-link', { body: { action, ...extra } });
@@ -47,6 +54,7 @@ export const WhatsAppLinkCard = () => {
   // While a code is on screen, notice when the phone gets linked.
   useEffect(() => {
     if (!status?.code || status.linked) return;
+    if (status.expires_at && Date.parse(status.expires_at) <= Date.now()) return;
     const timer = setInterval(() => {
       call('status').then((s) => {
         if (s.linked) {
@@ -56,7 +64,7 @@ export const WhatsAppLinkCard = () => {
       }).catch(() => undefined);
     }, 5000);
     return () => clearInterval(timer);
-  }, [status?.code, status?.linked, call]);
+  }, [status?.code, status?.linked, status?.expires_at, call]);
 
   const run = async (action: string, extra?: Record<string, unknown>) => {
     setBusy(true);
@@ -71,6 +79,7 @@ export const WhatsAppLinkCard = () => {
 
   if (!status) return null;
 
+  const codeExpired = Boolean(status.expires_at && Date.parse(status.expires_at) <= now);
   const message = status.code ? `Vincular Ordomo ${status.code}` : '';
   const waLink = status.number && status.code ? `https://wa.me/${status.number}?text=${encodeURIComponent(message)}` : null;
 
@@ -120,13 +129,16 @@ export const WhatsAppLinkCard = () => {
           </div>
         )}
 
-        {status.configured && status.allowed && !status.linked && !status.code && (
+        {status.configured && status.allowed && !status.linked && (!status.code || codeExpired) && (
+          <div className="space-y-2">
+            {codeExpired && <p className="text-sm text-muted-foreground">O código anterior expirou. Gere um novo.</p>}
           <Button disabled={busy} onClick={() => run('start')} className="bg-sage-600 hover:bg-sage-700">
-            Vincular meu WhatsApp
+            {codeExpired ? 'Gerar novo código' : 'Vincular meu WhatsApp'}
           </Button>
+          </div>
         )}
 
-        {status.configured && status.allowed && !status.linked && status.code && (
+        {status.configured && status.allowed && !status.linked && status.code && !codeExpired && (
           <div className="space-y-3">
             <p className="text-sm">Envie esta mensagem do seu WhatsApp para o número do Ordomo (vale por 15 minutos):</p>
             <div className="flex items-center gap-2">
