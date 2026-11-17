@@ -1,4 +1,5 @@
 # Access correction
+- [x] Fix the blank screen caused by concurrent booking realtime subscriptions; 9 tests and browser SDK reproduction pass, login renders (signed-in dashboard unavailable on external unmanaged Supabase).
 - [ ] Confirm and explain the access failure.
 - [ ] Centralize verified access and implement secure seven-day trials.
 - [ ] Unify protected pages, feature access, signup and trial notices.

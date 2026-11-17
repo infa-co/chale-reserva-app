@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Booking } from '@/types/booking';
+import { subscribeToBookingChanges } from '@/lib/bookingRealtime';
 
 const QUERY_KEYS = {
   bookings: 'bookings',
@@ -189,17 +190,7 @@ export const useOptimizedBookings = () => {
   useEffect(() => {
     if (!user) return;
 
-    const channel = supabase
-      .channel('bookings-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'bookings',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
+    return subscribeToBookingChanges(supabase.realtime, user.id, (payload) => {
           
           // Force refetch after real-time update
           queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.allBookings, user.id] });
@@ -232,13 +223,7 @@ export const useOptimizedBookings = () => {
               old.filter(booking => booking.id !== payload.old.id)
             );
           }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+        });
   }, [user, queryClient, refetch]);
 
   return {
