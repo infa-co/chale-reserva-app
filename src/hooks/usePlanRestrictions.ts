@@ -17,11 +17,13 @@ export interface PlanLimits {
 }
 
 const PLAN_LIMITS: Record<string, PlanLimits> = {
+  // Limits must match the plans sold on page.ordomo.com.br and the database triggers
+  // (enforce_booking_limit / enforce_property_limit).
   basic: {
     maxBookingsPerMonth: 15,
     maxProperties: 1,
     hasWhatsAppIntegration: false,
-    hasFinancialDashboard: true,  // Dashboard principal permitido
+    hasFinancialDashboard: false, // conforme página de vendas (page.ordomo.com.br)
     hasReportsExport: false,
     hasAirbnbSync: false,
     hasICalExport: false,
@@ -32,14 +34,14 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     airbnbSyncType: 'none'
   },
   pro: {
-    maxBookingsPerMonth: 50,
-    maxProperties: 3,
+    maxBookingsPerMonth: 35,
+    maxProperties: 1,
     hasWhatsAppIntegration: true,
     hasFinancialDashboard: true,
-    hasReportsExport: true,
+    hasReportsExport: false,
     hasAirbnbSync: false,
     hasICalExport: true,
-    hasMultiProperty: true,
+    hasMultiProperty: false,
     hasPrioritySupport: false,
     hasHistoricalBookings: true,
     hasPropertyDashboard: true,
