@@ -237,7 +237,11 @@ export type Database = {
           ical_url: string
           id: string
           is_active: boolean
+          last_attempt_at: string | null
           last_sync_at: string | null
+          last_sync_count: number | null
+          last_sync_error: string | null
+          last_sync_status: string | null
           platform_name: string
           property_id: string | null
           sync_frequency_hours: number
@@ -249,7 +253,11 @@ export type Database = {
           ical_url: string
           id?: string
           is_active?: boolean
+          last_attempt_at?: string | null
           last_sync_at?: string | null
+          last_sync_count?: number | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
           platform_name?: string
           property_id?: string | null
           sync_frequency_hours?: number
@@ -261,7 +269,11 @@ export type Database = {
           ical_url?: string
           id?: string
           is_active?: boolean
+          last_attempt_at?: string | null
           last_sync_at?: string | null
+          last_sync_count?: number | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
           platform_name?: string
           property_id?: string | null
           sync_frequency_hours?: number

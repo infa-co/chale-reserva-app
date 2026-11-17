@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-interface ICalSync {
+export interface ICalSync {
   id: string;
   user_id: string;
   property_id: string;
@@ -12,6 +12,10 @@ interface ICalSync {
   sync_frequency_hours: number;
   is_active: boolean;
   last_sync_at?: string;
+  last_attempt_at?: string | null;
+  last_sync_status?: string | null;
+  last_sync_error?: string | null;
+  last_sync_count?: number | null;
   created_at: string;
   updated_at?: string;
 }
@@ -29,8 +33,20 @@ export const validateCalendarUrl = (value: string): string | null => {
     return 'Cole o link completo do calendário (começa com https://)';
   }
   if (url.protocol !== 'https:') return 'O link do calendário precisa começar com https://';
-  if (!CALENDAR_HOST.test(url.hostname.toLowerCase())) {
+  const host = url.hostname.toLowerCase();
+  if (host.endsWith('ordomo.com.br') || host.endsWith('.supabase.co')) {
+    return 'Esse é o link do Ordomo. Aqui vai o link que o Airbnb gera (Exportar calendário).';
+  }
+  if (!CALENDAR_HOST.test(host)) {
     return 'Use o link de exportação de calendário do Airbnb, Booking.com ou Vrbo';
+  }
+  if (host.includes('airbnb.')) {
+    if (/\/rooms\//.test(url.pathname)) {
+      return 'Esse é o link do anúncio. Use o link de exportação do calendário (termina em .ics).';
+    }
+    if (!/\/calendar\/ical\//.test(url.pathname) || !url.searchParams.get('s')) {
+      return 'Link do Airbnb incompleto. Copie de novo o link de exportação do calendário (contém "/calendar/ical/" e "?s=").';
+    }
   }
   return null;
 };
@@ -99,7 +115,7 @@ export const useOptimizedICalSyncs = () => {
 
       if (error) {
         console.error('Error adding sync:', error);
-        throw new Error(error.code?.startsWith('ORD') ? error.message : 'Erro ao adicionar sincronização');
+        throw new Error(error.code?.startsWith('ORD') ? error.message : error.code === '23505' ? 'Esse calendário já está conectado a este chalé.' : 'Erro ao adicionar sincronização');
       }
 
       return data;
@@ -211,6 +227,8 @@ export const useOptimizedICalSyncs = () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.syncs });
     },
     onError: (error) => {
+      // The failure reason is stored on the connection; refresh so the card shows it.
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.syncs });
       toast.error(error instanceof Error && error.message ? error.message : 'Erro ao executar sincronização manual');
     },
   });
@@ -228,6 +246,7 @@ export const useOptimizedICalSyncs = () => {
       updateSyncMutation.mutate({ id, updates }),
     deleteSync: deleteSyncMutation.mutate,
     manualSync: manualSyncMutation.mutate,
+    manualSyncAsync: manualSyncMutation.mutateAsync,
     getSyncsForProperty,
     refetch,
     fetchSyncs: refetch, // Keep for compatibility

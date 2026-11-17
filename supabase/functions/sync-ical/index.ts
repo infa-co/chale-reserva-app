@@ -104,7 +104,13 @@ async function syncICalendar(supabase: any, syncId: string) {
 
   const { error: updateError } = await supabase
     .from('ical_syncs')
-    .update({ last_sync_at: new Date().toISOString() })
+    .update({
+      last_sync_at: new Date().toISOString(),
+      last_attempt_at: new Date().toISOString(),
+      last_sync_status: 'ok',
+      last_sync_error: null,
+      last_sync_count: bookingsToUpsert.length,
+    })
     .eq('id', syncId);
 
   if (updateError) {
@@ -161,7 +167,19 @@ Deno.serve(async (req) => {
       if (error || !owned) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const result = await syncICalendar(supabase, sync_id);
+    let result;
+    try {
+      result = await syncICalendar(supabase, sync_id);
+    } catch (syncError) {
+      // Messages thrown by the import are written for the owner; anything else is generic.
+      const message = syncError instanceof Error && /[áéíóúãõç]|calend|link|plataforma|reserv/i.test(syncError.message)
+        ? syncError.message.slice(0, 300)
+        : 'Não foi possível sincronizar o calendário agora. Tentaremos de novo na próxima hora.';
+      await supabase.from('ical_syncs')
+        .update({ last_attempt_at: new Date().toISOString(), last_sync_status: 'error', last_sync_error: message })
+        .eq('id', sync_id);
+      throw new Error(message);
+    }
 
     return new Response(
       JSON.stringify(result),

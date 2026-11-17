@@ -124,6 +124,10 @@ describe('calendar links', () => {
       expect(() => calendarUrl(url)).toThrow();
     }
     expect(validateCalendarUrl('airbnb.com/calendar')).not.toBeNull();
+    // Common mix-ups get a message that says what to copy instead.
+    expect(validateCalendarUrl('https://www.airbnb.com.br/rooms/12345678')).toContain('link do anúncio');
+    expect(validateCalendarUrl('https://www.airbnb.com.br/calendar/ical/123.ics')).toContain('incompleto');
+    expect(validateCalendarUrl('https://lwmwwsthduvmuyhynwol.supabase.co/functions/v1/export-ical?property_id=x&token=y')).toContain('link do Ordomo');
     expect(validateCalendarUrl('https://example.com/a.ics')).not.toBeNull();
   });
 });

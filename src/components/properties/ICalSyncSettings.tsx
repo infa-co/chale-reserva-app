@@ -1,193 +1,86 @@
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { AlertCircle, Calendar, RefreshCw, Settings, Copy, ExternalLink } from 'lucide-react';
-import { useOptimizedProperties } from '@/hooks/useOptimizedProperties';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useOptimizedICalSyncs } from '@/hooks/useOptimizedICalSyncs';
+import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { Property } from '@/types/property';
 import OptimizedSyncManager from './OptimizedSyncManager';
-import { toast } from 'sonner';
+import { AirbnbConnection } from './AirbnbConnection';
+import { PlanUpgradePrompt } from '@/components/PlanUpgradePrompt';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { FeatureRestriction } from '@/components/FeatureRestriction';
 
 interface ICalSyncSettingsProps {
   properties: Property[];
 }
 
 const ICalSyncSettings = ({ properties }: ICalSyncSettingsProps) => {
-  const { syncs, loading } = useOptimizedICalSyncs();
+  const { loading } = useOptimizedICalSyncs();
+  const { checkFeatureAccess } = usePlanRestrictions();
   const isMobile = useIsMobile();
-
-  const activeSyncs = syncs.filter(sync => sync.is_active);
-  const totalSyncs = syncs.length;
-
-  const [copyingProperty, setCopyingProperty] = useState<string | null>(null);
-  const copyExportUrl = async (propertyId: string, propertyName: string) => {
-    setCopyingProperty(propertyId);
-    try {
-      const { data, error } = await supabase.functions.invoke(`export-ical?property_id=${propertyId}`, { method: 'POST' });
-      if (error || !data?.url) throw new Error('Link indisponível');
-      await navigator.clipboard.writeText(data.url);
-      toast.success(`URL copiada para ${propertyName}!`);
-    } catch {
-      toast.error('Não foi possível copiar o link seguro');
-    } finally { setCopyingProperty(null); }
-  };
+  const [othersOpen, setOthersOpen] = useState(false);
+  const canImport = checkFeatureAccess('hasAirbnbSync');
+  const canExport = checkFeatureAccess('hasICalExport');
+  const activeProperties = properties.filter((p) => p.is_active);
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
-          <div className="h-64 bg-gray-200 rounded-lg"></div>
-        </div>
+      <div className="space-y-4 animate-pulse">
+        <div className="h-24 bg-muted rounded-lg" />
+        <div className="h-24 bg-muted rounded-lg" />
       </div>
+    );
+  }
+
+  if (!canImport && !canExport) {
+    return (
+      <PlanUpgradePrompt
+        feature="sincronização com o Airbnb"
+        description="Sincronize seus chalés com o Airbnb e evite reservas duplicadas"
+      />
     );
   }
 
   return (
     <div className={`space-y-4 ${isMobile ? 'pb-20' : ''}`}>
-      {/* Export Section - Restricted for Basic Plan */}
-      <FeatureRestriction
-        feature="hasICalExport"
-        featureName="exportação de calendário"
-        description="Exporte seus calendários para sincronizar com Airbnb"
-        showUpgradePrompt={true}
-      >
-        <Card>
-          <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-4"}>
-            <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} flex items-center gap-2`}>
-              <ExternalLink className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
-              Exportar para Airbnb
-            </CardTitle>
-            <CardDescription className={isMobile ? "text-sm" : ""}>
-              Exporte seus calendários para sincronizar com plataformas externas
-            </CardDescription>
-          </CardHeader>
-          <CardContent className={isMobile ? "px-4 pb-4" : ""}>
-            <div className="space-y-4">
-              <div className={`flex items-center gap-2 pb-2 border-b ${isMobile ? 'flex-wrap' : ''}`}>
-                <Badge variant="outline" className={`${isMobile ? 'text-xs ml-auto' : 'ml-auto'}`}>
-                  {properties.length} propriedades
-                </Badge>
-              </div>
-              
-              <div className="space-y-3">
-                {properties.length > 0 ? (
-                  properties.map((property) => {
+      <Card>
+        <CardHeader className={isMobile ? 'pb-3 px-4 pt-4' : 'pb-4'}>
+          <CardTitle className={isMobile ? 'text-base' : 'text-lg'}>Airbnb</CardTitle>
+          <CardDescription>
+            Conecte cada chalé uma vez. As reservas do Airbnb entram no Ordomo a cada hora, e as do Ordomo ficam bloqueadas no Airbnb.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className={`space-y-3 ${isMobile ? 'px-4 pb-4' : ''}`}>
+          {activeProperties.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Cadastre um chalé na aba Propriedades para conectar ao Airbnb.</p>
+          ) : (
+            activeProperties.map((property) => <AirbnbConnection key={property.id} property={property} />)
+          )}
+        </CardContent>
+      </Card>
 
-                    return (
-                      <div key={property.id} className={`${isMobile ? 'p-3' : 'p-3'} border rounded-lg bg-card`}>
-                        <div className={`flex items-center justify-between mb-2 ${isMobile ? 'flex-wrap gap-1' : ''}`}>
-                          <span className={`font-medium ${isMobile ? 'text-sm' : 'text-sm'}`}>{property.name}</span>
-                          <Badge variant="secondary" className="text-xs">
-                            {property.location}
-                          </Badge>
-                        </div>
-                        <div className={`${isMobile ? 'space-y-2' : 'flex gap-2'}`}>
-                          <div className={`${isMobile ? 'w-full' : 'flex-1'} p-2 bg-muted rounded text-xs font-mono ${isMobile ? 'break-all' : 'truncate'}`}>
-                            Link seguro do calendário
-                          </div>
-                          <Button
-                            onClick={() => copyExportUrl(property.id, property.name)}
-                            disabled={copyingProperty !== null}
-                            size={isMobile ? "default" : "sm"}
-                            variant="outline"
-                            className={isMobile ? "w-full" : ""}
-                          >
-                            <Copy className={`${isMobile ? 'h-4 w-4 mr-2' : 'h-3 w-3'}`} />
-                            {isMobile && 'Copiar URL'}
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-4 text-muted-foreground text-sm">
-                    Nenhuma propriedade disponível
+      {canImport && (
+        <Collapsible open={othersOpen} onOpenChange={setOthersOpen}>
+          <Card>
+            <CollapsibleTrigger asChild>
+              <button className="w-full text-left">
+                <CardHeader className={`flex flex-row items-center justify-between ${isMobile ? 'px-4 py-3' : 'py-4'}`}>
+                  <div>
+                    <CardTitle className="text-sm">Outras plataformas e conexões avançadas</CardTitle>
+                    <CardDescription className="text-xs">Booking.com, Vrbo e a lista de todas as conexões</CardDescription>
                   </div>
-                )}
-                
-                <div className={`text-xs text-muted-foreground bg-muted/50 ${isMobile ? 'p-3' : 'p-3'} rounded`}>
-                  <strong>Como usar:</strong> Copie o link e cole em "Importar calendário" no Airbnb
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </FeatureRestriction>
-
-      {/* Import Section - Restricted for Basic Plan */}
-      <FeatureRestriction
-        feature="hasAirbnbSync"
-        featureName="importação de calendário"
-        description="Importe reservas automaticamente do Airbnb e outras plataformas"
-        showUpgradePrompt={true}
-      >
-        <Card>
-          <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-4"}>
-            <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} flex items-center gap-2`}>
-              <RefreshCw className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
-              Importar do Airbnb
-            </CardTitle>
-            <CardDescription className={isMobile ? "text-sm" : ""}>
-              Configure importação automática de reservas externas
-            </CardDescription>
-          </CardHeader>
-          <CardContent className={isMobile ? "px-4 pb-4" : ""}>
-            <div className="space-y-4">
-              <div className={`flex items-center gap-2 pb-2 border-b ${isMobile ? 'flex-wrap' : ''}`}>
-                <Badge variant="outline" className={`${isMobile ? 'text-xs ml-auto' : 'ml-auto'}`}>
-                  {activeSyncs.length}/{totalSyncs} ativas
-                </Badge>
-              </div>
-              
-              <div className="space-y-3">
-                {totalSyncs > 0 ? (
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className={`text-center ${isMobile ? 'p-2' : 'p-3'} border rounded-lg`}>
-                        <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>{totalSyncs}</div>
-                        <div className="text-xs text-muted-foreground">Configuradas</div>
-                      </div>
-                      <div className={`text-center ${isMobile ? 'p-2' : 'p-3'} border rounded-lg`}>
-                        <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-green-600`}>{activeSyncs.length}</div>
-                        <div className="text-xs text-muted-foreground">Ativas</div>
-                      </div>
-                    </div>
-                    
-                    <div className={`text-xs text-muted-foreground bg-muted/50 ${isMobile ? 'p-3' : 'p-3'} rounded`}>
-                      <strong>Status:</strong> Sincronizações importam reservas externas automaticamente
-                    </div>
-                  </div>
-                ) : (
-                  <div className={`text-center ${isMobile ? 'py-4' : 'py-6'} text-muted-foreground`}>
-                    <RefreshCw className={`${isMobile ? 'h-6 w-6' : 'h-8 w-8'} mx-auto mb-2 opacity-50`} />
-                    <div className="text-sm">Nenhuma importação configurada</div>
-                    <div className="text-xs">Configure abaixo para importar reservas</div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Sync Manager */}
-        <Card>
-          <CardHeader className={isMobile ? "pb-3 px-4 pt-4" : "pb-3"}>
-            <CardTitle className={isMobile ? "text-sm" : "text-base"}>Configurar Sincronizações</CardTitle>
-            <CardDescription className="text-sm">
-              Gerencie importações de calendários externos
-            </CardDescription>
-          </CardHeader>
-          <CardContent className={isMobile ? "px-4 pb-4" : ""}>
-            <OptimizedSyncManager properties={properties} />
-          </CardContent>
-        </Card>
-      </FeatureRestriction>
+                  <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${othersOpen ? 'rotate-180' : ''}`} />
+                </CardHeader>
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className={isMobile ? 'px-4 pb-4' : ''}>
+                <OptimizedSyncManager properties={properties} />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+      )}
     </div>
   );
 };
