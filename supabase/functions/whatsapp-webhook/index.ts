@@ -274,6 +274,16 @@ Deno.serve(async (req) => {
       const value = change?.value;
       if (change?.field !== 'messages' || value?.metadata?.phone_number_id !== ownNumberId) continue;
       for (const message of value?.messages ?? []) messages.push(message);
+      // Delivery reports: Meta accepts a send and may fail it later. Only the status and
+      // Meta's numeric error code are logged (no phone number, no message text).
+      for (const status of value?.statuses ?? []) {
+        if (status?.status === 'failed') {
+          const err = status?.errors?.[0];
+          log(`delivery failed code=${err?.code ?? '-'} title=${String(err?.title ?? '-').slice(0, 80)}`);
+        } else if (status?.status) {
+          log(`delivery ${String(status.status).slice(0, 20)}`);
+        }
+      }
     }
   }
 
