@@ -1,4 +1,5 @@
 # Access correction
+- [x] Renew expired access sessions before server checks and invalidate stale service-worker code; 12 tests, browser SDK reproduction, and worker network/update checks pass (real signed-in session unavailable).
 - [x] Fix the blank screen caused by concurrent booking realtime subscriptions; 9 tests and browser SDK reproduction pass, login renders (signed-in dashboard unavailable on external unmanaged Supabase).
 - [ ] Confirm and explain the access failure.
 - [ ] Centralize verified access and implement secure seven-day trials.

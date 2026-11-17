@@ -1,6 +1,6 @@
 
-const CACHE_NAME = 'ordomo-v2025110101';
-const STATIC_CACHE = 'ordomo-static-v2025110101';
+const CACHE_NAME = 'ordomo-v2026111701';
+const STATIC_CACHE = 'ordomo-static-v2026111701';
 
 // Static assets to cache (excluding root to prevent navigation caching)
 const urlsToCache = [
@@ -41,7 +41,10 @@ self.addEventListener('activate', (event) => {
         );
       }),
       // Take control of all clients immediately
-      self.clients.claim()
+      self.clients.claim().then(async () => {
+        const clients = await self.clients.matchAll({ type: 'window' });
+        clients.forEach(client => client.postMessage({ type: 'RELOAD_PAGE' }));
+      })
     ])
   );
 });
@@ -72,18 +75,18 @@ self.addEventListener('fetch', (event) => {
         })
     );
   } else if (url.pathname.includes('/src/') || url.pathname.includes('.js') || url.pathname.includes('.css') || url.pathname.includes('.tsx')) {
-    // App assets - stale-while-revalidate for fast loading with updates
+    // Network first: never boot yesterday's application while online.
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
         return cache.match(request).then((cachedResponse) => {
-          const fetchPromise = fetch(request).then((networkResponse) => {
+          return fetch(request).then((networkResponse) => {
             // Update cache with new version
-            cache.put(request, networkResponse.clone());
+            if (networkResponse.ok) cache.put(request, networkResponse.clone());
             return networkResponse;
+          }).catch(error => {
+            if (cachedResponse) return cachedResponse;
+            throw error;
           });
-
-          // Return cached version immediately if available, otherwise wait for network
-          return cachedResponse || fetchPromise;
         });
       })
     );

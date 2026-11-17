@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { AccessData, deniedAccess } from '@/lib/access';
+import { currentSession } from '@/lib/currentSession';
 
 interface AuthContextType {
   user: User | null;
@@ -42,9 +43,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     queryKey: ['access', user?.id],
     enabled: !loading && Boolean(session),
     queryFn: async () => {
-      if (!session) throw new Error('Sessão indisponível');
+      const freshSession = await currentSession(supabase.auth);
+      if (!freshSession) throw new Error('Sua sessão terminou. Entre novamente.');
       const { data, error } = await supabase.functions.invoke('check-subscription', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: { Authorization: `Bearer ${freshSession.access_token}` },
       });
       if (error || !data || typeof data.hasAccess !== 'boolean') {
         throw new Error('Não foi possível verificar seu acesso. Tente novamente.');
@@ -104,6 +106,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
       
 
+    }).catch(() => {
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

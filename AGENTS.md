@@ -1,4 +1,5 @@
 # Architecture rules
+- Access requests read the latest SDK session and renew expiring tokens before invoking the server; service-worker app assets are network-first with versioned offline caches to avoid booting stale code.
 - Booking realtime effects own uniquely named channels and remove only their own channel, so concurrent consumers and delayed cleanup cannot reuse an already subscribed channel.
 - AuthProvider owns one user-scoped access query; useAccess, protected routes, and plan restrictions consume it to avoid divergent access decisions.
 - Resolve paid, trial, manual and existing administrator access in check-subscription after JWT verification; never trust client storage for entitlements.
